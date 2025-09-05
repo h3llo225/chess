@@ -48,5 +48,9 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
+        /** will want to calc new positions by adding from current.
+         * ex bishop can mov current position  +1 row and + 1 col or -1 -1.
+         * but not -1 + 1 etc or rook can go +1 row +2 row until out of board index
+         * but no col (or vice versa) etc*/
     }
 }
