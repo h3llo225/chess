@@ -22,8 +22,9 @@ public class ChessPosition {
      */
     public int getRow() {
 
-        return ChessPosition.row;
+        //return ChessPosition.row;
         //throw new RuntimeException("Not implemented");
+
     }
 
     /**
