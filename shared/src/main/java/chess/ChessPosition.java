@@ -7,12 +7,12 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    private static int row;
-    private static int col;
+    private int row;
+    private int col;
 
     public ChessPosition(int row, int col) {
-        ChessPosition.row = row;
-        ChessPosition.col = col;
+        this.row = row;
+        this.col = col;
 
     }
 
@@ -22,7 +22,7 @@ public class ChessPosition {
      */
     public int getRow() {
 
-        return ChessPosition.row;
+        return row;
         //throw new RuntimeException("Not implemented");
 
     }
@@ -34,7 +34,15 @@ public class ChessPosition {
 
 
     public int getColumn() {
-        return ChessPosition.col;
+        return col;
         //throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                "col=" + col +
+                '}';
     }
 }
