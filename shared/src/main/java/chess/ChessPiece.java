@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -59,17 +60,23 @@ public class ChessPiece {
          * but not -1 + 1 etc or rook can go +1 row +2 row until out of board index
          * but no col (or vice versa) etc*/
         ChessPiece piece = board.getPiece(myPosition);
+        ArrayList<ChessMove> goodMoves = new ArrayList<ChessMove>() ;
+        goodMoves.add(new ChessMove(new ChessPosition(5,4), new ChessPosition( 6,5), null));
         if (piece.getPieceType() == PieceType.BISHOP) {
+
+            for (int i = myPosition.getRow(); i<=8; i++){
+
+
+            }
             System.out.println(myPosition + "this is pos");
-            //ChessMove.getEndPosition();
+            //if (chessMove.getEndPosition();){ }
+            //myPosition.getEndPosition();
             return List.of(new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()),
-                    new ChessPosition(myPosition.getRow(), myPosition.getColumn() ), PieceType.BISHOP));
+                    new ChessPosition(myPosition.getRow() /** + x */, myPosition.getColumn() /** + x */ ), PieceType.BISHOP));
             //chess.ChessPiece index = board.getPiece(myPosition);
             //System.out.println(index + "this is pos");
 
         }
-
-
-        //return List.of();
+        return List.of();
     }
 }
