@@ -472,7 +472,7 @@ public class ChessPiece {
 
 
             myPosCol = myPosition.getColumn()+2;
-            myPosRow = myPosition.getRow()+1;
+            myPosRow = myPosition.getRow()-1;
 
                 if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
                     if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) == null){
@@ -529,7 +529,7 @@ public class ChessPiece {
              *    */
 
             myPosCol = myPosition.getColumn()+1;
-            myPosRow = myPosition.getRow()+2;
+            myPosRow = myPosition.getRow()-2;
                 if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
                     if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) == null){
                         goodMoves.add(new ChessMove(new ChessPosition(myPosition.getRow(),
