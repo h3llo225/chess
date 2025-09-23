@@ -13,8 +13,10 @@ import java.util.Objects;
  */
 public class ChessGame {
 public ChessBoard board = new ChessBoard();
+public TeamColor color;
     public ChessGame() {
-
+    board.resetBoard();
+    color = TeamColor.WHITE;
     }
 
     /**
@@ -22,7 +24,7 @@ public ChessBoard board = new ChessBoard();
      */
     public TeamColor getTeamTurn() {
 
-        throw new RuntimeException("Not implemented");
+        return color;
     }
 
     /**
@@ -31,7 +33,8 @@ public ChessBoard board = new ChessBoard();
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        color = team;
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -230,7 +233,7 @@ public ChessBoard board = new ChessBoard();
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board;
+        this.board = board;
     }
 
     /**
