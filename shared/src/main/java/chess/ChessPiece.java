@@ -543,4 +543,12 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, pieceType);
     }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", pieceType=" + pieceType +
+                '}';
+    }
 }

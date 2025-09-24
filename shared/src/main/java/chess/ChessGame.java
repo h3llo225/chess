@@ -15,6 +15,7 @@ public class ChessGame {
 public ChessBoard board = new ChessBoard();
 public TeamColor color;
     public ChessGame() {
+        //this.board = board;
     board.resetBoard();
     color = TeamColor.WHITE;
     }
@@ -58,16 +59,16 @@ public TeamColor color;
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
-        ChessBoard board = getBoard();
+        //ChessBoard board = getBoard();
         ChessPiece piece = board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()));
         Collection<ChessMove> all=  piece.pieceMoves(board,startPosition);
-        Collection<ChessMove> goodMoves=  null;
+        Collection<ChessMove> goodMoves=  new ArrayList<>();
 
         if (piece == null){
             return null;
         } else{
             for (ChessMove move : all){
-                if (!isInCheckmate(piece.getTeamColor()) && !isInStalemate(piece.getTeamColor())){
+                if (!isInCheckmate(piece.getTeamColor())){
                     goodMoves.add(move); // this will work but if one move is not valid e.g ur king is
                     // in check does that mean all other moves are not valid?
                 };
@@ -87,7 +88,7 @@ public TeamColor color;
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //throw new RuntimeException("Not implemented");
-        ChessBoard board = getBoard();
+        //ChessBoard board = getBoard();
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
@@ -115,13 +116,13 @@ public TeamColor color;
      */
     public boolean isInCheck(TeamColor teamColor) {
         //throw new RuntimeException("Not implemented");
-        ChessBoard board = getBoard();
+        //ChessBoard board = getBoard();
         ChessPosition kingPos = null;
-        Collection<ChessMove> goodMoves = List.of();
-        for (int i = 0; i < 8; i++){
-            for (int j = 0; j < 8; j++){
+        Collection<ChessMove> goodMoves = new ArrayList<ChessMove>();
+        for (int i = 1; i < 9; i++){
+            for (int j = 1; j < 9; j++){
                 ChessPiece piece = board.getPiece(new ChessPosition(i,j));
-                if (piece != null){
+                if (board.getPiece(new ChessPosition(i,j)) != null){
                     ChessPosition myPos = new ChessPosition(i,j);
                     if (piece.getTeamColor() != teamColor){
                      goodMoves = piece.pieceMoves(board, myPos);
@@ -166,10 +167,10 @@ public TeamColor color;
 
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPos = null;
-        ChessBoard board = getBoard();
+        //ChessBoard board = getBoard();
         //throw new RuntimeException("Not implemented");
-        Collection<ChessMove> goodMovesKing = null;
-        Collection<ChessMove> goodMoves = null;
+        Collection<ChessMove> goodMovesKing = new ArrayList<ChessMove>();
+        Collection<ChessMove> goodMoves = new ArrayList<ChessMove>();
 
         if (isInCheck(teamColor) == true){
              for (int i = 0; i < 8; i++) {
@@ -188,8 +189,9 @@ public TeamColor color;
                  }
 
              }
+            return true;
         }
-    return true;
+    return false;
     }
 
     /**
@@ -202,10 +204,10 @@ public TeamColor color;
     public boolean isInStalemate(TeamColor teamColor) {
         //throw new RuntimeException("Not implemented");
 
-        Collection<ChessMove> goodMoves = null;
+        Collection<ChessMove> goodMoves = new ArrayList<ChessMove>();
         if (!isInCheckmate(teamColor)){
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) {
+            for (int i = 1; i < 9; i++) {
+                for (int j = 1; j < 9; j++) {
                     ChessPosition myPos = new ChessPosition(i, j);
                     if (board.getPiece(myPos).getTeamColor() == teamColor){
                         ChessPiece piece = board.getPiece(myPos);
