@@ -114,17 +114,34 @@ public TeamColor color;
             throw new InvalidMoveException("Invalid move");
         }
         else {
-            for (ChessMove moves : validMoves(start)){
+            //Collection<ChessPosition> all = new ArrayList<>();
+            boolean foundFlag = false;
+            for (ChessMove moves : validMoves(start)) {
                 //TeamColor bob = getTeamTurn();
                 //TeamColor bill = board.getPiece(start).getTeamColor();
-                if (moves.getEndPosition().equals(end) && getTeamTurn().equals(board.getPiece(start).getTeamColor()) ){
-                    movePiece2(start,end,piece, board.getPiece(start).getTeamColor());
-                    setTeamTurn(swapTurns(getTeamTurn()));
-                }
+                if (board.getPiece(start) != null){
+                    if (moves.getEndPosition().equals(end) && getTeamTurn().equals(board.getPiece(start).getTeamColor())) {
+                        if (moves.getPromotionPiece() != null) {
+                            ChessPiece.PieceType promo = moves.getPromotionPiece();
+                            ChessPiece promotionOfPiece = new ChessPiece(board.getPiece(start).getTeamColor(), promo);
+                            movePiece2(start, end, promotionOfPiece, board.getPiece(start).getTeamColor());
+                        } else if (moves.getPromotionPiece() == null) {
+                            movePiece2(start, end, piece, board.getPiece(start).getTeamColor());
+                        }
+                        setTeamTurn(swapTurns(getTeamTurn()));
+                        foundFlag = true;
+                    }
+
+
+            }
+            }
+            if (foundFlag == false){
+                throw new InvalidMoveException("Invalid move");
             }
 
 
         }
+
     }
 
     /**
