@@ -116,16 +116,28 @@ public class ChessBoard implements Cloneable {
         return Arrays.deepHashCode(board);
     }
 
+
+    public ChessPiece copy(ChessPiece other, int row, int col) {
+        ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        newPiece.pieceColor = other.pieceColor;
+        newPiece.pieceType = other.pieceType;
+        //this.getPiece(new ChessPosition(row,col)) = getPiece(new ChessPosition(row,col));
+    return newPiece;
+    }
     @Override
     public Object clone(){
         ChessBoard boarded = new ChessBoard();
         ChessPiece[][] newBoard = new ChessPiece[8][8];
-        for (int i = 1; i<9; i++){
-            newBoard[i] = Arrays.copyOf(board[i],board[i].length);
-
-
-
-
+        ChessPiece copyPiece = null;
+        for (int i = 0; i<8; i++){
+            for (int j = 0; j<8; j++) {
+                if (board[i][j] == null){
+                    newBoard[i][j] = null;
+                }else{
+                    copyPiece = board[i][j];
+                    newBoard[i][j] = new ChessPiece(copyPiece.pieceColor, copyPiece.pieceType);
+                }
+            }
         }
         boarded.board = newBoard;
         //var clone = new CloneCopy();
