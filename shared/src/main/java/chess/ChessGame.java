@@ -1,5 +1,6 @@
 package chess;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -76,8 +77,17 @@ public TeamColor color;
             for (ChessMove move : all){
                 ChessBoard prevBoard =(ChessBoard) original.clone();
                 setBoard(prevBoard);
-                    if (!movePiece2(move.getStartPosition(),move.getEndPosition(),piece,piece.getTeamColor())){
+                if (move.getPromotionPiece() != null){
+                    ChessPiece.PieceType promo = move.getPromotionPiece();
+                    ChessPiece promotionOfPiece = new ChessPiece(board.getPiece(startPosition).getTeamColor(), promo);
+                    if (!movePiece2(move.getStartPosition(),move.getEndPosition(),piece,piece.getTeamColor(), promotionOfPiece)){
                         goodMoves.add(move);
+                    };
+                } else if (move.getPromotionPiece() == null){
+                    if (!movePiece2(move.getStartPosition(),move.getEndPosition(),piece,piece.getTeamColor(), null)){
+                        goodMoves.add(move);
+                }
+
 
                 };
             }
@@ -89,9 +99,12 @@ public TeamColor color;
         return goodMoves;
     }
 
-    public boolean movePiece2(ChessPosition start, ChessPosition end, ChessPiece piece, TeamColor teamColor){
+    public boolean movePiece2(ChessPosition start, ChessPosition end, ChessPiece piece, TeamColor teamColor, ChessPiece promotion){
         board.addPiece(end, piece);
         board.addPiece(start, null);
+        if (promotion != null){
+            board.addPiece(end,promotion);
+        }
         return isInCheck(teamColor);
     }
     /**
@@ -121,20 +134,21 @@ public TeamColor color;
                 //TeamColor bill = board.getPiece(start).getTeamColor();
                 if (board.getPiece(start) != null){
                     if (moves.getEndPosition().equals(end) && getTeamTurn().equals(board.getPiece(start).getTeamColor())) {
-                        if (moves.getPromotionPiece() != null) {
+                        if (moves.getPromotionPiece() != null && moves.getPromotionPiece().equals(move.getPromotionPiece())) {
                             ChessPiece.PieceType promo = moves.getPromotionPiece();
                             ChessPiece promotionOfPiece = new ChessPiece(board.getPiece(start).getTeamColor(), promo);
-                            movePiece2(start, end, promotionOfPiece, board.getPiece(start).getTeamColor());
+                            movePiece2(start, end, piece, board.getPiece(start).getTeamColor(), promotionOfPiece );
                         } else if (moves.getPromotionPiece() == null) {
-                            movePiece2(start, end, piece, board.getPiece(start).getTeamColor());
+                            movePiece2(start, end, piece, board.getPiece(start).getTeamColor(), null);
                         }
-                        setTeamTurn(swapTurns(getTeamTurn()));
-                        foundFlag = true;
+
                     }
 
+            }
 
             }
-            }
+            setTeamTurn(swapTurns(getTeamTurn()));
+            foundFlag = true;
             if (foundFlag == false){
                 throw new InvalidMoveException("Invalid move");
             }
