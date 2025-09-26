@@ -122,9 +122,15 @@ public TeamColor color;
         //ChessPiece piece2 = board.getPiece(new ChessPosition(4,5));
 
         if (validMoves(start) == null ){
-            throw new InvalidMoveException("Invalid move");
+            throw new InvalidMoveException();
         } else if (validMoves(start).isEmpty()){
-            throw new InvalidMoveException("Invalid move");
+            throw new InvalidMoveException();
+        }
+        else if (piece.getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException();
+        }
+        else if (!validMoves(start).contains(new ChessMove(start, end, move.getPromotionPiece()))){
+            throw new InvalidMoveException();
         }
         else {
             //Collection<ChessPosition> all = new ArrayList<>();
@@ -146,11 +152,12 @@ public TeamColor color;
 
             }
 
+
             }
             setTeamTurn(swapTurns(getTeamTurn()));
             foundFlag = true;
             if (foundFlag == false){
-                throw new InvalidMoveException("Invalid move");
+                throw new InvalidMoveException();
             }
 
 
