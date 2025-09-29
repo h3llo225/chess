@@ -324,12 +324,14 @@ public TeamColor color;
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board);
+        boolean theSame = Objects.equals(board, chessGame.board) && color.equals(chessGame.color);
+        return theSame;
     }
+
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(board);
+        return Objects.hash(board, color);
     }
 
     @Override
