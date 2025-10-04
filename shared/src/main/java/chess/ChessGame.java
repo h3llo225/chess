@@ -13,7 +13,6 @@ public class ChessGame {
 public ChessBoard board = new ChessBoard();
 public TeamColor color;
     public ChessGame() {
-        //this.board = board;
     board.resetBoard();
     color = TeamColor.WHITE;
     }
@@ -41,7 +40,6 @@ public TeamColor color;
      */
     public void setTeamTurn(TeamColor team) {
         color = team;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
