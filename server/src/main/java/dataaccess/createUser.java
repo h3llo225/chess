@@ -16,6 +16,7 @@ public class createUser {
         this.username = newUser.username();
         this.password = newUser.password();
         this.email = newUser.email();
+
         listofUsers.add(newUser);
 
 
