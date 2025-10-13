@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.createUser;
 import io.javalin.*;
 import Service.*;
@@ -18,23 +19,28 @@ public class Server {
         // Register your endpoints and exception handlers here.
         //javalin.post("/register/{name}", this::register);
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));
-
+        //Javalin.delete(/"db", ctx -> ctx.result("{}")))
         javalin.post("/register", ctx -> {
             UserData classPlaceHolder = new UserData("","","");
             UserData json = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
-            createUser user = handleregister(json);
+
+            try{
+                handleregister(json);
+            }catch(DataAccessException ex){
+                ctx.result(ex.getMessage());
+            }
         });
     }
 
-
+    //var serializer = new Gson:  var req = serializer.fromJson(ctx.body(), Map.class); var res = serializer.toJson(res)ctx.result(res)
 
 
     public createUser handleregister(UserData registerRequest) throws Exception {
         if (Service.getUser(registerRequest.username())){
             return new createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
         }
-        Exception InvalidUserException = new Exception();
-        throw InvalidUserException;
+
+        throw new DataAccessException("{\"message\": \"Error: already taken\"}");
     }
 
 
