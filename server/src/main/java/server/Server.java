@@ -25,6 +25,7 @@ public class Server {
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));
         javalin.delete("/db", ctx -> ctx.result("{}"));
         javalin.post("/user", this::handleregister);
+        javalin.post("/session", this::handleLogin);
     }
 
     //var serializer = new Gson:  var req = serializer.fromJson(ctx.body(), Map.class); var res = serializer.toJson(res)ctx.result(res)
@@ -33,12 +34,8 @@ public class Server {
     public void handleregister(Context ctx) throws Exception {
         UserData classPlaceHolder = new UserData("","","");
         UserData registerRequest = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
-
         try{
             //createUser user = handleregister(json);
-
-
-
         if (registerRequest.username() == null || registerRequest.email() == null || registerRequest.password() == null) {
             ctx.status(400);
             throw new DataAccessException("{\"message\": \"Error: bad request\"}");
@@ -52,8 +49,71 @@ public class Server {
             ctx.result(jsonString);
             //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
         }
-        ctx.status(403);
-        throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+            if (!Service.getUser(registerRequest.username())){
+                ctx.status(403);
+                throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+            }
+
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+        }
+    }
+
+    public void handleLogin(Context ctx){
+        UserData classPlaceHolder = new UserData("","",null);
+        UserData registerRequest = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
+
+        try{
+            //createUser user = handleregister(json);
+            if (registerRequest.username() == null || registerRequest.password() == null) {
+                ctx.status(400);
+                throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+            }
+            if (Service.checkLogin(registerRequest.username(), registerRequest.password())){
+                String uuIDLogin = UUID.randomUUID().toString();
+                loginUser loggingIn = new loginUser(new AuthData(uuIDLogin, registerRequest.username()));
+                Gson gson = new Gson();
+                String jsonString = gson.toJson(loggingIn);
+                ctx.result(jsonString);
+                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
+            }
+            if (!Service.checkLogin(registerRequest.username(), registerRequest.password())){
+                ctx.status(401);
+                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+            }
+
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+        }
+
+
+    }
+    public void handleLogout(Context ctx){
+        AuthData classPlaceHolder = new AuthData("",null);
+        AuthData registerRequest = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
+
+
+        try{
+            //createUser user = handleregister(json);
+            if (registerRequest.username() == null) {
+                ctx.status(400);
+                throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+            }
+            if (Service.checkLogin(registerRequest.username(), registerRequest.password())){
+                String uuIDLogin = UUID.randomUUID().toString();
+                loginUser loggingIn = new loginUser(new AuthData(uuIDLogin, registerRequest.username()));
+                Gson gson = new Gson();
+                String jsonString = gson.toJson(loggingIn);
+                ctx.result(jsonString);
+                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
+            }
+            if (!Service.checkLogin(registerRequest.username(), registerRequest.password())){
+                ctx.status(401);
+                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+            }
+
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
