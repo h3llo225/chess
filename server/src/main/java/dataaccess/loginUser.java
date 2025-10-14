@@ -19,4 +19,8 @@ public class loginUser {
 
 
     }
+
+    public static void remove(int count) {
+        listOfAuth.remove(count);
+    }
 }
