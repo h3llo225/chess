@@ -3,8 +3,9 @@ package server;
 import io.javalin.*;
 import Service.*;
 import io.javalin.http.Context;
+import org.jetbrains.annotations.NotNull;
 
-import static dataaccess.User.listOfAuth;
+import static dataaccess.Auth.listOfAuth;
 
 public class Server {
 
@@ -20,8 +21,11 @@ public class Server {
         javalin.post("/user", this::handleregister);
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
+        javalin.post("/game", this::handleCreateGame);
 
     }
+
+
 
     //var serializer = new Gson:  var req = serializer.fromJson(ctx.body(), Map.class); var res = serializer.toJson(res)ctx.result(res)
 
@@ -39,6 +43,9 @@ public class Server {
     }
     public void handleClear(Context ctx){
         new Service().clear(ctx);
+    }
+    private void handleCreateGame(Context ctx) {
+        new Service().createGame(ctx);
     }
 
 

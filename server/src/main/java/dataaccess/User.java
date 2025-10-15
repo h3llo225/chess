@@ -12,7 +12,6 @@ public class User {
     public String authToken;
     public String email;
     public static ArrayList<UserData> listofUsers = new ArrayList<>();
-    public static ArrayList<AuthData> listOfAuth = new ArrayList<>();
     public boolean getUser(String username) {
         for (UserData user : listofUsers) {
             if (Objects.equals(user.username(), username)) {
@@ -32,17 +31,7 @@ public class User {
         }
         return false;
     }
-    public void loginUser(AuthData newUser) {
-        listOfAuth.add(newUser);
-    }
-    public boolean findAuth(String requestAuthToken) {
-        for (AuthData userAuth : listOfAuth) {
-            if (Objects.equals(userAuth.authToken(), requestAuthToken)) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     public void createUser(UserData newUser) {
 
