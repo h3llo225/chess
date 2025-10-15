@@ -134,6 +134,7 @@ public class Service {
         AuthData registerRequest = new AuthData(null,ctx.header("authorization")) ;
         try{
             //createUser user = handleregister(json);
+
             if (!new Auth().findAuth(registerRequest.authToken())){
                 ctx.status(401);
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
@@ -141,11 +142,18 @@ public class Service {
             if (new Auth().findAuth(registerRequest.authToken())){
                 GameData classPlaceHolderString = new GameData(-1, null, null, null, new ChessGame());
                 GameData registerRequestGame = new Gson().fromJson(ctx.body(), classPlaceHolderString.getClass());
-
+                if (registerRequestGame.gameName() == null){
+                    ctx.status(400);
+                    throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                }
                 new Game().createGame(registerRequestGame);
                 GameData game = new Game().findGame(registerRequestGame.gameName());
+                if (game == null){
+                    ctx.status(400);
+                    throw new DataAccessException("{\"message\": \"Error: no game found\"}");
+                }
                 Gson gson = new Gson();
-                String jsonString = gson.toJson(gameID);
+                String jsonString = gson.toJson(game);
                 ctx.result(jsonString);
 
 

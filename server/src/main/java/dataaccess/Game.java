@@ -13,21 +13,24 @@ public class Game {
     public void createGame(GameData game){
         Random randomGameID = new Random();
         int newRandomGameID = randomGameID.nextInt();
+        while (newRandomGameID < 0){
+            newRandomGameID =randomGameID.nextInt();
+        }
         GameData newGame = new GameData(newRandomGameID, null,null, game.gameName(), new ChessGame());
         listOfGames.add(newGame);
     }
 
 
-    public int findGame(String gameName){
+    public GameData findGame(String gameName){
         int count = 0;
         for (GameData game : listOfGames){
             count++;
             if(Objects.equals(game.gameName(), gameName)){
-                return game.gameID();
+                return game;
 
             }
         }
-        return -1;
+        return null;
     }
 
     }
