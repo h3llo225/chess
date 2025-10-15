@@ -13,8 +13,8 @@ public class User {
     public String email;
     public static ArrayList<UserData> listofUsers = new ArrayList<>();
     public static ArrayList<AuthData> listOfAuth = new ArrayList<>();
-    public static boolean getUser(String username) {
-        for (UserData user : createUser.listofUsers) {
+    public boolean getUser(String username) {
+        for (UserData user : listofUsers) {
             if (Objects.equals(user.username(), username)) {
                 return false;
             }
@@ -22,8 +22,8 @@ public class User {
         return true;
     }
 
-    public static boolean checkLogin(String username, String password) {
-        for (UserData user : createUser.listofUsers) {
+    public boolean checkLogin(String username, String password) {
+        for (UserData user : listofUsers) {
             if (Objects.equals(user.username(), username)) {
                 if (Objects.equals(user.password(), password)) {
                     return true;
@@ -32,9 +32,11 @@ public class User {
         }
         return false;
     }
-
-    public static boolean findAuth(String requestAuthToken) {
-        for (AuthData userAuth : loginUser.listOfAuth) {
+    public void loginUser(AuthData newUser) {
+        listOfAuth.add(newUser);
+    }
+    public boolean findAuth(String requestAuthToken) {
+        for (AuthData userAuth : listOfAuth) {
             if (Objects.equals(userAuth.authToken(), requestAuthToken)) {
                 return true;
             }
@@ -43,15 +45,9 @@ public class User {
     }
 
     public void createUser(UserData newUser) {
-        this.username = newUser.username();
-        this.password = newUser.password();
-        this.email = newUser.email();
+
 
         listofUsers.add(newUser);
     }
-    public void loginUser(AuthData newUser) {
-        this.username = newUser.username();
-        this.authToken = newUser.authToken();
-        listOfAuth.add(newUser);
-    }
+
 }
