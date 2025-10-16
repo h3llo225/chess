@@ -33,4 +33,16 @@ public class Game {
         return null;
     }
 
+    public GameData findGameByID(int gameID){
+        int count = 0;
+        for (GameData game : listOfGames){
+            count++;
+            if(Objects.equals(game.gameID(), gameID)){
+                return game;
+
+            }
+        }
+        return null;
+    }
+
     }

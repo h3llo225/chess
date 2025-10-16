@@ -22,7 +22,8 @@ public class Server {
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
         javalin.post("/game", this::handleCreateGame);
-
+        javalin.put("/game", this::handleJoinGame);
+        javalin.get("/game", this::handleListGame);
     }
 
 
@@ -46,6 +47,14 @@ public class Server {
     }
     private void handleCreateGame(Context ctx) {
         new Service().createGame(ctx);
+    }
+
+    private void handleJoinGame(Context ctx){
+        new Service().joinGame(ctx);
+    }
+
+    private void handleListGame(Context ctx){
+        new Service().listGame(ctx);
     }
 
 

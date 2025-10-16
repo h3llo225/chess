@@ -18,4 +18,15 @@ public class Auth {
         }
         return false;
     }
+
+    public String findUser(String requestAuthToken) {
+        for (AuthData userAuth : listOfAuth) {
+            if (Objects.equals(userAuth.authToken(), requestAuthToken)) {
+                return userAuth.username();
+            }
+        }
+        return null;
+    }
 }
+
+
