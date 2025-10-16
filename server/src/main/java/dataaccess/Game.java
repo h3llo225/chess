@@ -19,6 +19,11 @@ public class Game {
         GameData newGame = new GameData(newRandomGameID, null,null, game.gameName(), new ChessGame());
         listOfGames.add(newGame);
     }
+    public void makeGame(GameData game){
+
+        GameData newGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), new ChessGame());
+        listOfGames.add(newGame);
+    }
 
 
     public GameData findGame(String gameName){
@@ -34,15 +39,25 @@ public class Game {
     }
 
     public GameData findGameByID(int gameID){
-        int count = 0;
+
         for (GameData game : listOfGames){
-            count++;
+
             if(Objects.equals(game.gameID(), gameID)){
                 return game;
 
             }
         }
         return null;
+    }
+
+    public void deleteGameByID(int gameID){
+        for (GameData game : listOfGames){
+
+            if(Objects.equals(game.gameID(), gameID)){
+                listOfGames.remove(findGameByID(gameID));
+                break;
+            }
+        }
     }
 
     }

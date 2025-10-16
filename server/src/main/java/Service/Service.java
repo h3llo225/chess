@@ -191,51 +191,50 @@ public class Service {
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
             }
             if (new Auth().findAuth(registerRequest.authToken())) {
-                transitoryGameData classPlaceHolderString = new transitoryGameData(-1, null, null, null, new ChessGame());
-                transitoryGameData newregisterRequestGame = new Gson().fromJson(ctx.body(), classPlaceHolderString.getClass());
-                GameData registerRequestGame = new GameData(-1,null,null,null, new ChessGame());
+                transitoryGameData joinRequest = new Gson().fromJson(ctx.body(), transitoryGameData.class);
+                //GameData registerRequestGame = new GameData(-1,null,null,null, new ChessGame());
+                GameData game = new Game().findGameByID(joinRequest.gameID());
+                if (joinRequest.gameID() != 0){
+                    if (Objects.equals(joinRequest.playerColor(), "WHITE")){
+                        if (game.whiteUsername() == null){
+                            new Game().deleteGameByID(joinRequest.gameID());
+                            new Game().makeGame(new GameData(joinRequest.gameID(), registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
+                        } else {
+                            ctx.status(403);
+                            throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+                        }
 
-                if (new Game().findGameByID(newregisterRequestGame.gameID()) != null){
-                    if (newregisterRequestGame.white() == null && newregisterRequestGame.black() == null) {
-                        GameData game = new Game().findGameByID(newregisterRequestGame.gameID());
-                        if (Objects.equals(game.whiteUsername(), registerRequest.username())){
-                            registerRequestGame = new GameData(newregisterRequestGame.gameID(), registerRequest.username(),null , newregisterRequestGame.gameName(), newregisterRequestGame.game());
-                        }
-                        if (Objects.equals(game.blackUsername(), registerRequest.username())){
-                            registerRequestGame = new GameData(newregisterRequestGame.gameID(), null ,registerRequest.username(), newregisterRequestGame.gameName(), newregisterRequestGame.game());
-                        }
                     }
-                    //registerRequestGame = new Game().findGameByID(newregisterRequestGame.gameID());
+                    else if (Objects.equals(joinRequest.playerColor(), "BLACK")){
+                        if (game.blackUsername() == null){
+                            new Game().deleteGameByID(joinRequest.gameID());
+                            new Game().makeGame(new GameData(joinRequest.gameID(), game.whiteUsername(),registerRequest.username(), game.gameName(), game.game()));
+                        } else {
+                            ctx.status(403);
+                            throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+                        }
+                    }else{
+
+                            ctx.status(400);
+                            throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+
+                    }
+
                 }
-                if (newregisterRequestGame.black() != null) {
-                    registerRequestGame = new GameData(newregisterRequestGame.gameID(), null, registerRequest.username(), newregisterRequestGame.gameName(), newregisterRequestGame.game());
-                }
-                if (newregisterRequestGame.white() != null) {
-                    registerRequestGame = new GameData(newregisterRequestGame.gameID(), registerRequest.username(),null , newregisterRequestGame.gameName(), newregisterRequestGame.game());
-                }
-
-
-
-
-
-                if (registerRequestGame.gameID() == 0) {
+                else if (joinRequest.gameID() == 0) {
                     ctx.status(400);
                     throw new DataAccessException("{\"message\": \"Error: bad request\"}");
                 }
+                }
 
 
-                GameData game = new Game().findGame(registerRequestGame.gameName());
-                if (game == null) {
-                    ctx.status(400);
-                    throw new DataAccessException("{\"message\": \"Error: no game found\"}");
-                }
-                if (game.blackUsername() != null || game.whiteUsername() != null) {
-                    ctx.status(403);
-                    throw new DataAccessException("{\"message\": \"Already Taken\"}");
-                }
+
+
+
+
+
+
                 ctx.result("{}");
-
-            }
 
         }catch(DataAccessException ex){
 
