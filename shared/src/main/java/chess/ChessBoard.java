@@ -52,10 +52,7 @@ public class ChessBoard implements Cloneable {
      */
     public void resetBoard() {
         board = new ChessPiece[8][8];
-//        for (int i=0; i< 8; i++){
-//            board[2][i] = new ChessPiece (ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-//            board[7][i] = new ChessPiece (ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-//        }
+
         addPiece(new ChessPosition(1,1), new ChessPiece (ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1,2), new ChessPiece (ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1,3), new ChessPiece (ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));

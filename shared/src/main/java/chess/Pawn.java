@@ -18,8 +18,8 @@ public class Pawn {
             myPosRow = (myPosition.getRow()-1);
             if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
                 if (myPosition.getRow()==7 && board.getPiece(new ChessPosition((myPosRow-1), myPosCol)) == null
-                        && board.getPiece(new ChessPosition((myPosRow), myPosCol))==null)
-                    findGoodMove(board, myPosRow-1, myPosCol, goodMoves, teamColor, myPosition);
+                        && board.getPiece(new ChessPosition((myPosRow), myPosCol))==null){
+                    findGoodMove(board, myPosRow-1, myPosCol, goodMoves, teamColor, myPosition);}
                 //endof logic for initial move going 2 spaces.
                 if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) == null) {
                     helpPawnMoveBlack(myPosRow, myPosCol, myPosition, board,  goodMoves, teamColor);
@@ -83,7 +83,8 @@ public class Pawn {
         }
     }
 
-    public void helpPawnMove(int myPosRow, int myPosCol, ChessPosition myPosition, ChessBoard board, ArrayList<ChessMove> goodMoves, ChessGame.TeamColor teamColor){
+    public void helpPawnMove(int myPosRow, int myPosCol, ChessPosition myPosition,
+                             ChessBoard board, ArrayList<ChessMove> goodMoves, ChessGame.TeamColor teamColor){
         if (myPosRow == 8) {
             pawnPromotionFindPiece(board, myPosRow, myPosCol, goodMoves, myPosition);
         }
@@ -92,7 +93,8 @@ public class Pawn {
         }
     }
 
-    public void helpPawnMoveBlack(int myPosRow, int myPosCol, ChessPosition myPosition, ChessBoard board, ArrayList<ChessMove> goodMoves, ChessGame.TeamColor teamColor){
+    public void helpPawnMoveBlack(int myPosRow, int myPosCol, ChessPosition myPosition,
+                                  ChessBoard board, ArrayList<ChessMove> goodMoves, ChessGame.TeamColor teamColor){
         if (myPosRow == 1) {
             pawnPromotionFindPiece(board, myPosRow, myPosCol, goodMoves, myPosition);
         }
