@@ -1,7 +1,7 @@
 package server;
 
 import io.javalin.*;
-import Service.*;
+import service.*;
 import io.javalin.http.Context;
 
 public class Server {
@@ -29,29 +29,29 @@ public class Server {
 
 
     public void handleregister(Context ctx) throws Exception {
-        new service().register(ctx);
+        new Service().register(ctx);
     }
 
     public void handleLogin(Context ctx){
-        new service().login(ctx);
+        new Service().login(ctx);
 
     }
     public void handleLogout(Context ctx){
-        new service().logout(ctx);
+        new Service().logout(ctx);
     }
     public void handleClear(Context ctx){
-        new service().clear(ctx);
+        new Service().clear(ctx);
     }
     private void handleCreateGame(Context ctx) {
-        new service().createGame(ctx);
+        new Service().createGame(ctx);
     }
 
     private void handleJoinGame(Context ctx){
-        new service().joinGame(ctx);
+        new Service().joinGame(ctx);
     }
 
     private void handleListGame(Context ctx){
-        new service().listGame(ctx);
+        new Service().listGame(ctx);
     }
 
 

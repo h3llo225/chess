@@ -2,9 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 
-import static chess.ChessPiece.findGoodMove;
-
-import static chess.ChessPiece.helperUpDirectionLoop;
+import static chess.ChessPiece.*;
 
 
 public class Queen {
@@ -15,16 +13,8 @@ public class Queen {
             ChessPiece.helperUpperRightDirectionLoop( myPosition,  myPosRow,  myPosCol, goodMoves,
                     teamColor,  board,  i);//end of logic for upper right
             i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(myPosition.getRow()-1) && j < (8-myPosition.getColumn()); i++, j++) {
-                myPosRow -= 1;
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
+            helperUpperLeftDirectionLoop(myPosition, myPosRow, myPosCol,goodMoves,
+                    teamColor, board, i);
             //endof logic for upper left
             i=0;
             myPosCol = myPosition.getColumn();
@@ -55,17 +45,8 @@ public class Queen {
             i= 0;
             helperUpDirectionLoop(myPosition,myPosRow, myPosCol,
                     goodMoves, teamColor,board);  //up direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-            i= 0;
-            for (int j = 0;j < (myPosition.getColumn()-1); j++) {
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//down direction
+            helperDownLoop(myPosition,myPosRow, myPosCol,
+                    goodMoves, teamColor,board);
             myPosCol = myPosition.getColumn();
             myPosRow = myPosition.getRow();
 

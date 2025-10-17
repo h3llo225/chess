@@ -1,4 +1,4 @@
-package Service;
+package service;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
@@ -21,7 +21,7 @@ import java.util.UUID;
 import static dataaccess.Auth.listOfAuth;
 
 
-public class service {
+public class Service {
     public void register(Context ctx){
         UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData classPlaceHolder2 = new AuthData("","");

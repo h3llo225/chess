@@ -2,9 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 
-import static chess.ChessPiece.findGoodMove;
-
-import static chess.ChessPiece.helperUpDirectionLoop;
+import static chess.ChessPiece.*;
 
 public class Rook {
     public void rookMoves(ChessPiece piece, ChessPosition myPosition, ArrayList<ChessMove> goodMoves,
@@ -20,14 +18,9 @@ public class Rook {
             myPosCol = myPosition.getColumn();
             myPosRow = myPosition.getRow();
 
-            i= 0;
-            for (int j = 0;j < (myPosition.getColumn()-1); j++) {
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//down direction
+
+            helperDownLoop(myPosition,myPosRow, myPosCol,
+                    goodMoves, teamColor,board);
             myPosCol = myPosition.getColumn();
             myPosRow = myPosition.getRow();
 
