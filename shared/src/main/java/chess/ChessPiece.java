@@ -154,6 +154,20 @@ public class ChessPiece implements Cloneable {
             return false;
         }
 
+        public static boolean helperBottomRight(ChessPosition myPosition, int myPosRow, int myPosCol, ArrayList<ChessMove> goodMoves,
+                                                ChessGame.TeamColor teamColor, ChessBoard board, int i){
+        boolean val = false;
+        for (int j = 0; i<(8-myPosition.getRow()) && j<(myPosition.getColumn()-1) ; i++, j++) {
+                myPosRow += 1;
+                myPosCol -= 1;
+                 val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
+                if (!val){
+                    break;
+                }
+            }
+        return val;
+        }
+
         public static boolean pawnPromotionFindPiece(ChessBoard board, int myPosRow,int myPosCol, ArrayList<ChessMove> goodMoves,
                                                ChessPosition myPosition) {
             for (PieceType typeOfPiece : PieceType.values()) {

@@ -14,26 +14,14 @@ public class Bishop {
             int i= 0;
             helperUpperRightDirectionLoop( myPosition, myPosRow, myPosCol,goodMoves,
                     teamColor, board, i);
-            //end of logic for upper right
-            i=0;
             helperUpperLeftDirectionLoop(myPosition, myPosRow, myPosCol,goodMoves,
                     teamColor, board, i);
-            //endof logic for upper left
-            i=0;
             helperBottomLeft(myPosition, myPosRow, myPosCol,goodMoves,
                     teamColor, board, i);
-            //end of logic for bottom left
-            i=0;
             myPosCol = myPosition.getColumn();
             myPosRow = myPosition.getRow();
-            for (int j = 0; i<(8-myPosition.getRow()) && j<(myPosition.getColumn()-1) ; i++, j++) {
-                myPosRow += 1;
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
+            helperBottomRight(myPosition, myPosRow, myPosCol,goodMoves,
+                    teamColor, board, i);
 //end of logic for bottom right*/
             System.out.println(myPosition + "this is pos");
         }
