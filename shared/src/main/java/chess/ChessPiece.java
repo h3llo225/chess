@@ -48,8 +48,8 @@ public class ChessPiece implements Cloneable {
         //throw new RuntimeException("Not implemented");
     }
 
-    public boolean findGoodMove(ChessBoard board, int myPosRow,int myPosCol, ArrayList<ChessMove> goodMoves,
-                                  ChessGame.TeamColor teamColor, ChessPosition myPosition) {
+    public static boolean findGoodMove(ChessBoard board, int myPosRow, int myPosCol, ArrayList<ChessMove> goodMoves,
+                                       ChessGame.TeamColor teamColor, ChessPosition myPosition) {
         if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
             if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) != null) {
                 if (board.getPiece(new ChessPosition(myPosRow, myPosCol)).getTeamColor() == teamColor) {
@@ -76,7 +76,37 @@ public class ChessPiece implements Cloneable {
 
         }
 
-        public boolean pawnPromotionFindPiece(ChessBoard board, int myPosRow,int myPosCol, ArrayList<ChessMove> goodMoves,
+        public static boolean helperUpDirectionLoop(ChessPosition myPosition, int myPosRow, int myPosCol, ArrayList<ChessMove> goodMoves,
+                                             ChessGame.TeamColor teamColor, ChessBoard board ){
+            boolean val = false;
+        for (int j = 0; j < (8-myPosition.getColumn()); j++) {
+                myPosCol += 1;
+                 val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
+                if (!val){
+                    break;
+                }
+            }
+            return val;
+        }
+
+        public static boolean helperUpperRightDirectionLoop(ChessPosition myPosition, int myPosRow, int myPosCol, ArrayList<ChessMove> goodMoves,
+                                                            ChessGame.TeamColor teamColor, ChessBoard board, int i) {
+            boolean val = false;
+        for (int j = 0; i < (8 - myPosition.getRow()) && j < (8 - myPosition.getColumn()); i++, j++) {
+                //int myPosRow = myPosition.getRow();
+                //int myPosCol = myPosition.getColumn();
+                myPosRow += 1;
+                myPosCol += 1;
+                 val = findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
+                if (!val) {
+                    break;
+                }
+//
+            }
+            return val;
+        }
+
+        public static boolean pawnPromotionFindPiece(ChessBoard board, int myPosRow,int myPosCol, ArrayList<ChessMove> goodMoves,
                                                ChessPosition myPosition) {
             for (PieceType typeOfPiece : PieceType.values()) {
                 if (typeOfPiece != PieceType.KING && typeOfPiece != PieceType.PAWN) {
@@ -97,439 +127,25 @@ public class ChessPiece implements Cloneable {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        //throw new RuntimeException("Not implemented");
-        /** will want to calc new positions by adding from current.
-         * ex bishop can mov current position  +1 row and + 1 col or -1 -1.
-         * but not -1 + 1 etc or rook can go +1 row +2 row until out of board index
-         * but no col (or vice versa) etc*/
         ChessPiece piece = board.getPiece(myPosition);
         ChessGame.TeamColor teamColor = board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn())).getTeamColor();
         ArrayList<ChessMove> goodMoves = new ArrayList<ChessMove>() ;
         int myPosRow = myPosition.getRow();
         int myPosCol = myPosition.getColumn();
-        //ArrayList<ChessMove>() = new ArrayList<ChessMove> good1;
-        //ArrayList<ChessMove> good1 = new ArrayList<ChessMove>();
-        ChessGame.TeamColor team1 = board.getPiece(new ChessPosition(myPosRow, myPosCol)).getTeamColor();
-        if (piece.getPieceType() == PieceType.BISHOP) {
-
-            //this logic here grabs the upper right
-            int i= 0;
-            for (int j = 0; i<(8-myPosition.getRow()) && j < (8-myPosition.getColumn()); i++, j++) {
-                //int myPosRow = myPosition.getRow();
-                //int myPosCol = myPosition.getColumn();
-                myPosRow += 1;
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-
-//
-            } //end of logic for upper right
-            i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(myPosition.getRow()-1) && j < (8-myPosition.getColumn()); i++, j++) {
-                myPosRow -= 1;
-                myPosCol += 1;
-
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-            //endof logic for upper left
-            i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(myPosition.getRow()-1) && j<(myPosition.getColumn()-1) ; i++, j++) {
-                myPosRow -= 1;
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-            //end of logic for bottom left
-           i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(8-myPosition.getRow()) && j<(myPosition.getColumn()-1) ; i++, j++) {
-                myPosRow += 1;
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-//end of logic for bottom right*/
-            System.out.println(myPosition + "this is pos");
-        }
-        //start of rook!!!
-        if (piece.getPieceType() == PieceType.ROOK) {
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            int i= 0;
-            for (int j = 0; j < (8-myPosition.getColumn()); j++) {
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            } //up direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-            i= 0;
-            for (int j = 0;j < (myPosition.getColumn()-1); j++) {
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//down direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-
-            for (i= 0; i < (8-myPosition.getRow()); i++) {
-                myPosRow += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//right direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (i = 0;i < (myPosition.getRow()-1); i++) {
-                myPosRow -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//left direction
-
-        }
-
-        if (piece.getPieceType() == PieceType.QUEEN) {
-            int i= 0;
-            for (int j = 0; i<(8-myPosition.getRow()) && j < (8-myPosition.getColumn()); i++, j++) {
-                myPosRow += 1;
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            } //end of logic for upper right
-            i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(myPosition.getRow()-1) && j < (8-myPosition.getColumn()); i++, j++) {
-                myPosRow -= 1;
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-            //endof logic for upper left
-            i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(myPosition.getRow()-1) && j<(myPosition.getColumn()-1) ; i++, j++) {
-                myPosRow -= 1;
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-            //end of logic for bottom left
-            i=0;
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            for (int j = 0; i<(8-myPosition.getRow()) && j<(myPosition.getColumn()-1) ; i++, j++) {
-                myPosRow += 1;
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }
-
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-            i= 0;
-            for (int j = 0; j < (8-myPosition.getColumn()); j++) {
-                myPosCol += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            } //up direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-            i= 0;
-            for (int j = 0;j < (myPosition.getColumn()-1); j++) {
-                myPosCol -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//down direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-
-            for (i= 0; i < (8-myPosition.getRow()); i++) {
-                myPosRow += 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//right direction
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow();
-
-
-            for (i = 0;i < (myPosition.getRow()-1); i++) {
-                myPosRow -= 1;
-                boolean val =  findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-                if (!val){
-                    break;
-                }
-            }//left direction
-
-        }
-
-        if (piece.getPieceType() == PieceType.KNIGHT) {
-
-            myPosCol = (myPosition.getColumn() + 2);
-            myPosRow = (myPosition.getRow() + 1);
-
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-
-
-
-            /**
-             logic works for upper upper right shape of stars below
-             **
-             *
-             *                               */
-
-
-            myPosCol = myPosition.getColumn()+2;
-            myPosRow = myPosition.getRow()-1;
-
-
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-
-            /** upper left shape of stars
-             **
-              *
-              *     */
-
-
-            myPosCol = myPosition.getColumn() + 1;
-            myPosRow = myPosition.getRow() + 2;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-
-
-
-            /**  shape of stars logic up and right 3
-             ***
-             *    */
-
-            myPosCol = myPosition.getColumn()+1;
-            myPosRow = myPosition.getRow()-2;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-            /** shape of stars upper left
-             ***
-               *  */
-
-            myPosCol = myPosition.getColumn() - 2;
-            myPosRow = myPosition.getRow() - 1;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-            /** shape of stars logic bottom left
-               *
-               *
-             * *       */
-
-            myPosCol = myPosition.getColumn() - 2;
-            myPosRow = myPosition.getRow() + 1;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-            /** shape of stars logic bottom right
-              *
-              *
-              * *  */
-
-            myPosCol = myPosition.getColumn()-1;
-            myPosRow = myPosition.getRow()+2;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-            /** bottom right shape stars
-             *
-             * * *      */
-            myPosCol = myPosition.getColumn()-1;
-            myPosRow = myPosition.getRow()-2;
-                    findGoodMove(board,myPosRow,myPosCol, goodMoves, teamColor, myPosition);
-
-
-
-            /** bottom left shape of stars
-               *
-             ***       */
-
-        }
-
-        if (piece.getPieceType() == PieceType.PAWN && board.getPiece(new ChessPosition(myPosition.getRow(),myPosition.getColumn())).getTeamColor() == ChessGame.TeamColor.BLACK) {
-            myPosCol = myPosition.getColumn();
-            myPosRow = (myPosition.getRow()-1);
-            if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
-                if (myPosition.getRow()==7 && board.getPiece(new ChessPosition((myPosRow-1), myPosCol)) == null && board.getPiece(new ChessPosition((myPosRow), myPosCol))==null){
-                    findGoodMove(board, myPosRow-1, myPosCol, goodMoves, teamColor, myPosition);
-                } //endof logic for initial move going 2 spaces.
-                if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) == null) {
-                    if (myPosRow == 1){
-                        pawnPromotionFindPiece(board, myPosRow, myPosCol, goodMoves, myPosition);
-                    }
-                    else if(myPosRow != 1) {
-                        findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-                    }
-                }
-
-//                else if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) != null) {
-//                    myPosCol = myPosition.getColumn();
-//                    //myPosRow = myPosition.getRow();
-//                }
-
-
-
-            if (myPosCol != 1 &&  board.getPiece(new ChessPosition(myPosRow, (myPosCol-1))) != null){
-                 if (board.getPiece(new ChessPosition(myPosRow,myPosCol-1)).getTeamColor() != teamColor) {
-                    if (myPosRow == 1){
-                        pawnPromotionFindPiece(board, myPosRow, myPosCol-1, goodMoves, myPosition);
-                    }else if (myPosRow != 1){
-                        findGoodMove(board, myPosRow, myPosCol-1, goodMoves, teamColor, myPosition);
-                    }
-                }
-            }//end of take left piece logic
-
-                if (myPosCol != 8 && board.getPiece(new ChessPosition(myPosRow, (myPosCol+1))) != null){
-                    if (board.getPiece(new ChessPosition(myPosRow,(myPosCol+1))).getTeamColor() != teamColor) {
-                        if (myPosRow == 1){
-                            pawnPromotionFindPiece(board, myPosRow, myPosCol+1, goodMoves, myPosition);
-                        }else if (myPosRow != 1){
-                            findGoodMove(board, myPosRow, myPosCol+1, goodMoves, teamColor, myPosition);
-                        }
-                    }
-                }
-
-            }
-
-        }
-
-
-        if (piece.getPieceType() == PieceType.PAWN && board.getPiece(new ChessPosition(myPosition.getRow(),myPosition.getColumn())).getTeamColor() == ChessGame.TeamColor.WHITE) {
-
-            myPosCol = myPosition.getColumn();
-            myPosRow = (myPosition.getRow()+1);
-            if (myPosCol > 0 && myPosCol < 9 && myPosRow > 0 && myPosRow < 9) {
-                if (myPosition.getRow()==2 && board.getPiece(new ChessPosition((myPosRow+1), myPosCol)) == null&& board.getPiece(new ChessPosition((myPosRow), myPosCol)) == null){
-                    findGoodMove(board, myPosRow+1, myPosCol, goodMoves, teamColor, myPosition);
-                } //endof logic for initial move going 2 spaces.
-                if (board.getPiece(new ChessPosition(myPosRow, myPosCol)) == null) {
-                    if (myPosRow == 8){
-                        pawnPromotionFindPiece(board, myPosRow, myPosCol, goodMoves, myPosition);
-                    }
-                    else if(myPosRow != 8) {
-                        findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-                    }
-                }
-
-                if (myPosCol != 1 && board.getPiece(new ChessPosition(myPosRow, (myPosCol-1))) != null){
-                    if (board.getPiece(new ChessPosition(myPosRow,myPosCol-1)).getTeamColor() != teamColor) {
-                        if (myPosRow == 8){
-                            pawnPromotionFindPiece(board, myPosRow, myPosCol-1, goodMoves, myPosition);
-
-                        }else if (myPosRow != 8){
-                            findGoodMove(board, myPosRow, myPosCol-1, goodMoves, teamColor, myPosition);
-                        }
-                    }
-                }//end of take left piece logic
-
-                if (myPosCol != 8 && board.getPiece(new ChessPosition(myPosRow, (myPosCol+1))) != null){
-                    if (board.getPiece(new ChessPosition(myPosRow,(myPosCol+1))).getTeamColor() != teamColor) {
-                        if (myPosRow == 8){
-                            pawnPromotionFindPiece(board, myPosRow, myPosCol+1, goodMoves, myPosition);
-                        }else if (myPosRow != 8){
-                            findGoodMove(board, myPosRow, myPosCol+1, goodMoves, teamColor, myPosition);
-
-                        }
-                    }
-                }
-
-            }
-
-        }
-
-        if (piece.getPieceType() == PieceType.KING) {
-            myPosCol = myPosition.getColumn() + 1;
-            myPosRow = myPosition.getRow();
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move right
-            myPosCol = myPosition.getColumn() - 1;
-            myPosRow = myPosition.getRow();
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move left
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow() + 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move up
-            myPosCol = myPosition.getColumn();
-            myPosRow = myPosition.getRow() - 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move down
-            myPosCol = myPosition.getColumn() - 1;
-            myPosRow = myPosition.getRow() - 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move bottom left
-            myPosCol = myPosition.getColumn() + 1;
-            myPosRow = myPosition.getRow() + 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move upper right diag
-            myPosCol = myPosition.getColumn() - 1;
-            myPosRow = myPosition.getRow() + 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move left upper diag
-            myPosCol = myPosition.getColumn() + 1;
-            myPosRow = myPosition.getRow() - 1;
-                findGoodMove(board, myPosRow, myPosCol, goodMoves, teamColor, myPosition);
-            //move right bottom diag
-        }
+        new Bishop().bishopMoves(piece, myPosition, myPosRow, myPosCol, goodMoves,
+                teamColor, board);
+        new Rook().rookMoves(piece, myPosition, goodMoves,
+                teamColor, board);
+        new Queen().queenMoves(piece, myPosition, myPosRow, myPosCol, goodMoves,
+                 teamColor, board);
+        new Knight().knightMoves(piece, myPosition,  goodMoves,
+                 teamColor, board);
+        new Pawn().pawnMoves(piece, myPosition, myPosRow, myPosCol, goodMoves,
+                teamColor, board);
+        new King().kingMoves(piece, myPosition, myPosRow, myPosCol, goodMoves,
+                teamColor, board);
         return goodMoves;
     }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

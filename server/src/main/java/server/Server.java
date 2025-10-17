@@ -3,9 +3,6 @@ package server;
 import io.javalin.*;
 import Service.*;
 import io.javalin.http.Context;
-import org.jetbrains.annotations.NotNull;
-
-import static dataaccess.Auth.listOfAuth;
 
 public class Server {
 
@@ -32,29 +29,29 @@ public class Server {
 
 
     public void handleregister(Context ctx) throws Exception {
-        new Service().register(ctx);
+        new service().register(ctx);
     }
 
     public void handleLogin(Context ctx){
-        new Service().login(ctx);
+        new service().login(ctx);
 
     }
     public void handleLogout(Context ctx){
-        new Service().logout(ctx);
+        new service().logout(ctx);
     }
     public void handleClear(Context ctx){
-        new Service().clear(ctx);
+        new service().clear(ctx);
     }
     private void handleCreateGame(Context ctx) {
-        new Service().createGame(ctx);
+        new service().createGame(ctx);
     }
 
     private void handleJoinGame(Context ctx){
-        new Service().joinGame(ctx);
+        new service().joinGame(ctx);
     }
 
     private void handleListGame(Context ctx){
-        new Service().listGame(ctx);
+        new service().listGame(ctx);
     }
 
 

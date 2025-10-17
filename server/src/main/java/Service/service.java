@@ -19,10 +19,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static dataaccess.Auth.listOfAuth;
-import static dataaccess.User.listofUsers;
 
 
-public class Service {
+public class service {
     public void register(Context ctx){
         UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData classPlaceHolder2 = new AuthData("","");
@@ -155,34 +154,32 @@ public class Service {
                 ctx.status(401);
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
             }
-            if (new Auth().findAuth(registerRequest.authToken())) {
                 TransitoryGameData joinRequest = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
-                //GameData registerRequestGame = new GameData(-1,null,null,null, new ChessGame());
                 GameData game = new Game().findGameByID(joinRequest.gameID());
                 if (joinRequest.gameID() != 0){
                     if (Objects.equals(joinRequest.playerColor(), "WHITE")){
                         if (game.whiteUsername() == null){
                             new Game().deleteGameByID(joinRequest.gameID());
-                            new Game().makeGame(new GameData(joinRequest.gameID(), registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
+                            new Game().makeGame(new GameData(joinRequest.gameID(),
+                                    registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
                         } else {
                             ctx.status(403);
                             throw new DataAccessException("{\"message\": \"Error: already taken\"}");
                         }
-
                     }
                     else if (Objects.equals(joinRequest.playerColor(), "BLACK")){
                         if (game.blackUsername() == null){
                             new Game().deleteGameByID(joinRequest.gameID());
-                            new Game().makeGame(new GameData(joinRequest.gameID(), game.whiteUsername(),registerRequest.username(), game.gameName(), game.game()));
+                            new Game().makeGame(new GameData(joinRequest.gameID(),
+                                    game.whiteUsername(),registerRequest.username(),
+                                    game.gameName(), game.game()));
                         } else {
                             ctx.status(403);
                             throw new DataAccessException("{\"message\": \"Error: already taken\"}");
                         }
                     }else{
-
                             ctx.status(400);
                             throw new DataAccessException("{\"message\": \"Error: bad request\"}");
-
                     }
 
                 }
@@ -190,7 +187,7 @@ public class Service {
                     ctx.status(400);
                     throw new DataAccessException("{\"message\": \"Error: bad request\"}");
                 }
-                }
+
                 ctx.result("{}");
 
         }catch(DataAccessException ex){

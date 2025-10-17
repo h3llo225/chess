@@ -117,13 +117,7 @@ public class ChessBoard implements Cloneable {
     }
 
 
-    public ChessPiece copy(ChessPiece other, int row, int col) {
-        ChessPiece newPiece = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        newPiece.pieceColor = other.pieceColor;
-        newPiece.pieceType = other.pieceType;
-        //this.getPiece(new ChessPosition(row,col)) = getPiece(new ChessPosition(row,col));
-    return newPiece;
-    }
+
     @Override
     public Object clone(){
         ChessBoard boarded = new ChessBoard();
