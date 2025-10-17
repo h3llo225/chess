@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class User {
-    public String username;
-    public String password;
-    public String authToken;
-    public String email;
+
     public static ArrayList<UserData> listofUsers = new ArrayList<>();
     public boolean getUser(String username) {
         for (UserData user : listofUsers) {

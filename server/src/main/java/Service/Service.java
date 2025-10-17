@@ -10,7 +10,7 @@ import io.javalin.http.Context;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import model.transitoryGameData;
+import model.TransitoryGameData;
 
 import java.util.ArrayList;
 
@@ -24,12 +24,9 @@ import static dataaccess.User.listofUsers;
 
 public class Service {
     public void register(Context ctx){
-        UserData classPlaceHolder = new UserData("","","");
-        UserData registerRequest = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
+        UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData classPlaceHolder2 = new AuthData("","");
-
         try{
-            //createUser user = handleregister(json);
             if (registerRequest.username() == null || registerRequest.email() == null || registerRequest.password() == null) {
                 ctx.status(400);
                 throw new DataAccessException("{\"message\": \"Error: bad request\"}");
@@ -46,10 +43,7 @@ public class Service {
                 new Auth().loginUser(new AuthData(registerRequest.username(),uuIDLogin));
                 String jsonString = gson.toJson(result, classPlaceHolder2.getClass());
                 ctx.result(jsonString);
-                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
             }
-
-
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
@@ -58,13 +52,10 @@ public class Service {
 
     }
 
-
     public void login(Context ctx){
-        UserData classPlaceHolder = new UserData("","",null);
-        UserData registerRequest = new Gson().fromJson(ctx.body(), classPlaceHolder.getClass());
+        UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData classPlaceHolder2 = new AuthData( "", "");
         try{
-            //createUser user = handleregister(json);
             if (registerRequest.username() == null || registerRequest.password() == null) {
                 ctx.status(400);
                 throw new DataAccessException("{\"message\": \"Error: bad request\"}");
@@ -76,27 +67,21 @@ public class Service {
                 AuthData result = new AuthData(registerRequest.username(), uuIDLogin);
                 String jsonString = gson.toJson(result, classPlaceHolder2.getClass());
                 ctx.result(jsonString);
-                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
             }
             if (!new User().checkLogin(registerRequest.username(), registerRequest.password())){
                 ctx.status(401);
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
             }
-
         }catch(DataAccessException ex){
-
             ctx.result(ex.getMessage());
         }
     }
 
     public void logout(Context ctx){
-        AuthData classPlaceHolder = new AuthData("","");
-        AuthData registerRequest2 = new AuthData("", ctx.header("authorization")) ;
-        AuthData registerRequest = new AuthData(new Auth().findUser(registerRequest2.authToken()), registerRequest2.authToken());
-
+        AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
+        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
         try{
-            //createUser user = handleregister(json);
             if (!new Auth().findAuth(registerRequest.authToken())){
                 ctx.status(401);
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
@@ -106,19 +91,12 @@ public class Service {
                 for (AuthData userAuth : listOfAuth) {
                     count++;
                     if (Objects.equals(userAuth.authToken(), registerRequest.authToken())) {
-                        //loginUser.remove(userAuth);
                         ctx.result("{}");
-
                         break;
                     }
                 }
                 listOfAuth.remove(count-1);
-
-                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
             }
-
-
-
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
@@ -133,13 +111,10 @@ public class Service {
     }
 
     public void createGame(Context ctx){
-
-        AuthData classPlaceHolder = new AuthData("","");
-        AuthData registerRequest2 = new AuthData("",ctx.header("authorization"));
-        AuthData registerRequest = new AuthData(new Auth().findUser(registerRequest2.authToken()), registerRequest2.authToken());
+        AuthData authTokenRequest = new AuthData("",ctx.header("authorization"));
+        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
         try{
-            //createUser user = handleregister(json);
 
             if (!new Auth().findAuth(registerRequest.authToken())){
                 ctx.status(401);
@@ -162,28 +137,18 @@ public class Service {
                 String jsonString = gson.toJson(game);
                 ctx.result(jsonString);
 
-
-
-
-
-
-                //"{\"username\":" "\"registerRequest.username()\" , \"authToken\":" \"uuIDLogin\" }"
             }
-
-
 
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
         }
-
-
     }
 
     public void joinGame(Context ctx){
 
-        AuthData registerRequest2 = new AuthData("",ctx.header("authorization")) ;
-        AuthData registerRequest = new AuthData(new Auth().findUser(registerRequest2.authToken()), registerRequest2.authToken());
+        AuthData authTokenResponse = new AuthData("",ctx.header("authorization")) ;
+        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenResponse.authToken()), authTokenResponse.authToken());
 
         try{
             if (!new Auth().findAuth(registerRequest.authToken())){
@@ -191,7 +156,7 @@ public class Service {
                 throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
             }
             if (new Auth().findAuth(registerRequest.authToken())) {
-                transitoryGameData joinRequest = new Gson().fromJson(ctx.body(), transitoryGameData.class);
+                TransitoryGameData joinRequest = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
                 //GameData registerRequestGame = new GameData(-1,null,null,null, new ChessGame());
                 GameData game = new Game().findGameByID(joinRequest.gameID());
                 if (joinRequest.gameID() != 0){
@@ -221,19 +186,11 @@ public class Service {
                     }
 
                 }
-                else if (joinRequest.gameID() == 0) {
+                else {
                     ctx.status(400);
                     throw new DataAccessException("{\"message\": \"Error: bad request\"}");
                 }
                 }
-
-
-
-
-
-
-
-
                 ctx.result("{}");
 
         }catch(DataAccessException ex){
@@ -245,8 +202,8 @@ public class Service {
 
     public void listGame(Context ctx) {
 
-        AuthData registerRequest2 = new AuthData("",ctx.header("authorization")) ;
-        AuthData registerRequest = new AuthData(new Auth().findUser(registerRequest2.authToken()), registerRequest2.authToken());
+        AuthData authTokenRequest = new AuthData("",ctx.header("authorization")) ;
+        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
         try{
             if (!new Auth().findAuth(registerRequest.authToken())){
@@ -258,13 +215,9 @@ public class Service {
                 Gson gson = new Gson();
                  String listGamesResult = gson.toJson(Map.of("games",Game.listOfGames));
                  //var games = listGamesResult;
-
-
                 ctx.result(listGamesResult);
             }
-
         }catch(DataAccessException ex){
-
             ctx.result(ex.getMessage());
         }
 
