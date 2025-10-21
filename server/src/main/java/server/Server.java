@@ -1,8 +1,16 @@
 package server;
 
+import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import io.javalin.*;
+import model.AuthData;
+import model.GameData;
+import model.TransitoryGameData;
+import model.UserData;
 import service.*;
 import io.javalin.http.Context;
+
+import java.util.Objects;
 
 public class Server {
 
@@ -28,30 +36,125 @@ public class Server {
     //var serializer = new Gson:  var req = serializer.fromJson(ctx.body(), Map.class); var res = serializer.toJson(res)ctx.result(res)
 
 
-    public void handleregister(Context ctx) throws Exception {
-        new Service().register(ctx);
+    public void handleregister(Context ctx) {
+        try {
+            UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
+            ctx.result(new Service().register(registerRequest));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (ex.getMessage() == "{\"message\": \"Error: already taken\"}"){
+                ctx.status(403);
+            }
+            if (ex.getMessage() == "{\"message\": \"Error: bad request\"}"){
+                ctx.status(400);
+            }
+
+        }
     }
 
     public void handleLogin(Context ctx){
-        new Service().login(ctx);
+        try {
+            UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
+            ctx.result(new Service().login(registerRequest));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (ex.getMessage() == "{\"message\": \"Error: unauthorized\"}"){
+                ctx.status(401);
+            }
+            if (ex.getMessage() == "{\"message\": \"Error: bad request\"}"){
+                ctx.status(400);
+            }
+
+        }
 
     }
     public void handleLogout(Context ctx){
-        new Service().logout(ctx);
+
+        try {
+            AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
+            ctx.result(new Service().logout(authTokenRequest));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
+                ctx.status(401);
+            }
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
+                ctx.status(400);
+            }
+
+        }
+
+
+        //new Service().logout(ctx);
     }
     public void handleClear(Context ctx){
-        new Service().clear(ctx);
+        new Service().clear();
     }
     private void handleCreateGame(Context ctx) {
-        new Service().createGame(ctx);
+        try {
+            AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
+            GameData registerRequestGame = new Gson().fromJson(ctx.body(), GameData.class);
+            ctx.result(new Service().createGame(authTokenRequest, registerRequestGame));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
+                ctx.status(401);
+            }
+            if (ex.getMessage() == "{\"message\": \"Error: no game found\"}"){
+                ctx.status(400);
+            }
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
+                ctx.status(400);
+            }
+
+        }
     }
 
     private void handleJoinGame(Context ctx){
-        new Service().joinGame(ctx);
+        try {
+            AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
+            TransitoryGameData registerRequestGame = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
+            ctx.result(new Service().joinGame(authTokenRequest, registerRequestGame));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
+                ctx.status(401);
+            }
+            if (ex.getMessage() == "{\"message\": \"Error: no game found\"}"){
+                ctx.status(400);
+            }
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
+                ctx.status(400);
+            }
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: already taken\"}")){
+                ctx.status(403);
+            }
+
+
+
+        }
     }
 
     private void handleListGame(Context ctx){
-        new Service().listGame(ctx);
+        try {
+            AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
+            ctx.result(new Service().listGame(authTokenRequest));
+        }catch(DataAccessException ex){
+
+            ctx.result(ex.getMessage());
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
+                ctx.status(401);
+            }
+            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
+                ctx.status(400);
+            }
+
+        }
     }
 
 
