@@ -1,3 +1,4 @@
+package service;
 import chess.ChessGame;
 import dataaccess.Auth;
 import dataaccess.DataAccessException;
@@ -8,14 +9,13 @@ import model.TransitoryGameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.Service;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class service {
+public class ServiceTest {
     @BeforeEach
     public void setup(){
         new Service().clear();

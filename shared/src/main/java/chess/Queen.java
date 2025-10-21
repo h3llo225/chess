@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 
 import static chess.ChessPiece.*;
- 
+
 
 public class Queen {
     public void queenMoves(ChessPiece piece, ChessPosition myPosition, int myPosRow, int myPosCol, ArrayList<ChessMove> goodMoves,
