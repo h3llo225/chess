@@ -78,12 +78,7 @@ public class Server {
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
-                ctx.status(401);
-            }
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
-                ctx.status(400);
-            }
+            helperFunctionForCodeQuality(ctx,ex);
 
         }
 
@@ -147,16 +142,19 @@ public class Server {
         }catch(DataAccessException ex){
 
             ctx.result(ex.getMessage());
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
-                ctx.status(401);
-            }
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
-                ctx.status(400);
-            }
+            helperFunctionForCodeQuality(ctx,ex);
 
         }
     }
 
+    public void helperFunctionForCodeQuality(Context ctx, DataAccessException ex){
+        if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
+            ctx.status(401);
+        }
+        if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
+            ctx.status(400);
+        }
+    }
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);

@@ -6,10 +6,8 @@ import dataaccess.User;
 import model.GameData;
 import model.TransitoryGameData;
 import model.UserData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import passoff.model.TestAuthResult;
 import service.Service;
 
 import java.util.Objects;
@@ -17,7 +15,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UnitTests{
+public class service {
     @BeforeEach
     public void setup(){
         new Service().clear();
