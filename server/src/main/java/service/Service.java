@@ -2,10 +2,7 @@ package service;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.Auth;
-import dataaccess.DataAccessException;
-import dataaccess.Game;
-import dataaccess.User;
+import dataaccess.*;
 import io.javalin.http.Context;
 import model.AuthData;
 import model.GameData;
@@ -22,6 +19,7 @@ import static dataaccess.Auth.listOfAuth;
 
 
 public class Service {
+
     public String register(UserData registerRequest) throws DataAccessException {
         AuthData classPlaceHolder2 = new AuthData("","");
 

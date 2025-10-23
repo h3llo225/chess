@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import io.javalin.*;
 import model.AuthData;
 import model.GameData;
@@ -17,8 +18,8 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
+        javalin = Javalin.create(config -> config.staticFiles.add("web"));
         // Register your endpoints and exception handlers here.
         //javalin.post("/register/{name}", this::register);
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));

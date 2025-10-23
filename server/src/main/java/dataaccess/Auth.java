@@ -11,6 +11,7 @@ public class Auth {
         listOfAuth.add(newUser);
     }
     public boolean findAuth(String requestAuthToken) {
+
         for (AuthData userAuth : listOfAuth) {
             if (Objects.equals(userAuth.authToken(), requestAuthToken)) {
                 return true;
