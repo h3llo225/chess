@@ -24,42 +24,42 @@ public class Service {
         AuthData classPlaceHolder2 = new AuthData("","");
 
             if (registerRequest.username() == null || registerRequest.email() == null || registerRequest.password() == null) {
-                throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                throw new DataAccessException("bad request");
             }
-            if (!new User().getUser(registerRequest.username())){
-                throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+            if (!new DatabaseManager().getUser(registerRequest.username())){
+                throw new DataAccessException("already taken");
             }
-            if (new User().getUser(registerRequest.username())){
-                new User().createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+            if (new DatabaseManager().getUser(registerRequest.username())){
+                new DatabaseManager().insertUserToUserTable(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
                 String uuIDLogin = UUID.randomUUID().toString();
                 AuthData result = new AuthData(registerRequest.username(), uuIDLogin);
                 Gson gson = new Gson();
-                new Auth().loginUser(new AuthData(registerRequest.username(),uuIDLogin));
+                new DatabaseManager().insertAuth(new AuthData(registerRequest.username(),uuIDLogin));
                 String jsonString = gson.toJson(result, classPlaceHolder2.getClass());
                 return (jsonString);
             }
 
-        throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+        throw new DataAccessException("bad request");
     }
 
     public String login(UserData registerRequest) throws DataAccessException{
         AuthData classPlaceHolder2 = new AuthData( "", "");
 
             if (registerRequest.username() == null || registerRequest.password() == null) {
-                throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                throw new DataAccessException("bad request");
             }
-            if (new User().checkLogin(registerRequest.username(), registerRequest.password())){
+            if (new DatabaseManager().checkLogin(registerRequest.username(), registerRequest.password())){
                 String uuIDLogin = UUID.randomUUID().toString();
-                new Auth().loginUser(new AuthData(registerRequest.username(), uuIDLogin));
+                new DatabaseManager().insertAuth(new AuthData(registerRequest.username(), uuIDLogin));
                 Gson gson = new Gson();
                 AuthData result = new AuthData(registerRequest.username(), uuIDLogin);
                 String jsonString = gson.toJson(result, classPlaceHolder2.getClass());
                return jsonString;
             }
-            if (!new User().checkLogin(registerRequest.username(), registerRequest.password())){
-                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+            if (!new DatabaseManager().checkLogin(registerRequest.username(), registerRequest.password())){
+                throw new DataAccessException("unauthorized");
             }
-        throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+        throw new DataAccessException("bad request");
 
     }
 
@@ -67,7 +67,7 @@ public class Service {
         AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
             if (!new Auth().findAuth(registerRequest.authToken())){
-                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+                throw new DataAccessException("unauthorized");
             }
             if (new Auth().findAuth(registerRequest.authToken())){
                 int count = 0;
@@ -80,13 +80,14 @@ public class Service {
                 }
 
             }
-        throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+        throw new DataAccessException("bad request");
 
     }
-    public String clear(){
-        Auth.listOfAuth = new ArrayList<>();
-        User.listofUsers = new ArrayList<>();
-        Game.listOfGames = new ArrayList<>();
+    public String clear() throws DataAccessException {
+//        Auth.listOfAuth = new ArrayList<>();
+//        User.listofUsers = new ArrayList<>();
+//        Game.listOfGames = new ArrayList<>();
+        new DatabaseManager().clearDB();
         return "{}";
     }
 
@@ -96,23 +97,23 @@ public class Service {
 
 
             if (!new Auth().findAuth(registerRequest.authToken())){
-                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+                throw new DataAccessException("unauthorized");
             }
             if (new Auth().findAuth(registerRequest.authToken())){
                 if (registerRequestGame.gameName() == null){
-                    throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                    throw new DataAccessException("bad request");
                 }
                 new Game().createGame(registerRequestGame);
                 GameData game = new Game().findGame(registerRequestGame.gameName());
                 if (game == null){
-                    throw new DataAccessException("{\"message\": \"Error: no game found\"}");
+                    throw new DataAccessException("bad request");
                 }
                 Gson gson = new Gson();
                 String jsonString = gson.toJson(game);
                 return jsonString;
 
             }
-        throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+        throw new DataAccessException("bad request");
 
 
     }
@@ -123,7 +124,7 @@ public class Service {
 
 
             if (!new Auth().findAuth(registerRequest.authToken())){
-                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+                throw new DataAccessException("unauthorized");
             }
                 //TransitoryGameData joinRequest = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
                 GameData game = new Game().findGameByID(joinRequest.gameID());
@@ -135,7 +136,7 @@ public class Service {
                                     registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
                         } else {
 
-                            throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+                            throw new DataAccessException("already taken");
                         }
                     }
                     else if (Objects.equals(joinRequest.playerColor(), "BLACK")){
@@ -146,15 +147,15 @@ public class Service {
                                     game.gameName(), game.game()));
                         } else {
 
-                            throw new DataAccessException("{\"message\": \"Error: already taken\"}");
+                            throw new DataAccessException("already taken");
                         }
                     }else{
-                            throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                            throw new DataAccessException("bad request");
                     }
 
                 }
                 else {
-                    throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+                    throw new DataAccessException("bad request");
                 }
 
                 return "{}";
@@ -170,7 +171,7 @@ public class Service {
 
 
             if (!new Auth().findAuth(registerRequest.authToken())){
-                throw new DataAccessException("{\"message\": \"Error: unauthorized\"}");
+                throw new DataAccessException("unauthorized");
             }
             if (new Auth().findAuth(registerRequest.authToken())){
 
@@ -180,7 +181,7 @@ public class Service {
                 return listGamesResult;
             }
 
-        throw new DataAccessException("{\"message\": \"Error: bad request\"}");
+        throw new DataAccessException("bad request");
 
     }
 

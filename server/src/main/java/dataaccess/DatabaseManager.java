@@ -14,8 +14,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 
-import static dataaccess.Auth.listOfAuth;
-
 
 public class DatabaseManager {
     private static String databaseName;
@@ -42,47 +40,29 @@ public class DatabaseManager {
             throw new DataAccessException("failed to create database", ex);
         }
     }
-    public static ArrayList<String> createStatementGame(ArrayList<String> createStatementsGameReal){
-        String statement1 = "CREATE TABLE IF NOT EXISTS  Game ";
-        String statement2 = "ALTER TABLE Game ADD 'gameID' int";
-        String statement3 = "ALTER TABLE Game ADD 'whiteUsername' varchar(256)";
-        String statement4 = "ALTER TABLE Game ADD 'blackUsername' varchar(256)";
-        String statement5 = "ALTER TABLE Game ADD 'gameName' varchar(256)";
-        String statement6 = "ALTER TABLE Game ADD 'game' longtext NOT NULL";
-        createStatementsGameReal.add(statement1);
-        createStatementsGameReal.add(statement2);
-        createStatementsGameReal.add(statement3);
-        createStatementsGameReal.add(statement4);
-        createStatementsGameReal.add(statement5);
-        createStatementsGameReal.add(statement6);
-        return createStatementsGameReal;
+    public static String createStatementGame(){
+        return """
+                CREATE TABLE IF NOT EXISTS  Game( gameID int,
+                 whiteUsername varchar(256),
+                blackUsername varchar(256),
+                gameName varchar(256),
+                game longtext NOT NULL)""";
     }
 
 
-    public static ArrayList<String> createStatementAuth(ArrayList<String> createStatementsAuthReal){
-        String statement1 = "CREATE TABLE IF NOT EXISTS  Auth ";
-        String statement2 = "ALTER TABLE Auth ADD 'username' varchar(256) NOT NULL";
-        String statement3 = "ALTER TABLE Auth ADD 'authToken' varchar(256) NOT NULL";
-        String statement4 = "ALTER TABLE Auth ADD FOREIGN KEY ('username') REFERENCES Users('username');";
-        createStatementsAuthReal.add(statement1);
-        createStatementsAuthReal.add(statement2);
-        createStatementsAuthReal.add(statement3);
-        createStatementsAuthReal.add(statement4);
-        return createStatementsAuthReal;
+    public static String createStatementAuth(){
+        return """
+                CREATE TABLE IF NOT EXISTS  Auth(username varchar(256) NOT NULL,
+                authToken varchar(256) NOT NULL,
+                FOREIGN KEY (username) REFERENCES User(username) )""";
     }
-    public static ArrayList<String> createStatementUser(ArrayList<String> createStatementsUserReal){
-        String statement1 = "CREATE TABLE IF NOT EXISTS  User ";
-        String statement2 = "ALTER TABLE User ADD 'username' varchar(256) NOT NULL";
-        String statement3 = "ALTER TABLE User ADD 'password' varchar(256) NOT NULL";
-        String statement4 = "ALTER TABLE User ADD 'email' varchar(256) NOT NULL";
-        String statement5 = "ALTER TABLE User ADD PRIMARY KEY ('username');";
-        createStatementsUserReal.add(statement1);
-        createStatementsUserReal.add(statement2);
-        createStatementsUserReal.add(statement3);
-        createStatementsUserReal.add(statement4);
-        createStatementsUserReal.add(statement5);
+    public static String createStatementUser(){
+        return """
+        CREATE TABLE IF NOT EXISTS  User( username varchar(256) NOT NULL,
+        password varchar(256) NOT NULL,
+        email varchar(256) NOT NULL,
+        PRIMARY KEY (username) )""";
 
-        return createStatementsUserReal;
     }
 
 public String serializeGame(ChessGame game){
@@ -93,57 +73,55 @@ public String serializeGame(ChessGame game){
         return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
+
+
+
+
+
     public static void createTablesFunction() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
-            ArrayList<String> PlaceholderTable = new ArrayList<>();
-            ArrayList<String> createdUserTable = createStatementUser(PlaceholderTable);
-            ArrayList<String> createdGameTable = createStatementGame(PlaceholderTable);
-            ArrayList<String> createdAuthTable = createStatementAuth(PlaceholderTable);
-            try (Statement newStatement = conn.createStatement()) {
-            for (String statement : createdGameTable) {
-                //PreparedStatement statement1 = conn.prepareStatement(statement);
-                newStatement.executeUpdate(statement);
-
-            }
-            for (String statement : createdUserTable) {
-                //conn.prepareStatement(statement);
-                //PreparedStatement statement2 = conn.prepareStatement(statement);
-                newStatement.executeUpdate(statement);
-            }
-            for (String statement : createdAuthTable) {
-                //conn.prepareStatement(statement);
-                //PreparedStatement statement3 = conn.prepareStatement(statement);
-                newStatement.executeUpdate(statement);
-            }
-            }
+            Statement statement = conn.createStatement();
+            String authTables = createStatementAuth();
+            PreparedStatement statement1 = conn.prepareStatement(authTables);
+            statement.executeUpdate(authTables);
+            String gameTables = createStatementGame();
+            PreparedStatement statement2 = conn.prepareStatement(gameTables);
+            statement.executeUpdate(gameTables);
+            String userTables = createStatementUser();
+            PreparedStatement statement3 = conn.prepareStatement(userTables);
+            statement.executeUpdate(gameTables);
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
     public void insertUserToUserTable(UserData User) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             String newPassword = storeUserPassword(User.password());
-            String statementToBeExecuted = "INSERT into Users (?, ?, ?)";
+            String statementToBeExecuted = "INSERT INTO User(username, password, email) VALUES (?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
             newStatement.setString(1,User.username());
             newStatement.setString(2,newPassword);
             newStatement.setString(3,User.email());
             newStatement.executeUpdate();
+            String sql = "SELECT * FROM User";
+            PreparedStatement sqlExecution = conn.prepareStatement(sql);
+            ResultSet results = sqlExecution.executeQuery();
+            ResultSet cookies = results;
         } catch (SQLException ex){
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
     public void insertAuth(AuthData Auth) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
-            String statementToBeExecuted = "INSERT into Auth (?, ?)";
+            String statementToBeExecuted = "INSERT INTO Auth (username, authToken) VALUES (?,?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
             newStatement.setString(1,Auth.username());
             newStatement.setString(2,Auth.authToken());
             newStatement.executeUpdate();
         } catch (SQLException ex){
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
@@ -165,7 +143,7 @@ public String serializeGame(ChessGame game){
             newStatement.setString(5, json);
             newStatement.executeUpdate();
         } catch (SQLException ex){
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
@@ -182,7 +160,7 @@ public String serializeGame(ChessGame game){
             newStatement.setString(5, json);
             newStatement.executeUpdate();
         } catch (SQLException ex){
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
@@ -200,7 +178,7 @@ public String serializeGame(ChessGame game){
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
         return null;
     }
@@ -219,7 +197,7 @@ public String serializeGame(ChessGame game){
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
         return null;
     }
@@ -232,7 +210,7 @@ public String serializeGame(ChessGame game){
             statementToBeExecuted.setInt(1,gameToBeDeleted.gameID());
             statementToBeExecuted.executeQuery();
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
@@ -255,7 +233,7 @@ public String serializeGame(ChessGame game){
 
             return PlaceholderList;
         } catch (SQLException ex){
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 
@@ -270,7 +248,7 @@ public String serializeGame(ChessGame game){
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
 return false;
     }
@@ -284,7 +262,7 @@ return false;
             ResultSet result = statementToBeExecuted.executeQuery();
             return "{}";
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
         //throw new DataAccessException("{\"message\": \"Error: bad request\"}");
     }
@@ -299,7 +277,7 @@ return false;
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
 return null;
     }
@@ -314,42 +292,35 @@ return null;
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
         return true;
     }
 
     public boolean checkLogin(String username, String password) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username FROM User ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username, password FROM User WHERE username = ? ");
+            statementToBeExecuted.setString(1,username);
+
+            String sql = "SELECT * FROM User";
             ResultSet result = statementToBeExecuted.executeQuery();
-            while(result.next()){
-                if (Objects.equals(result.getString("username"), username)) {
-                    if (Objects.equals(result.getString("password"), password)) {
-                        return true;
-                    }
-
-
-                    }
-            }
+            return(result.next() && BCrypt.checkpw(password, result.getString("password")));
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
-        return false;
     }
 
 
-    public String clearDB() throws DataAccessException {
+    public void clearDB() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecutedUser = conn.prepareStatement("TRUNCATE TABLE User ");
-            statementToBeExecutedUser.executeQuery();
-            PreparedStatement statementToBeExecutedAuth = conn.prepareStatement("TRUNCATE TABLE Auth ");
-            statementToBeExecutedAuth.executeQuery();
-            PreparedStatement statementToBeExecutedGame = conn.prepareStatement("TRUNCATE TABLE Game ");
-            statementToBeExecutedGame.executeQuery();
-            return "{}";
+            Statement statementToBeExecutedGame = conn.createStatement();
+            statementToBeExecutedGame.executeUpdate("DELETE FROM Game");
+            Statement statementToBeExecutedAuth = conn.createStatement();
+            statementToBeExecutedAuth.executeUpdate("DELETE FROM Auth");
+            Statement statementToBeExecutedUser = conn.createStatement();
+            statementToBeExecutedUser.executeUpdate("DELETE FROM User");
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database %s", ex);
+            throw new DataAccessException(ex.getMessage());
         }
     }
 

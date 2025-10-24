@@ -24,7 +24,7 @@ public class Server {
         //javalin.post("/register/{name}", this::register);
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));
         javalin.delete("/db", this::handleClear);
-        javalin.post("/user", this::handleregister);
+        javalin.post("/user", this::handleRegister);
         javalin.post("/session", this::handleLogin);
         javalin.delete("/session", this::handleLogout);
         javalin.post("/game", this::handleCreateGame);
@@ -37,20 +37,12 @@ public class Server {
     //var serializer = new Gson:  var req = serializer.fromJson(ctx.body(), Map.class); var res = serializer.toJson(res)ctx.result(res)
 
 
-    public void handleregister(Context ctx) {
+    public void handleRegister(Context ctx) {
         try {
             UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
             ctx.result(new Service().register(registerRequest));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            if (ex.getMessage() == "{\"message\": \"Error: already taken\"}"){
-                ctx.status(403);
-            }
-            if (ex.getMessage() == "{\"message\": \"Error: bad request\"}"){
-                ctx.status(400);
-            }
-
+            handleException(ctx,ex);
         }
     }
 
@@ -59,15 +51,7 @@ public class Server {
             UserData registerRequest = new Gson().fromJson(ctx.body(), UserData.class);
             ctx.result(new Service().login(registerRequest));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            if (ex.getMessage() == "{\"message\": \"Error: unauthorized\"}"){
-                ctx.status(401);
-            }
-            if (ex.getMessage() == "{\"message\": \"Error: bad request\"}"){
-                ctx.status(400);
-            }
-
+            handleException(ctx,ex);
         }
 
     }
@@ -77,17 +61,18 @@ public class Server {
             AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
             ctx.result(new Service().logout(authTokenRequest));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            helperFunctionForCodeQuality(ctx,ex);
-
+            handleException(ctx,ex);
         }
 
 
         //new Service().logout(ctx);
     }
     public void handleClear(Context ctx){
-        new Service().clear();
+        try {new Service().clear();} catch (DataAccessException e) {
+            ctx.status(500);
+            throw new RuntimeException(e);
+        }
+
     }
     private void handleCreateGame(Context ctx) {
         try {
@@ -95,18 +80,7 @@ public class Server {
             GameData registerRequestGame = new Gson().fromJson(ctx.body(), GameData.class);
             ctx.result(new Service().createGame(authTokenRequest, registerRequestGame));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
-                ctx.status(401);
-            }
-            if (ex.getMessage() == "{\"message\": \"Error: no game found\"}"){
-                ctx.status(400);
-            }
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
-                ctx.status(400);
-            }
-
+            handleException(ctx,ex);
         }
     }
 
@@ -116,23 +90,7 @@ public class Server {
             TransitoryGameData registerRequestGame = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
             ctx.result(new Service().joinGame(authTokenRequest, registerRequestGame));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
-                ctx.status(401);
-            }
-            if (ex.getMessage() == "{\"message\": \"Error: no game found\"}"){
-                ctx.status(400);
-            }
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
-                ctx.status(400);
-            }
-            if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: already taken\"}")){
-                ctx.status(403);
-            }
-
-
-
+            handleException(ctx,ex);
         }
     }
 
@@ -141,23 +99,29 @@ public class Server {
             AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
             ctx.result(new Service().listGame(authTokenRequest));
         }catch(DataAccessException ex){
-
-            ctx.result(ex.getMessage());
-            helperFunctionForCodeQuality(ctx,ex);
-
+            handleException(ctx,ex);
         }
     }
 
-    public void helperFunctionForCodeQuality(Context ctx, DataAccessException ex){
-        if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: unauthorized\"}")){
-            ctx.status(401);
-        }
-        if (Objects.equals(ex.getMessage(), "{\"message\": \"Error: bad request\"}")){
-            ctx.status(400);
-        }
+    public void handleException(Context ctx, DataAccessException ex){
+        ctx.result("{\"message\": \"Error: "+ex.getMessage()+"\"}");
+        ctx.status(switch (ex.getMessage()) {
+            case "unauthorized" -> 401;
+            case "bad request" ->400;
+            case "already taken" -> 403;
+            case null, default -> 500;
+        });
     }
+
+
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.createTablesFunction();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         javalin.start(desiredPort);
         return javalin.port();
     }
