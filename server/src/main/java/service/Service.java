@@ -110,19 +110,19 @@ public class Service {
 
     public String joinGame(AuthData authTokenResponse, TransitoryGameData joinRequest) throws DataAccessException{
 
-        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenResponse.authToken()), authTokenResponse.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenResponse.authToken()), authTokenResponse.authToken());
 
 
-            if (!new Auth().findAuth(registerRequest.authToken())){
+            if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
             }
                 //TransitoryGameData joinRequest = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
-                GameData game = new Game().findGameByID(joinRequest.gameID());
+                GameData game = new DatabaseManager().findGameByID(joinRequest.gameID());
                 if (joinRequest.gameID() != 0){
                     if (Objects.equals(joinRequest.playerColor(), "WHITE")){
                         if (game.whiteUsername() == null){
-                            new Game().deleteGameByID(joinRequest.gameID());
-                            new Game().makeGame(new GameData(joinRequest.gameID(),
+                            new DatabaseManager().deleteGameByID(joinRequest.gameID());
+                            new DatabaseManager().makeGame(new GameData(joinRequest.gameID(),
                                     registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
                         } else {
 
@@ -131,8 +131,8 @@ public class Service {
                     }
                     else if (Objects.equals(joinRequest.playerColor(), "BLACK")){
                         if (game.blackUsername() == null){
-                            new Game().deleteGameByID(joinRequest.gameID());
-                            new Game().makeGame(new GameData(joinRequest.gameID(),
+                            new DatabaseManager().deleteGameByID(joinRequest.gameID());
+                            new DatabaseManager().makeGame(new GameData(joinRequest.gameID(),
                                     game.whiteUsername(),registerRequest.username(),
                                     game.gameName(), game.game()));
                         } else {
@@ -147,28 +147,23 @@ public class Service {
                 else {
                     throw new DataAccessException("bad request");
                 }
-
                 return "{}";
-
-
-
     }
 
     public String listGame(AuthData authTokenRequest) throws DataAccessException {
 
         //AuthData authTokenRequest = new AuthData("",ctx.header("authorization")) ;
-        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
 
-            if (!new Auth().findAuth(registerRequest.authToken())){
+            if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
             }
-            if (new Auth().findAuth(registerRequest.authToken())){
+            if (new DatabaseManager().findAuth(registerRequest.authToken())){
 
                 Gson gson = new Gson();
-                 String listGamesResult = gson.toJson(Map.of("games",Game.listOfGames));
-                 //var games = listGamesResult;
-                return listGamesResult;
+                //var games = listGamesResult;
+                return new DatabaseManager().listGames();
             }
 
         throw new DataAccessException("bad request");

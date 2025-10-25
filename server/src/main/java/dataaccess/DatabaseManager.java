@@ -9,10 +9,7 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
 
 
 public class DatabaseManager {
@@ -150,11 +147,11 @@ public String serializeGame(ChessGame game){
     public void makeGame(GameData Game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
 
-            String statementToBeExecuted = "INSERT into Game (?, ?, ?, ?, ?)";
+            String statementToBeExecuted = "INSERT into Game(gameID,whiteUsername,blackUsername,gameName,game) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
             newStatement.setInt(1,Game.gameID());
             newStatement.setString(2,Game.whiteUsername());
-            newStatement.setString(3,Game.whiteUsername());
+            newStatement.setString(3,Game.blackUsername());
             newStatement.setString(4,Game.gameName());
             String json = serializeGame(Game.game());
             newStatement.setString(5, json);
@@ -185,7 +182,7 @@ public String serializeGame(ChessGame game){
 
     public GameData findGameByID(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT gameName FROM Game ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
             while(result.next()){
                 if (Objects.equals(result.getInt("gameID"), gameID)) {
@@ -203,12 +200,12 @@ public String serializeGame(ChessGame game){
     }
 
 
-    public void DeleteGameByID(int gameID) throws DataAccessException {
+    public void deleteGameByID(int gameID) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("DELETE FROM Game WHERE 'gameID = ?' ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("DELETE FROM Game WHERE gameID = ? ");
             GameData gameToBeDeleted = findGameByID(gameID);
             statementToBeExecuted.setInt(1,gameToBeDeleted.gameID());
-            statementToBeExecuted.executeQuery();
+            statementToBeExecuted.executeUpdate();
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
@@ -216,22 +213,26 @@ public String serializeGame(ChessGame game){
 
 
 
-    public ArrayList<ListGamesData> listGames() throws DataAccessException {
-        ArrayList<ListGamesData> PlaceholderList = new ArrayList<>();
-        try (var conn = DatabaseManager.getConnection();){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, game FROM Game");
+    public String listGames() throws DataAccessException {
+        ArrayList<GameData> PlaceholderList = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection();) {
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game");
             ResultSet result = statementToBeExecuted.executeQuery();
-            while (result.next()){
+            String listGamesResult = "{}";
+            while (result.next()) {
                 int gameID = result.getInt("gameID");
                 String whiteUsername = result.getString("whiteUsername");
                 String blackUsername = result.getString("blackUsername");
                 String gameName = result.getString("gameName");
                 String game = result.getString("game");
-                game = new Gson().fromJson(game, String.class);
-                PlaceholderList.add(new ListGamesData(gameID, whiteUsername, blackUsername, gameName, game));
-            }
+                ChessGame resultGame = new Gson().fromJson(game, ChessGame.class);
+                PlaceholderList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, resultGame));
 
-            return PlaceholderList;
+            }
+            Gson gson = new Gson();
+            listGamesResult = gson.toJson(Map.of("games", PlaceholderList));
+
+            return listGamesResult;
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }

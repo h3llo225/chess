@@ -68,9 +68,8 @@ public class Server {
         //new Service().logout(ctx);
     }
     public void handleClear(Context ctx){
-        try {new Service().clear();} catch (DataAccessException e) {
-            ctx.status(500);
-            throw new RuntimeException(e);
+        try {new Service().clear();} catch (DataAccessException ex) {
+            handleException(ctx,ex);
         }
 
     }
