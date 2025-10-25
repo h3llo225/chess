@@ -128,7 +128,7 @@ public String serializeGame(ChessGame game){
 
     public void createGame(GameData Game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            String statementToBeExecuted = "INSERT into Game (?, ?, ?, ?, ?)";
+            String statementToBeExecuted = "INSERT into Game(gameID,whiteUsername,blackUsername,gameName,game) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
             Random randomGameID = new Random();
             int newRandomGameID = randomGameID.nextInt();
@@ -166,7 +166,7 @@ public String serializeGame(ChessGame game){
 
     public GameData findGame(String gameName) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT gameName FROM Game ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
             while(result.next()){
                 if (Objects.equals(result.getString("gameName"), gameName)) {
@@ -257,9 +257,9 @@ return false;
 
     public String logoutAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("DELETE FROM Auth WHERE 'authToken = ?' ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("DELETE FROM Auth WHERE authToken = ? ");
             statementToBeExecuted.setString(1,authToken);
-            ResultSet result = statementToBeExecuted.executeQuery();
+            statementToBeExecuted.executeUpdate();
             return "{}";
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
@@ -269,7 +269,7 @@ return false;
     public String findUser(String authToken) throws DataAccessException {
         ArrayList<ListGamesData> PlaceholderList = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()){
-            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT authToken FROM Auth ");
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username, authToken FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
             while(result.next()){
                 if (Objects.equals(result.getString("authToken"), authToken)) {

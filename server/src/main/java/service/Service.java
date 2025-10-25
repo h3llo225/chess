@@ -9,6 +9,7 @@ import model.GameData;
 import model.UserData;
 import model.TransitoryGameData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 import java.util.Map;
@@ -64,21 +65,13 @@ public class Service {
     }
 
     public String logout(AuthData authTokenRequest) throws DataAccessException{
-        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
 
-            if (!new Auth().findAuth(registerRequest.authToken())){
+            if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
             }
-            if (new Auth().findAuth(registerRequest.authToken())){
-                int count = 0;
-                for (AuthData userAuth : listOfAuth) {
-                    count++;
-                    if (Objects.equals(userAuth.authToken(), registerRequest.authToken())) {
-                        listOfAuth.remove(count-1);
-                        return "{}";
-                    }
-                }
-
+            if (new DatabaseManager().findAuth(registerRequest.authToken())){
+                return new DatabaseManager().logoutAuth(registerRequest.authToken());
             }
         throw new DataAccessException("bad request");
 
@@ -92,19 +85,16 @@ public class Service {
     }
 
     public String createGame(AuthData authTokenRequest, GameData registerRequestGame) throws DataAccessException{
-        AuthData registerRequest = new AuthData(new Auth().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
-
-
-
-            if (!new Auth().findAuth(registerRequest.authToken())){
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+            if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
             }
-            if (new Auth().findAuth(registerRequest.authToken())){
+            if (new DatabaseManager().findAuth(registerRequest.authToken())){
                 if (registerRequestGame.gameName() == null){
                     throw new DataAccessException("bad request");
                 }
-                new Game().createGame(registerRequestGame);
-                GameData game = new Game().findGame(registerRequestGame.gameName());
+                new DatabaseManager().createGame(registerRequestGame);
+                GameData game = new DatabaseManager().findGame(registerRequestGame.gameName());
                 if (game == null){
                     throw new DataAccessException("bad request");
                 }
