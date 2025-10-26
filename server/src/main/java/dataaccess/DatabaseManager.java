@@ -327,6 +327,46 @@ return null;
 
 
 
+    public boolean checkAllUsers() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth ");
+            ResultSet result = statementToBeExecuted.executeQuery();
+            if (result == null){
+                return false;
+            }else{
+                return true;
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+    public AuthData findAuthAtIndex(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth WHERE username = ?");
+            statementToBeExecuted.setString(1,username);
+            ResultSet result = statementToBeExecuted.executeQuery();
+            if (result == null){
+                return null;
+            }else{
+                while(result.next()) {
+                    if (Objects.equals(result.getString("username"), username)) {
+                        return new AuthData(result.getString("username"), result.getString("authToken"));
+                    }
+                }
+                throw new DataAccessException("unauthorized");
+
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+
+
+
+
+
+
 
     /**
      * Create a connection to the database and sets the catalog based upon the
