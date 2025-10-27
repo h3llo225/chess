@@ -161,40 +161,17 @@ public String serializeGame(ChessGame game){
         }
     }
 
-    public boolean findGameHelperHelperHelperForCodeQuality(ResultSet result, int gameID) throws SQLException {
-        if (Objects.equals(result.getInt("gameID"), gameID)) {
-            return true;
-        }else{
-            return false;
-        }
-    }
-public GameData findGameHelperHelperForCodeQuality(ResultSet result, int gameID) throws SQLException {
-    if (findGameHelperHelperHelperForCodeQuality(result, gameID)) {
-        ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-        return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
-                result.getString("blackUsername"), result.getString("gameName"),
-                game);
-    }
-    return null;
-}
-    public GameData findGameHelper(ResultSet result, int gameID, String gameName) throws SQLException {
-        if (gameName == null && gameID != 0)
-        {
-            while(result.next()){
-            return findGameHelperHelperForCodeQuality(result,gameID);
-        }
-        }
-        else if(gameName != null && gameID == 0){
-            while(result.next()){
-                if (Objects.equals(result.getString("gameName"), gameName)) {
-                    ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-                    return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
-                            result.getString("blackUsername"), result.getString("gameName"),
-                            game);
-                }
+    public GameData findGameHelper(ResultSet result, int gameID) throws SQLException {
+
+        while(result.next()){
+            if (Objects.equals(result.getInt("gameID"), gameID)) {
+                ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
+
+                return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
+                        result.getString("blackUsername"), result.getString("gameName"),
+                        game);
             }
         }
-
         return null;
     }
 
@@ -202,23 +179,31 @@ public GameData findGameHelperHelperForCodeQuality(ResultSet result, int gameID)
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            return findGameHelper(result,0,gameName);
+            while(result.next()){
+                if (Objects.equals(result.getString("gameName"), gameName)) {
+                    ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
+
+                    return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
+                            result.getString("blackUsername"), result.getString("gameName"),
+                            game);
+                }
+            }
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
+        return null;
     }
 
     public GameData findGameByID(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            return findGameHelper(result,gameID,null);
+            return findGameHelper(result,gameID);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
 
     }
-
 
     public void deleteGameByID(int gameID) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
