@@ -160,16 +160,25 @@ public String serializeGame(ChessGame game){
             throw new DataAccessException(ex.getMessage());
         }
     }
+public GameData findGameHelpersHelper(ResultSet result) throws SQLException {
+    ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
 
-    public GameData findGameHelper(ResultSet result, int gameID) throws SQLException {
-
+    return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
+            result.getString("blackUsername"), result.getString("gameName"),
+            game);
+}
+    public GameData findGameHelper(ResultSet result, int gameID, String gameName) throws SQLException {
+        if (gameID != 0 && gameName == null){
         while(result.next()){
             if (Objects.equals(result.getInt("gameID"), gameID)) {
-                ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-
-                return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
-                        result.getString("blackUsername"), result.getString("gameName"),
-                        game);
+                return findGameHelpersHelper(result);
+            }
+        }
+        }else if(gameID == 0 && gameName != null){
+            while(result.next()){
+                if (Objects.equals(result.getString("gameName"), gameName)) {
+                    return findGameHelpersHelper(result);
+                }
             }
         }
         return null;
@@ -179,26 +188,18 @@ public String serializeGame(ChessGame game){
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            while(result.next()){
-                if (Objects.equals(result.getString("gameName"), gameName)) {
-                    ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-
-                    return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
-                            result.getString("blackUsername"), result.getString("gameName"),
-                            game);
-                }
-            }
+            return findGameHelper(result,0,gameName);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
-        return null;
+
     }
 
     public GameData findGameByID(int gameID) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            return findGameHelper(result,gameID);
+            return findGameHelper(result,gameID, null);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
