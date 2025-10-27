@@ -160,8 +160,16 @@ public String serializeGame(ChessGame game){
             throw new DataAccessException(ex.getMessage());
         }
     }
+
+    public boolean findGameHelperHelperHelperForCodeQuality(ResultSet result, int gameID) throws SQLException {
+        if (Objects.equals(result.getInt("gameID"), gameID)) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 public GameData findGameHelperHelperForCodeQuality(ResultSet result, int gameID) throws SQLException {
-    if (Objects.equals(result.getInt("gameID"), gameID)) {
+    if (findGameHelperHelperHelperForCodeQuality(result, gameID)) {
         ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
         return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
                 result.getString("blackUsername"), result.getString("gameName"),
@@ -180,7 +188,6 @@ public GameData findGameHelperHelperForCodeQuality(ResultSet result, int gameID)
             while(result.next()){
                 if (Objects.equals(result.getString("gameName"), gameName)) {
                     ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-
                     return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
                             result.getString("blackUsername"), result.getString("gameName"),
                             game);
