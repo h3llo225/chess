@@ -23,14 +23,16 @@ public class Service {
     public String register(UserData registerRequest) throws DataAccessException {
         AuthData classPlaceHolder2 = new AuthData("","");
 
-            if (registerRequest.username() == null || registerRequest.email() == null || registerRequest.password() == null) {
+            if (registerRequest.username() == null || registerRequest.email() == null
+                    || registerRequest.password() == null) {
                 throw new DataAccessException("bad request");
             }
             if (!new DatabaseManager().getUser(registerRequest.username())){
                 throw new DataAccessException("already taken");
             }
             if (new DatabaseManager().getUser(registerRequest.username())){
-                new DatabaseManager().insertUserToUserTable(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+                new DatabaseManager().insertUserToUserTable(new UserData(registerRequest.username(),
+                        registerRequest.password(), registerRequest.email()));
                 String uuIDLogin = UUID.randomUUID().toString();
                 AuthData result = new AuthData(registerRequest.username(), uuIDLogin);
                 Gson gson = new Gson();
@@ -64,7 +66,8 @@ public class Service {
     }
 
     public String logout(AuthData authTokenRequest) throws DataAccessException{
-        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()),
+                authTokenRequest.authToken());
 
             if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
@@ -76,15 +79,13 @@ public class Service {
 
     }
     public String clear() throws DataAccessException {
-//        Auth.listOfAuth = new ArrayList<>();
-//        User.listofUsers = new ArrayList<>();
-//        Game.listOfGames = new ArrayList<>();
         new DatabaseManager().clearDB();
         return "{}";
     }
 
     public String createGame(AuthData authTokenRequest, GameData registerRequestGame) throws DataAccessException{
-        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()),
+                authTokenRequest.authToken());
             if (!new DatabaseManager().findAuth(registerRequest.authToken())){
                 throw new DataAccessException("unauthorized");
             }
@@ -109,7 +110,8 @@ public class Service {
 
     public String joinGame(AuthData authTokenResponse, TransitoryGameData joinRequest) throws DataAccessException{
 
-        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenResponse.authToken()), authTokenResponse.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenResponse.authToken()),
+                authTokenResponse.authToken());
 
 
             if (!new DatabaseManager().findAuth(registerRequest.authToken())){
@@ -152,7 +154,8 @@ public class Service {
     public String listGame(AuthData authTokenRequest) throws DataAccessException {
 
         //AuthData authTokenRequest = new AuthData("",ctx.header("authorization")) ;
-        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()), authTokenRequest.authToken());
+        AuthData registerRequest = new AuthData(new DatabaseManager().findUser(authTokenRequest.authToken()),
+                authTokenRequest.authToken());
 
 
             if (!new DatabaseManager().findAuth(registerRequest.authToken())){
