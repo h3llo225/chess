@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.Service;
 
+import javax.xml.crypto.Data;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -239,5 +240,62 @@ public class ServiceTest {
             }
     }
 
+    @Test
+    public void dataManagerTestsFindGamePass(){
+        try {
+            UserData testUser = new UserData("testUser", "pass", "email@1");
+
+            new Service().register(testUser);
+            GameData testGame = new GameData(5, "", "",
+                    "testGame", null);
+            new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame );
+            assert(new DatabaseManager().findGame("testGame").getClass() == GameData.class);
+        }catch (DataAccessException ex) {
+        }
+    }
+@Test
+    public void dataManagerTestsFindGameFail(){
+        try {
+            UserData testUser = new UserData("testUser", "pass", "email@1");
+
+            new Service().register(testUser);
+            GameData testGame = new GameData(5, "", "",
+                    "testGame", null);
+            new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame );
+            assert(new DatabaseManager().findGame("w") == null);
+        }catch (DataAccessException ex) {
+        }
+    }
+
+
+
+
+
+    @Test
+    public void dataManagerTestsFindGameByIDPass(){
+        try {
+            UserData testUser = new UserData("testUser", "pass", "email@1");
+
+            new Service().register(testUser);
+            GameData testGame = new GameData(5, "", "",
+                    "testGame", new ChessGame());
+            new DatabaseManager().makeGame(testGame);
+            assert(new DatabaseManager().findGameByID(5).getClass() == GameData.class);
+        }catch (DataAccessException ex) {
+        }
+    }
+    @Test
+    public void dataManagerTestsFindGameByIDFail(){
+        try {
+            UserData testUser = new UserData("testUser", "pass", "email@1");
+
+            new Service().register(testUser);
+            GameData testGame = new GameData(5, "", "",
+                    "testGame", new ChessGame());
+            new DatabaseManager().makeGame(testGame);
+            assert(new DatabaseManager().findGameByID(2) == null);
+        }catch (DataAccessException ex) {
+        }
+    }
 
 }
