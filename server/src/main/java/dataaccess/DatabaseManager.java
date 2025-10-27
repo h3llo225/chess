@@ -238,6 +238,32 @@ public String serializeGame(ChessGame game){
         }
     }
 
+
+    public ArrayList<GameData> listGamesIntoArray() throws DataAccessException {
+        ArrayList<GameData> PlaceholderList = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection();) {
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game");
+            ResultSet result = statementToBeExecuted.executeQuery();
+            String listGamesResult = "{}";
+            while (result.next()) {
+                int gameID = result.getInt("gameID");
+                String whiteUsername = result.getString("whiteUsername");
+                String blackUsername = result.getString("blackUsername");
+                String gameName = result.getString("gameName");
+                String game = result.getString("game");
+                ChessGame resultGame = new Gson().fromJson(game, ChessGame.class);
+                PlaceholderList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, resultGame));
+
+            }
+            Gson gson = new Gson();
+            listGamesResult = gson.toJson(Map.of("games", PlaceholderList));
+
+            return PlaceholderList;
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
     public boolean findAuth(String authToken) throws DataAccessException {
         ArrayList<ListGamesData> PlaceholderList = new ArrayList<>();
         try(var conn = DatabaseManager.getConnection()) {
@@ -331,7 +357,12 @@ return null;
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            if (result == null){
+            int size = 0;
+            while (result.next())
+            {
+                size++;
+            }
+            if (size == 0){
                 return false;
             }else{
                 return true;
@@ -340,7 +371,47 @@ return null;
             throw new DataAccessException(ex.getMessage());
         }
     }
-    public AuthData findAuthAtIndex(String username) throws DataAccessException {
+
+    public boolean checkAllGames() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
+            ResultSet result = statementToBeExecuted.executeQuery();
+            int size = 0;
+            while (result.next())
+            {
+                size++;
+            }
+            if (size == 0){
+                return false;
+            }else{
+                return true;
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    public boolean checkAllAuth() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth ");
+            ResultSet result = statementToBeExecuted.executeQuery();
+            int size = 0;
+            while (result.next())
+            {
+                size++;
+            }
+            if (size == 0){
+                return false;
+            }else{
+                return true;
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+
+    public AuthData findAuthByUsername(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth WHERE username = ?");
             statementToBeExecuted.setString(1,username);
