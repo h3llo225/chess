@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static dataaccess.Auth.listOfAuth;
 
 
 public class Service {

@@ -92,14 +92,14 @@ public String serializeGame(ChessGame game){
         }
     }
 
-    public void insertUserToUserTable(UserData User) throws DataAccessException {
+    public void insertUserToUserTable(UserData user) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
-            String newPassword = storeUserPassword(User.password());
+            String newPassword = storeUserPassword(user.password());
             String statementToBeExecuted = "INSERT INTO User(username, password, email) VALUES (?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
-            newStatement.setString(1,User.username());
+            newStatement.setString(1,user.username());
             newStatement.setString(2,newPassword);
-            newStatement.setString(3,User.email());
+            newStatement.setString(3,user.email());
             newStatement.executeUpdate();
             String sql = "SELECT * FROM User";
             PreparedStatement sqlExecution = conn.prepareStatement(sql);
@@ -110,12 +110,12 @@ public String serializeGame(ChessGame game){
         }
     }
 
-    public void insertAuth(AuthData Auth) throws DataAccessException {
+    public void insertAuth(AuthData auth) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
             String statementToBeExecuted = "INSERT INTO Auth (username, authToken) VALUES (?,?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
-            newStatement.setString(1,Auth.username());
-            newStatement.setString(2,Auth.authToken());
+            newStatement.setString(1,auth.username());
+            newStatement.setString(2,auth.authToken());
             newStatement.executeUpdate();
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -123,7 +123,7 @@ public String serializeGame(ChessGame game){
     }
 
 
-    public void createGame(GameData Game) throws DataAccessException {
+    public void createGame(GameData game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             String statementToBeExecuted = "INSERT into Game(gameID,whiteUsername,blackUsername,gameName,game) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
@@ -135,7 +135,7 @@ public String serializeGame(ChessGame game){
             newStatement.setInt(1,newRandomGameID);
             newStatement.setString(2,null);
             newStatement.setString(3,null);
-            newStatement.setString(4,Game.gameName());
+            newStatement.setString(4,game.gameName());
             String json = serializeGame(new ChessGame());
             newStatement.setString(5, json);
             newStatement.executeUpdate();
@@ -144,21 +144,35 @@ public String serializeGame(ChessGame game){
         }
     }
 
-    public void makeGame(GameData Game) throws DataAccessException {
+    public void makeGame(GameData game) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
 
             String statementToBeExecuted = "INSERT into Game(gameID,whiteUsername,blackUsername,gameName,game) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement newStatement = conn.prepareStatement(statementToBeExecuted);
-            newStatement.setInt(1,Game.gameID());
-            newStatement.setString(2,Game.whiteUsername());
-            newStatement.setString(3,Game.blackUsername());
-            newStatement.setString(4,Game.gameName());
-            String json = serializeGame(Game.game());
+            newStatement.setInt(1,game.gameID());
+            newStatement.setString(2,game.whiteUsername());
+            newStatement.setString(3,game.blackUsername());
+            newStatement.setString(4,game.gameName());
+            String json = serializeGame(game.game());
             newStatement.setString(5, json);
             newStatement.executeUpdate();
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
+    }
+
+    public GameData findGameHelper(ResultSet result, int gameID) throws SQLException {
+
+        while(result.next()){
+            if (Objects.equals(result.getInt("gameID"), gameID)) {
+                ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
+
+                return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
+                        result.getString("blackUsername"), result.getString("gameName"),
+                        game);
+            }
+    }
+        return null;
     }
 
     public GameData findGame(String gameName) throws DataAccessException {
@@ -184,19 +198,11 @@ public String serializeGame(ChessGame game){
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            while(result.next()){
-                if (Objects.equals(result.getInt("gameID"), gameID)) {
-                    ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-
-                    return new GameData(result.getInt("gameID"),result.getString("whiteUsername"),
-                            result.getString("blackUsername"), result.getString("gameName"),
-                            game);
-                }
-            }
+            return findGameHelper(result,gameID);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
-        return null;
+
     }
 
 
@@ -211,27 +217,28 @@ public String serializeGame(ChessGame game){
         }
     }
 
-
+public ArrayList<GameData> listGamesHelper(ArrayList<GameData> placeholderList, ResultSet result) throws SQLException {
+    while (result.next()) {
+        int gameID = result.getInt("gameID");
+        String whiteUsername = result.getString("whiteUsername");
+        String blackUsername = result.getString("blackUsername");
+        String gameName = result.getString("gameName");
+        String game = result.getString("game");
+        ChessGame resultGame = new Gson().fromJson(game, ChessGame.class);
+        placeholderList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, resultGame));
+    }
+    return placeholderList;
+}
 
     public String listGames() throws DataAccessException {
-        ArrayList<GameData> PlaceholderList = new ArrayList<>();
+        ArrayList<GameData> placeholderList = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection();) {
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game");
             ResultSet result = statementToBeExecuted.executeQuery();
             String listGamesResult = "{}";
-            while (result.next()) {
-                int gameID = result.getInt("gameID");
-                String whiteUsername = result.getString("whiteUsername");
-                String blackUsername = result.getString("blackUsername");
-                String gameName = result.getString("gameName");
-                String game = result.getString("game");
-                ChessGame resultGame = new Gson().fromJson(game, ChessGame.class);
-                PlaceholderList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, resultGame));
-
-            }
+            placeholderList = listGamesHelper(placeholderList, result);
             Gson gson = new Gson();
-            listGamesResult = gson.toJson(Map.of("games", PlaceholderList));
-
+            listGamesResult = gson.toJson(Map.of("games", placeholderList));
             return listGamesResult;
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
@@ -240,32 +247,18 @@ public String serializeGame(ChessGame game){
 
 
     public ArrayList<GameData> listGamesIntoArray() throws DataAccessException {
-        ArrayList<GameData> PlaceholderList = new ArrayList<>();
-        try (var conn = DatabaseManager.getConnection();) {
+        ArrayList<GameData> placeholderList = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection()) {
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game");
             ResultSet result = statementToBeExecuted.executeQuery();
-            String listGamesResult = "{}";
-            while (result.next()) {
-                int gameID = result.getInt("gameID");
-                String whiteUsername = result.getString("whiteUsername");
-                String blackUsername = result.getString("blackUsername");
-                String gameName = result.getString("gameName");
-                String game = result.getString("game");
-                ChessGame resultGame = new Gson().fromJson(game, ChessGame.class);
-                PlaceholderList.add(new GameData(gameID, whiteUsername, blackUsername, gameName, resultGame));
-
-            }
-            Gson gson = new Gson();
-            listGamesResult = gson.toJson(Map.of("games", PlaceholderList));
-
-            return PlaceholderList;
+            placeholderList = listGamesHelper(placeholderList, result);
+            return placeholderList;
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
     }
 
     public boolean findAuth(String authToken) throws DataAccessException {
-        ArrayList<ListGamesData> PlaceholderList = new ArrayList<>();
         try(var conn = DatabaseManager.getConnection()) {
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT authToken FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
@@ -294,7 +287,6 @@ return false;
         //throw new DataAccessException("{\"message\": \"Error: bad request\"}");
     }
     public String findUser(String authToken) throws DataAccessException {
-        ArrayList<ListGamesData> PlaceholderList = new ArrayList<>();
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username, authToken FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
@@ -351,22 +343,24 @@ return null;
         }
     }
 
-
+public boolean checkerHelper(ResultSet result) throws SQLException {
+    int size = 0;
+    while (result.next())
+    {
+        size++;
+    }
+    if (size == 0){
+        return false;
+    }else{
+        return true;
+    }
+}
 
     public boolean checkAllUsers() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            int size = 0;
-            while (result.next())
-            {
-                size++;
-            }
-            if (size == 0){
-                return false;
-            }else{
-                return true;
-            }
+            return checkerHelper(result);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
@@ -376,16 +370,7 @@ return null;
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Game ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            int size = 0;
-            while (result.next())
-            {
-                size++;
-            }
-            if (size == 0){
-                return false;
-            }else{
-                return true;
-            }
+            return checkerHelper(result);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
@@ -395,16 +380,7 @@ return null;
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT * FROM Auth ");
             ResultSet result = statementToBeExecuted.executeQuery();
-            int size = 0;
-            while (result.next())
-            {
-                size++;
-            }
-            if (size == 0){
-                return false;
-            }else{
-                return true;
-            }
+            return checkerHelper(result);
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
