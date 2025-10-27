@@ -167,6 +167,7 @@ public GameData findGameHelperHelperForCodeQuality(ResultSet result, int gameID)
                 result.getString("blackUsername"), result.getString("gameName"),
                 game);
     }
+    return null;
 }
     public GameData findGameHelper(ResultSet result, int gameID, String gameName) throws SQLException {
         if (gameName == null && gameID != 0)
