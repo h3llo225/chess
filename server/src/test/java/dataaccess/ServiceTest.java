@@ -1,4 +1,4 @@
-package service;
+package dataaccess;
 import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
@@ -6,6 +6,7 @@ import model.TransitoryGameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.Service;
 
 import java.util.Objects;
 
