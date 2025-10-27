@@ -22,7 +22,7 @@ public class ServiceTest {
     public void registerTestPass() throws DataAccessException {
         UserData testUser = new UserData("testUser","pass","email@1");
         new Service().register(testUser);
-        assert(new DatabaseManager().checkAllUsers());
+        assert(new DatabaseManager().checkAll("notnull",null,null));
     }
     @Test
     public void registerTestFail() throws DataAccessException {
@@ -44,7 +44,7 @@ public class ServiceTest {
         new Service().register(testUser);
         new Service().logout(new DatabaseManager().findAuthByUsername(testUser.username()));
         new Service().login(testUser);
-        assert(new DatabaseManager().checkAllUsers());
+        assert(new DatabaseManager().checkAll("notnull",null,null));
     }
     @Test
     public void loginTestFail() throws DataAccessException {
@@ -68,7 +68,7 @@ public class ServiceTest {
         UserData testUser = new UserData("testUser","pass","email@1");
         new Service().register(testUser);
         new Service().logout(new DatabaseManager().findAuthByUsername(testUser.username()));
-        assert(!new DatabaseManager().checkAllUsers());
+        assert(!new DatabaseManager().checkAll("notnull",null,null));
     }
     @Test
     public void logoutTestFail() throws DataAccessException {
@@ -90,7 +90,7 @@ public class ServiceTest {
         GameData testGame = new GameData(5,"Bob", "Billy",
                 "testGame", new ChessGame());
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame);
-        assert(new DatabaseManager().checkAllGames());
+        assert(new DatabaseManager().checkAll(null,null,"notnull"));
     }
     @Test
     public void createGameFail() throws DataAccessException {
@@ -100,7 +100,7 @@ public class ServiceTest {
         GameData testGame = new GameData(5,null, null,
                 null, null);
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame);
-        assert(!new DatabaseManager().checkAllGames());
+        assert(!new DatabaseManager().checkAll(null,null,"notnull"));
 
     } catch (DataAccessException ex) {
 
@@ -116,7 +116,7 @@ public class ServiceTest {
         TransitoryGameData newTestGame = new TransitoryGameData(5,"WHITE");
         //new Service().createGame(Auth.listOfAuth.get(0), testGame);
         new DatabaseManager().makeGame(testGame);
-        assert(new DatabaseManager().checkAllGames());
+        assert(new DatabaseManager().checkAll(null,null,"notnull"));
         new Service().joinGame(new DatabaseManager().findAuthByUsername(testUser.username()), newTestGame);
         for (GameData game: new DatabaseManager().listGamesIntoArray()){
             assert(Objects.equals(game.whiteUsername(), "testUser"));
@@ -184,7 +184,7 @@ public class ServiceTest {
         GameData testGame = new GameData(5,"", "",
                 "testGame", new ChessGame());
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame);
-        assert(new DatabaseManager().checkAllGames());
+        assert(new DatabaseManager().checkAll(null,null,"notnull"));
 
     }
     @Test
@@ -197,7 +197,7 @@ public class ServiceTest {
         GameData testGame = new GameData(5,"", "",
                 "testGame", new ChessGame());
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUserUnAuthorized.username()), testGame);
-        assert(new DatabaseManager().checkAllGames());
+        assert(new DatabaseManager().checkAll(null,null,"notnull"));
 
     } catch (DataAccessException ex) {
         if (ex.getMessage() == "{\"message\": \"Error: unauthorized\"}") {
@@ -215,9 +215,8 @@ public class ServiceTest {
                 "testGame", new ChessGame());
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame );
         new Service().clear();
-        assert(!new DatabaseManager().checkAllUsers());
-        assert(!new DatabaseManager().checkAllAuth());
-        assert(!new DatabaseManager().checkAllGames());
+        assert(!new DatabaseManager().checkAll("notnull",null,null));
+        assert(!new DatabaseManager().checkAll(null,null,"notnull"));
 
     }
 
@@ -230,9 +229,8 @@ public class ServiceTest {
                 "testGame", null);
         new Service().createGame(new DatabaseManager().findAuthByUsername(testUser.username()), testGame );
         new Service().clear();
-        assert(!new DatabaseManager().checkAllUsers());
-        assert(!new DatabaseManager().checkAllAuth());
-        assert(!new DatabaseManager().checkAllGames());
+        assert(!new DatabaseManager().checkAll("notnull",null,null));
+        assert(!new DatabaseManager().checkAll(null,null,"notnull"));
         }
         catch (DataAccessException ex) {
                 assertTrue(true);
