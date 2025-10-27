@@ -77,16 +77,16 @@ public String serializeGame(ChessGame game){
 
     public static void createTablesFunction() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();){
-            Statement statement = conn.createStatement();
             String authTables = createStatementAuth();
-            PreparedStatement statement1 = conn.prepareStatement(authTables);
-            statement.executeUpdate(authTables);
-            String gameTables = createStatementGame();
-            PreparedStatement statement2 = conn.prepareStatement(gameTables);
-            statement.executeUpdate(gameTables);
             String userTables = createStatementUser();
+            String gameTables = createStatementGame();
             PreparedStatement statement3 = conn.prepareStatement(userTables);
-            statement.executeUpdate(gameTables);
+            statement3.executeUpdate();
+            PreparedStatement statement1 = conn.prepareStatement(authTables);
+            statement1.executeUpdate();
+            PreparedStatement statement2 = conn.prepareStatement(gameTables);
+            statement2.executeUpdate();
+
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
