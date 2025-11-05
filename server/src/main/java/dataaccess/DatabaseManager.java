@@ -301,19 +301,38 @@ return false;
 return null;
     }
 
+
+    public String[] findUserByUserNameReturnString(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()){
+            String[] retVal = new String[3];
+            PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username, password, email FROM User WHERE username = ? ");
+            statementToBeExecuted.setString(1,username);
+            ResultSet result = statementToBeExecuted.executeQuery();
+            while(result.next()){
+                retVal[0] = result.getString("username");
+                retVal[1] = result.getString("password");
+                retVal[2] = result.getString("email");
+                return retVal;
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+        return null;
+    }
+
     public boolean getUser(String username) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username FROM User ");
             ResultSet result = statementToBeExecuted.executeQuery();
             while(result.next()){
                 if (Objects.equals(result.getString("username"), username)) {
-                    return false;
+                    return true;
                 }
             }
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }
-        return true;
+        return false;
     }
 
     public boolean checkLogin(String username, String password) throws DataAccessException {

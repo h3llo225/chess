@@ -27,10 +27,10 @@ public class Service {
                     || registerRequest.password() == null) {
                 throw new DataAccessException("bad request");
             }
-            if (!new DatabaseManager().getUser(registerRequest.username())){
+            if (new DatabaseManager().getUser(registerRequest.username())){
                 throw new DataAccessException("already taken");
             }
-            if (new DatabaseManager().getUser(registerRequest.username())){
+            if (!new DatabaseManager().getUser(registerRequest.username())){
                 new DatabaseManager().insertUserToUserTable(new UserData(registerRequest.username(),
                         registerRequest.password(), registerRequest.email()));
                 String uuIDLogin = UUID.randomUUID().toString();

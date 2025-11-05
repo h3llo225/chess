@@ -9,23 +9,19 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class preloginUI {
-    public boolean assertLoggedOut(AuthData registerRequest) throws DataAccessException {
-        if(Objects.equals(new Service().logout(registerRequest), "{}")){
+    public boolean assertLoggedOut(boolean val) throws DataAccessException {
+        if(!val){
             return true;
         }else{
             return false;
         }
     }
-    public boolean assertLoggedIn(UserData registerRequest) throws DataAccessException {
-        if(new Service().login(registerRequest) != null){
-            return true;
-        }else{
-            return false;
-        }
+    public boolean assertLoggedIn(boolean val) throws DataAccessException {
+        return val;
     }
 
     public boolean assertRegisterUser(UserData registerRequest) throws DataAccessException {
-        if(new Service().register(registerRequest) != null){
+        if(new Service().register(registerRequest) != "already taken"){
             return true;
         }
         else{
@@ -34,7 +30,10 @@ public class preloginUI {
     }
     public String signIn(UserData registerRequest) throws DataAccessException {
         if (assertLoggedIn(registerRequest)){
-
+            return String.format("You signed in as %s", registerRequest.username());
+        }
+        else if (!assertLoggedIn(registerRequest)){
+            new Service().login(registerRequest);
             return String.format("You signed in as %s", registerRequest.username());
         }
         return "You are not authorized, please register an account";
