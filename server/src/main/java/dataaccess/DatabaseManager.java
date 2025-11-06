@@ -339,10 +339,14 @@ return null;
         try (var conn = DatabaseManager.getConnection()){
             PreparedStatement statementToBeExecuted = conn.prepareStatement("SELECT username, password FROM User WHERE username = ? ");
             statementToBeExecuted.setString(1,username);
-
-            String sql = "SELECT * FROM User";
             ResultSet result = statementToBeExecuted.executeQuery();
-            return(result.next() && BCrypt.checkpw(password, result.getString("password")));
+            if (result.next()){
+                String hash = result.getString("password");
+                boolean check = BCrypt.checkpw(password,hash);
+                return check;
+            }
+            return false;
+            //return(result.next() && BCrypt.checkpw(password, result.getString("password")));
         } catch (SQLException ex) {
             throw new DataAccessException(ex.getMessage());
         }

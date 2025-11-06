@@ -24,12 +24,12 @@ public class Server {
         //javalin.post("/register/{name}", this::register);
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));
         javalin.delete("/db", this::handleClear);
-        javalin.post("/user", this::handleRegister);
-        javalin.post("/session", this::handleLogin);
-        javalin.delete("/session", this::handleLogout);
-        javalin.post("/game", this::handleCreateGame);
-        javalin.put("/game", this::handleJoinGame);
-        javalin.get("/game", this::handleListGame);
+        javalin.post("/register", this::handleRegister);
+        javalin.post("/login", this::handleLogin);
+        javalin.delete("/logout", this::handleLogout);
+        javalin.post("/createGame", this::handleCreateGame);
+        javalin.put("/joinGame", this::handleJoinGame);
+        javalin.get("lListGames", this::handleListGame);
     }
 
 
