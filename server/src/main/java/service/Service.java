@@ -1,18 +1,12 @@
 package service;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
-import io.javalin.http.Context;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import model.TransitoryGameData;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -169,6 +163,16 @@ public class Service {
             }
 
         throw new DataAccessException("bad request");
+
+    }
+
+    public String isAuthorized(String username) throws DataAccessException {
+        if(new DatabaseManager().findAuthByUsername(username) != null){
+            throw new DataAccessException("unauthorized");
+        }
+        else{
+            return new DatabaseManager().findAuthByUsername(username);
+        }
 
     }
 

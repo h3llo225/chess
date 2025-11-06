@@ -29,7 +29,8 @@ public class Server {
         javalin.delete("/logout", this::handleLogout);
         javalin.post("/createGame", this::handleCreateGame);
         javalin.put("/joinGame", this::handleJoinGame);
-        javalin.get("lListGames", this::handleListGame);
+        javalin.get("/listGames", this::handleListGame);
+        javalin.get("/isAuthorized",this::handleIsAuthorized);
     }
 
 
@@ -88,6 +89,15 @@ public class Server {
             AuthData authTokenRequest = new AuthData("", ctx.header("authorization")) ;
             TransitoryGameData registerRequestGame = new Gson().fromJson(ctx.body(), TransitoryGameData.class);
             ctx.result(new Service().joinGame(authTokenRequest, registerRequestGame));
+        }catch(DataAccessException ex){
+            handleException(ctx,ex);
+        }
+    }
+
+    private void handleIsAuthorized(Context ctx){
+        try {
+            String registerRequest = new Gson().fromJson(ctx.body(), String.class);
+            ctx.result(new Service().isAuthorized(registerRequest));
         }catch(DataAccessException ex){
             handleException(ctx,ex);
         }

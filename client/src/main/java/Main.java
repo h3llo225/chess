@@ -47,7 +47,7 @@ public class Main {
                 new postLoginUI().playGamePostLogin();
             }
             if (resultOfChoicePostLogin == "list games") {
-                new postLoginUI().listGamePostLogin();
+                new postLoginUI().listGamesPostLogin();
             }
             if (resultOfChoicePostLogin == "observe game") {
                 return;

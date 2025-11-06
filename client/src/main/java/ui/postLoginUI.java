@@ -7,12 +7,14 @@ import model.AuthData;
 import model.GameData;
 import model.TransitoryGameData;
 import model.UserData;
+import serverFacade.serverFacade;
 import service.Service;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class postLoginUI {
-    public String username = null;
+    public String authToken;
     public String helpPostLogin(){
         return """
                 Logout
@@ -67,44 +69,25 @@ public class postLoginUI {
                 """);
     }
 
-//    public String createGamePostLogin(String gameName) throws DataAccessException {
-//
-//    }
-
-    public String joinGamePostLogin(String playerColor, int gameID) throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
-        new Service().joinGame(authorized, new TransitoryGameData(gameID, playerColor));
-        return "game joined!";
+    public String listGamesPostLogin() throws DataAccessException, IOException, InterruptedException {
+        return new serverFacade().listGame(authToken);
     }
 
-    public String listGamesPostLogin() throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
-        return new Service().listGame(authorized);
-    }
-
-    public String createGamePostLogin() throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
+    public String createGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String[] createGameInputs = new preloginUI().getInput();
-        GameData gameCreate = new GameData(0,null,null,createGameInputs[0],new ChessGame());
-        new Service().createGame(authorized, gameCreate);
+        new serverFacade().createGame(createGameInputs[0],authToken);
         return "game created!";
     }
-    public String playGamePostLogin() throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
+    public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String[] playGameInputs = new preloginUI().getInput();
         int stringToInt = Integer.parseInt(playGameInputs[1]);
         TransitoryGameData newTeamColorAndID = new TransitoryGameData(stringToInt, playGameInputs[0]);
-        new Service().joinGame(authorized, newTeamColorAndID);
+        new serverFacade().playGame(newTeamColorAndID, authToken);
         return "game joined!";
     }
-    public String listGamePostLogin() throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
-        return new Service().listGame(authorized);
-    }
 
-    public String logoutUser() throws DataAccessException {
-        AuthData authorized = new DatabaseManager().findAuthByUsername(username);
-        new Service().logout(authorized);
+    public String logoutUser() throws DataAccessException, IOException, InterruptedException {
+        new serverFacade().logoutUser(authToken);
         return "You are now logged out";
     }
 }
