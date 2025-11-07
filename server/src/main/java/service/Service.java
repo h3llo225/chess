@@ -166,15 +166,4 @@ public class Service {
 
     }
 
-    public String isAuthorized(String username) throws DataAccessException {
-        if(new DatabaseManager().findAuthByUsername(username) != null){
-            throw new DataAccessException("unauthorized");
-        }
-        else{
-            return new DatabaseManager().findAuthByUsername(username);
-        }
-
-    }
-
-
 }

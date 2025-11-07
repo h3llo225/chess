@@ -30,7 +30,6 @@ public class Server {
         javalin.post("/createGame", this::handleCreateGame);
         javalin.put("/joinGame", this::handleJoinGame);
         javalin.get("/listGames", this::handleListGame);
-        javalin.get("/isAuthorized",this::handleIsAuthorized);
     }
 
 
@@ -94,14 +93,7 @@ public class Server {
         }
     }
 
-    private void handleIsAuthorized(Context ctx){
-        try {
-            String registerRequest = new Gson().fromJson(ctx.body(), String.class);
-            ctx.result(new Service().isAuthorized(registerRequest));
-        }catch(DataAccessException ex){
-            handleException(ctx,ex);
-        }
-    }
+
 
     private void handleListGame(Context ctx){
         try {

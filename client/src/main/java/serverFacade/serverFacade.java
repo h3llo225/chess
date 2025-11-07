@@ -12,7 +12,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.header;
 
 public class serverFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -27,10 +26,13 @@ public class serverFacade {
         return null;
     }
     public HttpRequest requestBuilder(String method, String endpoint, Object body, String authToken){
+
         HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080"+endpoint))
-                .header("authorization", authToken)
-                .method(method, bodyRequest(body));
+                .uri(URI.create("http://localhost:8080"+endpoint));
+        if (authToken != null) {
+            request.header("authorization", authToken);
+        }
+                request.method(method, bodyRequest(body));
                 request.setHeader("Content-Type", "application/json");
 
 
@@ -40,19 +42,19 @@ public class serverFacade {
 
 
     public AuthData registerUser(UserData user) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/register", user, null);
+        HttpRequest request = requestBuilder("POST", "/register", user, "");
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, AuthData.class);
     }
     public AuthData loginUser(UserData user) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/login", user, null);
+        HttpRequest request = requestBuilder("POST", "/login", user, "");
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, AuthData.class);
     }
-    public AuthData logoutUser(String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("DELETE", "/logout",null, authToken);
+    public String logoutUser(String authToken) throws IOException, InterruptedException, DataAccessException {
+        HttpRequest request = requestBuilder("DELETE", "/logout","", authToken);
         HttpResponse<String> response = requestSend(request);
-        return handleStatusCodeAndResponse(response, AuthData.class);
+        return handleStatusCodeAndResponse(response, String.class);
     }
 
     public String createGame(String gameName, String authToken) throws IOException, InterruptedException, DataAccessException {
@@ -62,7 +64,7 @@ public class serverFacade {
     }
 
     public String listGame(String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/listGame", null, authToken);
+        HttpRequest request = requestBuilder("POST", "/listGame", "", authToken);
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, String.class);
     }
