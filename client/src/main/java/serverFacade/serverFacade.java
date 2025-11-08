@@ -3,6 +3,7 @@ package serverFacade;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.AuthData;
+import model.GameData;
 import model.TransitoryGameData;
 import model.UserData;
 
@@ -11,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 
 
 public class serverFacade {
@@ -34,42 +36,40 @@ public class serverFacade {
         }
                 request.method(method, bodyRequest(body));
                 request.setHeader("Content-Type", "application/json");
-
-
         return request.build();
     }
 
 
 
     public AuthData registerUser(UserData user) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/register", user, "");
+        HttpRequest request = requestBuilder("POST", "/user", user, "");
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, AuthData.class);
     }
     public AuthData loginUser(UserData user) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/login", user, "");
+        HttpRequest request = requestBuilder("POST", "/session", user, "");
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, AuthData.class);
     }
     public String logoutUser(String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("DELETE", "/logout","", authToken);
+        HttpRequest request = requestBuilder("DELETE", "/session","", authToken);
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, String.class);
     }
 
-    public String createGame(String gameName, String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/createGame", gameName, authToken);
+    public String createGame(GameData gameStuff, String authToken) throws IOException, InterruptedException, DataAccessException {
+        HttpRequest request = requestBuilder("POST", "/game", gameStuff, authToken);
         HttpResponse<String> response = requestSend(request);
-        return handleStatusCodeAndResponse(response, String.class);
+        return handleStatusCodeAndResponseCreateGame(response, String.class);
     }
 
     public String listGame(String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/listGame", "", authToken);
+        HttpRequest request = requestBuilder("GET", "/game", "", authToken);
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, String.class);
     }
     public String playGame(TransitoryGameData joinGameData, String authToken) throws IOException, InterruptedException, DataAccessException {
-        HttpRequest request = requestBuilder("POST", "/listGame", joinGameData, authToken);
+        HttpRequest request = requestBuilder("PUT", "/game", joinGameData, authToken);
         HttpResponse<String> response = requestSend(request);
         return handleStatusCodeAndResponse(response, String.class);
     }
@@ -82,9 +82,27 @@ public class serverFacade {
         if (status < 199 || status > 299){
             throw new DataAccessException(body);
         }
+        if (Objects.equals(body, "{}")){
+            return (T) "{}";
+        }
         return new Gson().fromJson(body, customClass);
     }catch(DataAccessException ex){
         throw new DataAccessException(ex.getMessage());    }
 
 }
+
+    public <T> T handleStatusCodeAndResponseCreateGame(HttpResponse<String> response, Class<T> customClass) throws DataAccessException {
+        try {int status = response.statusCode();
+            String body = response.body();
+            if (status < 199 || status > 299){
+                throw new DataAccessException(body);
+            }
+            if (Objects.equals(body, "{}")){
+                return (T) "{}";
+            }
+            return (T) body;
+        }catch(DataAccessException ex){
+            throw new DataAccessException(ex.getMessage());    }
+
+    }
 }

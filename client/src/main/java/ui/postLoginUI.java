@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.AuthData;
@@ -11,10 +12,11 @@ import serverFacade.serverFacade;
 import service.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class postLoginUI {
-    public String authToken;
+    public static String authToken;
     public String helpPostLogin(){
         return """
                 Logout
@@ -74,8 +76,9 @@ public class postLoginUI {
     }
 
     public String createGamePostLogin() throws DataAccessException, IOException, InterruptedException {
-        String[] createGameInputs = new preloginUI().getInput();
-        new serverFacade().createGame(createGameInputs[0],authToken);
+        String createGameInputs = Arrays.toString(new preloginUI().getInput());
+        GameData newGameChess = new GameData(0,null,null,createGameInputs,new ChessGame());
+        new serverFacade().createGame(newGameChess,authToken);
         return "game created!";
     }
     public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {

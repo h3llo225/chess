@@ -68,10 +68,9 @@ public void registerNewUser() throws DataAccessException, IOException, Interrupt
         while(registerInputs[0]==null || registerInputs[0]==""){
             registerInputs = new preloginUI().getInput();
         }
-        new serverFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
         signedInState.editSignedIn(true);
         AuthData authDataItem =  new serverFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
-        new postLoginUI().authToken = authDataItem.authToken();
+        postLoginUI.authToken = authDataItem.authToken();
         //when signed in is true
     }catch(DataAccessException ex){
         System.out.println(String.format("You are not allowed to register, %s", ex));
@@ -84,7 +83,7 @@ public void registerNewUser() throws DataAccessException, IOException, Interrupt
         }
 
         AuthData authDataItem =  new serverFacade().loginUser(new UserData(loginInputs[0], loginInputs[1], null));
-        new postLoginUI().authToken = authDataItem.authToken();
+        postLoginUI.authToken = authDataItem.authToken();
         signedInState.editSignedIn(true);
     }catch(DataAccessException ex){
         System.out.println(String.format("You are not allowed to login, %s", ex));
