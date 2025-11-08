@@ -36,22 +36,29 @@ public class Main {
         if(signedInState.getSignedIn()){
             System.out.println("You are signed in! Here are your options. \n");
             postLoginUI.displayOptionsPostLogin();
-            String resultOfChoicePostLogin = new postLoginUI().getChoicePostLogin();
-            if (Objects.equals(resultOfChoicePostLogin, "logout")){
+
+            String resultOfChoicePostLogin = postLoginUI.getChoicePostLogin();
+            while(!Objects.equals(resultOfChoicePostLogin, "logout")) {
+                if (Objects.equals(resultOfChoicePostLogin, "create game")) {
+
+                    System.out.println(new postLoginUI().createGamePostLogin());
+                }
+                if (Objects.equals(resultOfChoicePostLogin, "play game")) {
+                    System.out.println(new postLoginUI().playGamePostLogin());
+                }
+                if (Objects.equals(resultOfChoicePostLogin, "list games")) {
+                    new postLoginUI().listGamesPostLogin();
+                }
+                if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
+                    return;
+                }
+                System.out.println("Please input your next command!");
+                resultOfChoicePostLogin = postLoginUI.getChoicePostLogin();
+            }
+            {
                 new postLoginUI().logoutUser();
             }
-            if (Objects.equals(resultOfChoicePostLogin, "create game")){
-                new postLoginUI().createGamePostLogin();
-            }
-            if (Objects.equals(resultOfChoicePostLogin, "play game")){
-                new postLoginUI().playGamePostLogin();
-            }
-            if (Objects.equals(resultOfChoicePostLogin, "list games")) {
-                new postLoginUI().listGamesPostLogin();
-            }
-            if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
-                return;
-            }
+
         }
 
 var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);

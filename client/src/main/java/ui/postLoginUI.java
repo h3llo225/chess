@@ -12,6 +12,8 @@ import serverFacade.serverFacade;
 import service.Service;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
@@ -28,7 +30,7 @@ public class postLoginUI {
                 """;
     }
 
-    public String getChoicePostLogin(){
+    public static String getChoicePostLogin(){
         while (true) {
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
@@ -86,14 +88,66 @@ public class postLoginUI {
         new serverFacade().createGame(newGameChess,authToken);
         return "game created!";
     }
+
+    public String[][] makeChessBoardWhite(){
+        String[][] chessboardWhite= new String[8][8];
+        for (int i = 0; i <8; i++){
+            for(int j = 0; j< 8; j++){
+                chessboardWhite[i][j] = EscapeSequences.EMPTY;
+                if (j % 2 == 0 ){ // is even
+                    chessboardWhite[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                } else if (j % 2 == 1) {
+                    chessboardWhite[i][j] = EscapeSequences.SET_BG_COLOR_WHITE;
+                }
+                // 0 is dark color
+            }
+        }
+        chessboardWhite[0][0]= EscapeSequences.WHITE_ROOK;
+        chessboardWhite[0][1]= EscapeSequences.WHITE_KNIGHT;
+        chessboardWhite[0][2]= EscapeSequences.WHITE_BISHOP;
+        chessboardWhite[0][3]= EscapeSequences.WHITE_QUEEN;
+        chessboardWhite[0][4]= EscapeSequences.WHITE_KING;
+        chessboardWhite[0][5]= EscapeSequences.WHITE_BISHOP;
+        chessboardWhite[0][6]= EscapeSequences.WHITE_KNIGHT;
+        chessboardWhite[0][7]= EscapeSequences.WHITE_ROOK;
+
+        chessboardWhite[1][0]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][1]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][2]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][3]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][4]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][5]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][6]= EscapeSequences.WHITE_PAWN;
+        chessboardWhite[1][7]= EscapeSequences.WHITE_PAWN;
+
+
+
+        chessboardWhite[7][0]= EscapeSequences.BLACK_ROOK;
+        chessboardWhite[7][1]= EscapeSequences.BLACK_KNIGHT;
+        chessboardWhite[7][2]= EscapeSequences.BLACK_BISHOP;
+        chessboardWhite[7][3]= EscapeSequences.BLACK_QUEEN;
+        chessboardWhite[7][4]= EscapeSequences.BLACK_KING;
+        chessboardWhite[7][5]= EscapeSequences.BLACK_BISHOP;
+        chessboardWhite[7][6]= EscapeSequences.BLACK_KNIGHT;
+        chessboardWhite[7][7]= EscapeSequences.BLACK_ROOK;
+
+        chessboardWhite[6][0]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][1]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][2]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][3]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][4]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][5]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][6]= EscapeSequences.BLACK_PAWN;
+        chessboardWhite[6][7]= EscapeSequences.BLACK_PAWN;
+        return chessboardWhite;
+    }
     public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String[] playGameInputs = new preloginUI().getInput();
         int stringToInt = Integer.parseInt(playGameInputs[1]);
         TransitoryGameData newTeamColorAndID = new TransitoryGameData(stringToInt, playGameInputs[0]);
         if (Objects.equals(newTeamColorAndID.playerColor(), "WHITE")){
-            String[][] chessboardWhite= new String[8][8];
-            chessboardWhite[0][1]= EscapeSequences.BLACK_ROOK;
-            System.out.println(chessboardWhite);
+            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+            out.println(Arrays.deepToString(makeChessBoardWhite()));
         }
         new serverFacade().playGame(newTeamColorAndID, authToken);
         return "game joined!";
