@@ -89,17 +89,13 @@ public class postLoginUI {
         return "game created!";
     }
 
-    public String[][] makeChessBoardWhite(){
+
+    public String[][] initializeBoardWhite(){
         String[][] chessboardWhite= new String[8][8];
         for (int i = 0; i <8; i++){
+
             for(int j = 0; j< 8; j++){
                 chessboardWhite[i][j] = EscapeSequences.EMPTY;
-                if (j % 2 == 0 ){ // is even
-                    chessboardWhite[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
-                } else if (j % 2 == 1) {
-                    chessboardWhite[i][j] = EscapeSequences.SET_BG_COLOR_WHITE;
-                }
-                // 0 is dark color
             }
         }
         chessboardWhite[0][0]= EscapeSequences.WHITE_ROOK;
@@ -110,18 +106,12 @@ public class postLoginUI {
         chessboardWhite[0][5]= EscapeSequences.WHITE_BISHOP;
         chessboardWhite[0][6]= EscapeSequences.WHITE_KNIGHT;
         chessboardWhite[0][7]= EscapeSequences.WHITE_ROOK;
-
-        chessboardWhite[1][0]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][1]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][2]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][3]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][4]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][5]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][6]= EscapeSequences.WHITE_PAWN;
-        chessboardWhite[1][7]= EscapeSequences.WHITE_PAWN;
-
-
-
+        for (int i = 0; i <8; i++){
+            chessboardWhite[1][i]=EscapeSequences.WHITE_PAWN;
+        }
+        for (int i = 0; i <8; i++){
+            chessboardWhite[6][i]=EscapeSequences.BLACK_PAWN;
+        }
         chessboardWhite[7][0]= EscapeSequences.BLACK_ROOK;
         chessboardWhite[7][1]= EscapeSequences.BLACK_KNIGHT;
         chessboardWhite[7][2]= EscapeSequences.BLACK_BISHOP;
@@ -130,16 +120,49 @@ public class postLoginUI {
         chessboardWhite[7][5]= EscapeSequences.BLACK_BISHOP;
         chessboardWhite[7][6]= EscapeSequences.BLACK_KNIGHT;
         chessboardWhite[7][7]= EscapeSequences.BLACK_ROOK;
-
-        chessboardWhite[6][0]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][1]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][2]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][3]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][4]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][5]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][6]= EscapeSequences.BLACK_PAWN;
-        chessboardWhite[6][7]= EscapeSequences.BLACK_PAWN;
         return chessboardWhite;
+    }
+    public String makeChessBoardWhite(String[][] chessBoardWhite){
+        StringBuilder retVal = new StringBuilder();
+        for (int i = 0; i <8; i++) {
+            retVal.append("\n");
+            for (int j = 0; j < 8; j ++){
+                if ((i+j) %2==0){
+
+                    retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                    retVal.append(EscapeSequences.SET_TEXT_COLOR_DARK_GREY);
+                    retVal.append(chessBoardWhite[i][j]);
+                    retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                    retVal.append(EscapeSequences.RESET_BG_COLOR);
+
+                }else{
+                    retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                    retVal.append(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
+                    retVal.append(chessBoardWhite[i][j]);
+                    retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                    retVal.append(EscapeSequences.RESET_BG_COLOR);
+
+
+
+                }
+            }
+        }
+        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+        retVal.append(EscapeSequences.RESET_BG_COLOR);
+        return retVal.toString();
+
+    }
+
+    public String makeChessBoardBlack(String[][] chessBoardWhite){
+        StringBuilder retVal = new StringBuilder();
+        for (int i = 7; i >= 0; i--) {
+            retVal.append("\n");
+            for (int j = 0; j < 8; j ++){
+                retVal.append(chessBoardWhite[i][j]);
+            }
+        }
+        return retVal.toString();
+
     }
     public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String[] playGameInputs = new preloginUI().getInput();
@@ -147,7 +170,7 @@ public class postLoginUI {
         TransitoryGameData newTeamColorAndID = new TransitoryGameData(stringToInt, playGameInputs[0]);
         if (Objects.equals(newTeamColorAndID.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.println(Arrays.deepToString(makeChessBoardWhite()));
+            out.print(makeChessBoardWhite(initializeBoardWhite()));
         }
         new serverFacade().playGame(newTeamColorAndID, authToken);
         return "game joined!";
