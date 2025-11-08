@@ -20,16 +20,16 @@ public class Main {
             System.out.println("invalid choice");
             resultOfChoice = new preloginUI().getChoicePrelogin();
         }
-        if (resultOfChoice == "register"){
+        if (Objects.equals(resultOfChoice, "register")){
             new preloginUI().registerNewUser();
         }
-        if (resultOfChoice == "login"){
+        if (Objects.equals(resultOfChoice, "login")){
             new preloginUI().loginUser();
         }
-        if (resultOfChoice == "help"){
+        if (Objects.equals(resultOfChoice, "help")){
             System.out.println(new preloginUI().helpPrelogin());
         }
-        if (resultOfChoice == "quit") {
+        if (Objects.equals(resultOfChoice, "quit")) {
             return;
         }
 
@@ -37,19 +37,19 @@ public class Main {
             System.out.println("You are signed in! Here are your options. \n");
             postLoginUI.displayOptionsPostLogin();
             String resultOfChoicePostLogin = new postLoginUI().getChoicePostLogin();
-            if (resultOfChoicePostLogin == "logout"){
+            if (Objects.equals(resultOfChoicePostLogin, "logout")){
                 new postLoginUI().logoutUser();
             }
-            if (resultOfChoicePostLogin == "create game"){
+            if (Objects.equals(resultOfChoicePostLogin, "create game")){
                 new postLoginUI().createGamePostLogin();
             }
-            if (resultOfChoicePostLogin == "play game"){
+            if (Objects.equals(resultOfChoicePostLogin, "play game")){
                 new postLoginUI().playGamePostLogin();
             }
-            if (resultOfChoicePostLogin == "list games") {
+            if (Objects.equals(resultOfChoicePostLogin, "list games")) {
                 new postLoginUI().listGamesPostLogin();
             }
-            if (resultOfChoicePostLogin == "observe game") {
+            if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
                 return;
             }
         }

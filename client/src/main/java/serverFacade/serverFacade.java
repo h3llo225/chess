@@ -66,7 +66,7 @@ public class serverFacade {
     public String listGame(String authToken) throws IOException, InterruptedException, DataAccessException {
         HttpRequest request = requestBuilder("GET", "/game", "", authToken);
         HttpResponse<String> response = requestSend(request);
-        return handleStatusCodeAndResponse(response, String.class);
+        return handleStatusCodeAndResponseCreateGame(response, String.class);
     }
     public String playGame(TransitoryGameData joinGameData, String authToken) throws IOException, InterruptedException, DataAccessException {
         HttpRequest request = requestBuilder("PUT", "/game", joinGameData, authToken);

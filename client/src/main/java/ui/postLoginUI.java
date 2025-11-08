@@ -13,6 +13,7 @@ import service.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class postLoginUI {
@@ -41,7 +42,7 @@ public class postLoginUI {
                             "input a game name.");
                     yield "create game";
                 }
-                case "list game", "List game", "List Game", "list Game" -> {
+                case "list games", "List games", "List Games", "list Games" -> {
                     System.out.println("You have chosen to list all games!");
                     yield "list games";
                 }
@@ -60,6 +61,8 @@ public class postLoginUI {
 
     }
 
+    
+
 
     static public void displayOptionsPostLogin(){
         System.out.println("""
@@ -72,12 +75,14 @@ public class postLoginUI {
     }
 
     public String listGamesPostLogin() throws DataAccessException, IOException, InterruptedException {
+        System.out.println(new serverFacade().listGame(authToken));
         return new serverFacade().listGame(authToken);
     }
 
     public String createGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String createGameInputs = Arrays.toString(new preloginUI().getInput());
         GameData newGameChess = new GameData(0,null,null,createGameInputs,new ChessGame());
+
         new serverFacade().createGame(newGameChess,authToken);
         return "game created!";
     }
@@ -85,6 +90,11 @@ public class postLoginUI {
         String[] playGameInputs = new preloginUI().getInput();
         int stringToInt = Integer.parseInt(playGameInputs[1]);
         TransitoryGameData newTeamColorAndID = new TransitoryGameData(stringToInt, playGameInputs[0]);
+        if (Objects.equals(newTeamColorAndID.playerColor(), "WHITE")){
+            String[][] chessboardWhite= new String[8][8];
+            chessboardWhite[0][1]= EscapeSequences.BLACK_ROOK;
+            System.out.println(chessboardWhite);
+        }
         new serverFacade().playGame(newTeamColorAndID, authToken);
         return "game joined!";
     }
