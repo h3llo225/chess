@@ -130,14 +130,12 @@ public class postLoginUI {
                 if ((i+j) %2==0){
 
                     retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                    retVal.append(EscapeSequences.SET_TEXT_COLOR_DARK_GREY);
                     retVal.append(chessBoardWhite[i][j]);
                     retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                     retVal.append(EscapeSequences.RESET_BG_COLOR);
 
                 }else{
                     retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                    retVal.append(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY);
                     retVal.append(chessBoardWhite[i][j]);
                     retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                     retVal.append(EscapeSequences.RESET_BG_COLOR);
