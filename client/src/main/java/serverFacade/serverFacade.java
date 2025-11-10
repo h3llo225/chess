@@ -74,6 +74,12 @@ public class serverFacade {
         return handleStatusCodeAndResponse(response, String.class);
     }
 
+    public String clearDB() throws IOException, InterruptedException, DataAccessException {
+        HttpRequest request = requestBuilder("DELETE", "/db", "", "");
+        HttpResponse<String> response = requestSend(request);
+        return handleStatusCodeAndResponse(response, String.class);
+    }
+
 
 
     public <T> T handleStatusCodeAndResponse(HttpResponse<String> response, Class<T> customClass) throws DataAccessException {
