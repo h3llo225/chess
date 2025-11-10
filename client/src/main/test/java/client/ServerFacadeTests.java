@@ -1,13 +1,20 @@
 package client;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.DataAccessException;
 import model.AuthData;
+import model.GameData;
+import model.TransitoryGameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import serverFacade.serverFacade;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -83,7 +90,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
 
 
     @Test
-    public void lestLoginPositive() throws IOException, InterruptedException, DataAccessException {
+    public void testLoginPositive() throws IOException, InterruptedException, DataAccessException {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         new serverFacade().logoutUser(auth.authToken());
@@ -102,6 +109,59 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
             }
         }
     }
+
+    @Test
+    public void testCreateGamePositive() throws IOException, InterruptedException, DataAccessException {
+        UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+        AuthData auth = new serverFacade().registerUser(testUser);
+        GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
+        assert (new serverFacade().createGame(testGame, auth.authToken()) instanceof String);
+    }
+
+
+    @Test
+    public void testCreateGameNegative() throws IOException, InterruptedException, DataAccessException {
+        try{UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+        AuthData auth = new serverFacade().registerUser(testUser);
+        GameData testGame = new GameData(0, null, null, null, new ChessGame());
+        new serverFacade().createGame(testGame, auth.authToken());
+        } catch (DataAccessException e) {
+            if(Objects.equals(e.getMessage(), "bad request")){
+                assert(true);
+            }
+        }
+    }
+
+    @Test
+    public void testPlayGamePositive() throws IOException, InterruptedException, DataAccessException {
+        UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+        AuthData auth = new serverFacade().registerUser(testUser);
+        GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
+        new serverFacade().createGame(testGame, auth.authToken());
+        String listofGames = new serverFacade().listGame(auth.authToken());
+        Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
+        ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
+        LinkedTreeMap hopeGame = gamesInGameList.get(0);
+        Object shouldbeID = hopeGame.get("gameID");
+        double realID = (double) shouldbeID;
+        TransitoryGameData joinGameData = new TransitoryGameData((int) realID,"WHITE");
+        assert(new serverFacade().playGame(joinGameData,auth.authToken()) instanceof String);
+        //assert(new serverFacade().playGame())
+    }
+
+
+//    @Test
+//    public void testCreateGameNegative() throws IOException, InterruptedException, DataAccessException {
+//        try{UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+//            AuthData auth = new serverFacade().registerUser(testUser);
+//            GameData testGame = new GameData(0, null, null, null, new ChessGame());
+//            new serverFacade().createGame(testGame, auth.authToken());
+//        } catch (DataAccessException e) {
+//            if(Objects.equals(e.getMessage(), "bad request")){
+//                assert(true);
+//            }
+//        }
+//    }
 }
 
 
