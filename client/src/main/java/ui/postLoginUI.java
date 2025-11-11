@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.AuthData;
@@ -14,9 +15,7 @@ import service.Service;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class postLoginUI {
     public static String authToken;
@@ -83,6 +82,7 @@ public class postLoginUI {
 
     public String createGamePostLogin() throws DataAccessException, IOException, InterruptedException {
         String createGameInputs = Arrays.toString(new preloginUI().getInput());
+
         GameData newGameChess = new GameData(0,null,null,createGameInputs,new ChessGame());
 
         new serverFacade().createGame(newGameChess,authToken);
@@ -129,13 +129,14 @@ public class postLoginUI {
             for (int j = 0; j < 8; j ++){
                 if ((i+j) %2==0){
 
-                    retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+
+                    retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
                     retVal.append(chessBoardWhite[i][j]);
                     retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                     retVal.append(EscapeSequences.RESET_BG_COLOR);
 
                 }else{
-                    retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                    retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
                     retVal.append(chessBoardWhite[i][j]);
                     retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                     retVal.append(EscapeSequences.RESET_BG_COLOR);
@@ -151,26 +152,64 @@ public class postLoginUI {
 
     }
 
-    public String makeChessBoardBlack(String[][] chessBoardWhite){
-        StringBuilder retVal = new StringBuilder();
-        for (int i = 7; i >= 0; i--) {
-            retVal.append("\n");
-            for (int j = 0; j < 8; j ++){
-                retVal.append(chessBoardWhite[i][j]);
+    public TransitoryGameData findIDPlayHelper() throws IOException, InterruptedException, DataAccessException {
+        String listofGames = new serverFacade().listGame(authToken);
+        Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
+        ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
+        System.out.println("Here are the games!");
+        String[] color = null;
+        int playGameInputs = 0;
+        for (int i = 0; i < gamesInGameList.size(); i++) {
+            LinkedTreeMap hopeGame = gamesInGameList.get(i);
+            Object shouldbeName = hopeGame.get("gameName");
+            String newShouldBeName = (String) shouldbeName;
+            System.out.println((i + 1) +" "+ newShouldBeName);
+            if (hopeGame.get("whiteUsername") != null) {
+                Object whiteUsername = hopeGame.get("white");
+                String newWhiteUsername = (String) whiteUsername;
+                System.out.println((i + 1)+" " + newWhiteUsername);
+            } else {
+                System.out.println((i + 1) +" "+ "You can be registered as the white player in this game.");
             }
+            if (hopeGame.get("blackUsername") != null) {
+                Object blackUsername = hopeGame.get("black");
+                String newBlackUsername = (String) blackUsername;
+                System.out.println((i + 1) +" "+ newBlackUsername);
+            } else {
+                System.out.println((i + 1) +" "+ "You can be registered as the black player in this game.");
+            }
+
         }
-        return retVal.toString();
+        System.out.println("Please input the game number you would like. Then the chess color. One at a time.");
+        playGameInputs = new preloginUI().getInputInt();
+        color = new preloginUI().getInput();
+        if (color.length != 1) {
+            System.out.println("Wrong num of values.");
+            color = new preloginUI().getInput();
+        }
+
+        TransitoryGameData ret = new TransitoryGameData(playGameInputs, color[0]);
+
+        return ret;
 
     }
     public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {
-        String[] playGameInputs = new preloginUI().getInput();
-        int stringToInt = Integer.parseInt(playGameInputs[1]);
-        TransitoryGameData newTeamColorAndID = new TransitoryGameData(stringToInt, playGameInputs[0]);
-        if (Objects.equals(newTeamColorAndID.playerColor(), "WHITE")){
+        TransitoryGameData retted = findIDPlayHelper();
+
+        String listofGames = new serverFacade().listGame(authToken);
+        Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
+        ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
+        LinkedTreeMap correctGame = gamesInGameList.get(retted.gameID()-1);
+        LinkedTreeMap hopeGame = gamesInGameList.get(retted.gameID()-1);
+        Object correctGameID = correctGame.get("gameID");
+        double newCorrectGameID = (double)correctGameID;
+        TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor());
+
+        if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoardWhite(initializeBoardWhite()));
         }
-        new serverFacade().playGame(newTeamColorAndID, authToken);
+        new serverFacade().playGame(newGameDataReal, authToken);
         return "game joined!";
     }
 

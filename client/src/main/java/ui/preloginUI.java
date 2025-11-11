@@ -60,12 +60,22 @@ public class preloginUI {
             String line = scanner.nextLine();
             return line.split(" ");
     }
+    }
 
+    public int getInputInt(){
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            return scanner.nextInt();
+        }
     }
 public void registerNewUser() throws DataAccessException, IOException, InterruptedException {
     String[] registerInputs = new preloginUI().getInput();
     try {
         while(registerInputs[0]==null || registerInputs[0]==""){
+            registerInputs = new preloginUI().getInput();
+        }
+        while(registerInputs.length != 3 ){
+            System.out.println("wrong number of arguments!");
             registerInputs = new preloginUI().getInput();
         }
         signedInState.editSignedIn(true);
@@ -81,6 +91,10 @@ public void registerNewUser() throws DataAccessException, IOException, Interrupt
         while(loginInputs[0]==null || loginInputs[0]==""){
             loginInputs = new preloginUI().getInput();
         }
+               while (loginInputs.length != 2 ){
+                   System.out.println("wrong number of arguments!");
+                   loginInputs = new preloginUI().getInput();
+               }
 
         AuthData authDataItem =  new serverFacade().loginUser(new UserData(loginInputs[0], loginInputs[1], null));
         postLoginUI.authToken = authDataItem.authToken();

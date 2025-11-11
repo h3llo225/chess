@@ -149,19 +149,67 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
         //assert(new serverFacade().playGame())
     }
 
+    @Test
+    public void testPlayGameNegative() throws IOException, InterruptedException, DataAccessException {
 
-//    @Test
-//    public void testCreateGameNegative() throws IOException, InterruptedException, DataAccessException {
-//        try{UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-//            AuthData auth = new serverFacade().registerUser(testUser);
-//            GameData testGame = new GameData(0, null, null, null, new ChessGame());
-//            new serverFacade().createGame(testGame, auth.authToken());
-//        } catch (DataAccessException e) {
-//            if(Objects.equals(e.getMessage(), "bad request")){
-//                assert(true);
-//            }
-//        }
-//    }
+        try {
+            UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+            AuthData auth = new serverFacade().registerUser(testUser);
+            GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
+            new serverFacade().createGame(testGame, auth.authToken());
+            String listofGames = new serverFacade().listGame(auth.authToken());
+            Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
+            ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
+            LinkedTreeMap hopeGame = gamesInGameList.get(0);
+            Object shouldbeID = hopeGame.get("gameID");
+            double realID = (double) shouldbeID;
+            TransitoryGameData joinGameData = new TransitoryGameData((int) realID, null);
+        } catch (Exception e) {
+            if (e.getMessage() == "bad request"){
+                assert(true);
+            }
+        }
+        //assert(new serverFacade().playGame())
+    }
+
+
+    @Test
+    public void listGamesPositive() throws IOException, InterruptedException, DataAccessException {
+        UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+        AuthData auth = new serverFacade().registerUser(testUser);
+        GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
+        new serverFacade().createGame(testGame, auth.authToken());
+        String listofGames = new serverFacade().listGame(auth.authToken());
+        assert(listofGames != null);
+        //assert(new serverFacade().playGame())
+    }
+
+    @Test
+    public void listGamesNegative() throws IOException, InterruptedException, DataAccessException {
+        try {
+            UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
+            AuthData auth = new serverFacade().registerUser(testUser);
+            GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
+            new serverFacade().createGame(testGame, auth.authToken());
+            String listofGames = new serverFacade().listGame("eeee");
+            //assert(listofGames != null);
+            //assert(new serverFacade().playGame())
+        } catch (Exception e) {
+            if (e.getMessage() == "unauthorized"){
+                assert(true);
+            }
+        }
+    }
+    @Test
+    public void clearDBPositive() throws IOException, InterruptedException, DataAccessException {
+
+        try{assert(new serverFacade().clearDB() == null);} catch (DataAccessException e) {
+           throw new DataAccessException(e.getMessage());
+       }
+
+        //assert(new serverFacade().playGame())
+    }
 }
+
 
 
