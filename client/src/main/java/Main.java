@@ -28,7 +28,6 @@ public class Main {
         if (Objects.equals(resultOfChoice, "quit")) {
             return;
         }
-
         if(SignedInState.getSignedIn()){
             System.out.println("You are signed in! Here are your options. \n");
             PostLoginUI.displayOptionsPostLogin();
