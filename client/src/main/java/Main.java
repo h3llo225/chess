@@ -50,7 +50,7 @@ public class Main {
                     new postLoginUI().listGamesPostLogin();
                 }
                 if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
-                    return;
+                    new postLoginUI().observeGame();
                 }
                 System.out.println("Please input your next command!");
                 resultOfChoicePostLogin = postLoginUI.getChoicePostLogin();

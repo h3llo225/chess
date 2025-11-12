@@ -10,6 +10,7 @@ import service.Service;
 
 
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class preloginUI {
@@ -62,10 +63,14 @@ public class preloginUI {
     }
     }
 
-    public int getInputInt(){
-        while (true) {
+    public int getInputInt() throws InputMismatchException, IndexOutOfBoundsException {
+        try{while (true) {
             Scanner scanner = new Scanner(System.in);
             return scanner.nextInt();
+        }
+        }catch (Exception e){
+            System.out.println("Please input a valid integer");
+            return getInputInt();
         }
     }
 public void registerNewUser() throws DataAccessException, IOException, InterruptedException {
