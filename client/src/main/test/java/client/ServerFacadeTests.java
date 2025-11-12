@@ -3,7 +3,6 @@ package client;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.TransitoryGameData;
@@ -34,7 +33,7 @@ public class ServerFacadeTests {
         server.stop();
     }
 @BeforeEach
-public void clearDB() throws IOException, InterruptedException, DataAccessException {
+public void clearDB() throws Exception {
         new serverFacade().clearDB();
 }
 
@@ -50,13 +49,13 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testRegisterFacateNegative() throws IOException, InterruptedException, DataAccessException {
+    public void testRegisterFacateNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             UserData testUser2 = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             new serverFacade().registerUser(testUser);
             new serverFacade().registerUser(testUser2);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "already taken")){
                 assert(true);
             }
@@ -65,14 +64,14 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
 
 
     @Test
-    public void testLogoutPositive() throws IOException, InterruptedException, DataAccessException {
+    public void testLogoutPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         assert(new serverFacade().logoutUser(auth.authToken()) instanceof String);
     }
 
     @Test
-    public void testLogoutNegative() throws IOException, InterruptedException, DataAccessException {
+    public void testLogoutNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             AuthData auth = new serverFacade().registerUser(testUser);
@@ -81,7 +80,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
                 newAuth = new AuthData(auth.username(), "test");
             }
             new serverFacade().logoutUser(newAuth.authToken());
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "unauthorized")){
                 assert(true);
             }
@@ -90,7 +89,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
 
 
     @Test
-    public void testLoginPositive() throws IOException, InterruptedException, DataAccessException {
+    public void testLoginPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         new serverFacade().logoutUser(auth.authToken());
@@ -98,12 +97,12 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testLoginNegative() throws IOException, InterruptedException, DataAccessException {
+    public void testLoginNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             new serverFacade().loginUser(testUser);
 
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "unauthorized")){
                 assert(true);
             }
@@ -111,7 +110,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testCreateGamePositive() throws IOException, InterruptedException, DataAccessException {
+    public void testCreateGamePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
@@ -120,12 +119,12 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
 
 
     @Test
-    public void testCreateGameNegative() throws IOException, InterruptedException, DataAccessException {
+    public void testCreateGameNegative() throws Exception {
         try{UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         GameData testGame = new GameData(0, null, null, null, new ChessGame());
         new serverFacade().createGame(testGame, auth.authToken());
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             if(Objects.equals(e.getMessage(), "bad request")){
                 assert(true);
             }
@@ -133,7 +132,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testPlayGamePositive() throws IOException, InterruptedException, DataAccessException {
+    public void testPlayGamePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
@@ -150,7 +149,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testPlayGameNegative() throws IOException, InterruptedException, DataAccessException {
+    public void testPlayGameNegative() throws Exception {
 
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
@@ -174,7 +173,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
 
 
     @Test
-    public void listGamesPositive() throws IOException, InterruptedException, DataAccessException {
+    public void listGamesPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
         AuthData auth = new serverFacade().registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
@@ -185,7 +184,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void listGamesNegative() throws IOException, InterruptedException, DataAccessException {
+    public void listGamesNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             AuthData auth = new serverFacade().registerUser(testUser);
@@ -201,10 +200,10 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
         }
     }
     @Test
-    public void clearDBPositive() throws IOException, InterruptedException, DataAccessException {
+    public void clearDBPositive() throws Exception {
 
-        try{assert(new serverFacade().clearDB() == null);} catch (DataAccessException e) {
-           throw new DataAccessException(e.getMessage());
+        try{assert(new serverFacade().clearDB() == null);} catch (Exception e) {
+           throw new Exception(e.getMessage());
        }
 
         //assert(new serverFacade().playGame())

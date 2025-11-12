@@ -1,6 +1,4 @@
 import chess.*;
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
 import model.UserData;
 import ui.postLoginUI;
 import ui.preloginUI;

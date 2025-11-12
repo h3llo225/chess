@@ -5,7 +5,6 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import dataaccess.DataAccessException;
 import model.GameData;
 import model.TransitoryGameData;
 import serverFacade.serverFacade;
