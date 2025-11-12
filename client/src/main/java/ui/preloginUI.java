@@ -1,12 +1,12 @@
 package ui;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+
+import com.google.gson.GsonBuilder;
 import model.AuthData;
 import model.UserData;
 import serverFacade.serverFacade;
-import service.Service;
+
 
 
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class preloginUI {
             return getInputInt();
         }
     }
-public void registerNewUser() throws DataAccessException, IOException, InterruptedException {
+public void registerNewUser() throws  Exception {
     String[] registerInputs = new preloginUI().getInput();
     try {
         while(registerInputs[0]==null || registerInputs[0]==""){
@@ -87,11 +87,14 @@ public void registerNewUser() throws DataAccessException, IOException, Interrupt
         AuthData authDataItem =  new serverFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
         postLoginUI.authToken = authDataItem.authToken();
         //when signed in is true
-    }catch(DataAccessException ex){
-        System.out.println(String.format("You are not allowed to register, %s", ex));
+    }catch(Exception ex){
+
+
+        System.out.println(String.format("You are not allowed to register, please try again."));
+        registerNewUser();
     }
 }
-    public void loginUser() throws DataAccessException, IOException, InterruptedException {
+    public void loginUser() throws Exception {
            try{ String[] loginInputs = new preloginUI().getInput();
         while(loginInputs[0]==null || loginInputs[0]==""){
             loginInputs = new preloginUI().getInput();
@@ -104,8 +107,8 @@ public void registerNewUser() throws DataAccessException, IOException, Interrupt
         AuthData authDataItem =  new serverFacade().loginUser(new UserData(loginInputs[0], loginInputs[1], null));
         postLoginUI.authToken = authDataItem.authToken();
         signedInState.editSignedIn(true);
-    }catch(DataAccessException ex){
-        System.out.println(String.format("You are not allowed to login, %s", ex));
+    }catch(Exception ex){
+        System.out.println(String.format("You are not allowed to login, please try again."));
         loginUser();
     }
     }

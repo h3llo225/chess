@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class Main {
 
-    public static void main(String[] args) throws DataAccessException, IOException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         System.out.println(" Welcome. You are not signed in. Here are your options. \n");
         preloginUI.displayOptions();
 

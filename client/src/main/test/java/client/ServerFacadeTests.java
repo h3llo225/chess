@@ -44,7 +44,7 @@ public void clearDB() throws IOException, InterruptedException, DataAccessExcept
     }
 
     @Test
-    public void testRegisterFacatePositive() throws IOException, InterruptedException, DataAccessException {
+    public void testRegisterFacatePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
         assert(new serverFacade().registerUser(testUser) instanceof AuthData);
     }

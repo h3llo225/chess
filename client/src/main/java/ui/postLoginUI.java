@@ -73,12 +73,12 @@ public class postLoginUI {
                 """);
     }
 
-    public String listGamesPostLogin() throws DataAccessException, IOException, InterruptedException {
+    public String listGamesPostLogin() throws Exception {
         System.out.println(new serverFacade().listGame(authToken));
         return new serverFacade().listGame(authToken);
     }
 
-    public String createGamePostLogin() throws DataAccessException, IOException, InterruptedException {
+    public String createGamePostLogin() throws Exception {
         String createGameInputs = Arrays.toString(new preloginUI().getInput());
 
         GameData newGameChess = new GameData(0,null,null,createGameInputs,new ChessGame());
@@ -267,7 +267,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         }
     }
 }
-    public TransitoryGameData findIDPlayHelper() throws IOException, InterruptedException, DataAccessException, IndexOutOfBoundsException {
+    public TransitoryGameData findIDPlayHelper() throws Exception {
         String listofGames = new serverFacade().listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
@@ -288,7 +288,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         TransitoryGameData ret = new TransitoryGameData(playGameInputs, color[0]);
         return ret;
     }
-    public int findIDObserver() throws IOException, InterruptedException, DataAccessException {
+    public int findIDObserver() throws Exception {
         String listofGames = new serverFacade().listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
@@ -304,7 +304,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
 
     }
 
-    public String playGamePostLogin() throws DataAccessException, IOException, InterruptedException {
+    public String playGamePostLogin() throws Exception {
         TransitoryGameData retted = findIDPlayHelper();
 
         String listofGames = new serverFacade().listGame(authToken);
@@ -349,7 +349,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
             out.print(makeChessBoard(initializeBoardBlack()));
         }
         }
-        try{new serverFacade().playGame(newGameDataReal, authToken);} catch (DataAccessException e) {
+        try{new serverFacade().playGame(newGameDataReal, authToken);} catch (Exception e) {
             boolean newValidInput = false;
             while (!newValidInput){
             System.out.println("Please input a different color");
@@ -360,11 +360,15 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
            }
            if(correctGame.get("blackUsername") == null && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
+               var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+               out.print(makeChessBoard(initializeBoardBlack()));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
                new serverFacade().playGame(newGameDataReal, authToken);
            }
                 if(correctGame.get("whiteUsername") == null && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
+                    var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+                    out.print(makeChessBoard(initializeBoardWhite()));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
                     new serverFacade().playGame(newGameDataReal, authToken);
                 }
@@ -375,12 +379,12 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         return "game joined!";
     }
 
-    public String logoutUser() throws DataAccessException, IOException, InterruptedException {
+    public String logoutUser() throws Exception {
         new serverFacade().logoutUser(authToken);
         return "You are now logged out";
     }
 
-    public void observeGame() throws IOException, InterruptedException, DataAccessException {
+    public void observeGame() throws Exception {
         int input = findIDObserver();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(makeChessBoard(initializeBoardWhite()));
