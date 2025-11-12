@@ -1,19 +1,14 @@
 package ui;
 
-import com.google.gson.Gson;
-
-import com.google.gson.GsonBuilder;
 import model.AuthData;
 import model.UserData;
-import serverFacade.serverFacade;
+import serverfacade.ServerFacade;
 
 
-
-import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class preloginUI {
+public class PreloginUI {
 
     public String helpPrelogin(){
         return """
@@ -74,18 +69,18 @@ public class preloginUI {
         }
     }
 public void registerNewUser() throws  Exception {
-    String[] registerInputs = new preloginUI().getInput();
+    String[] registerInputs = new PreloginUI().getInput();
     try {
         while(registerInputs[0]==null || registerInputs[0]==""){
-            registerInputs = new preloginUI().getInput();
+            registerInputs = new PreloginUI().getInput();
         }
         while(registerInputs.length != 3 ){
             System.out.println("wrong number of arguments!");
-            registerInputs = new preloginUI().getInput();
+            registerInputs = new PreloginUI().getInput();
         }
-        signedInState.editSignedIn(true);
-        AuthData authDataItem =  new serverFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
-        postLoginUI.authToken = authDataItem.authToken();
+        SignedInState.editSignedIn(true);
+        AuthData authDataItem =  new ServerFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
+        PostLoginUI.authToken = authDataItem.authToken();
         //when signed in is true
     }catch(Exception ex){
 
@@ -95,18 +90,18 @@ public void registerNewUser() throws  Exception {
     }
 }
     public void loginUser() throws Exception {
-           try{ String[] loginInputs = new preloginUI().getInput();
+           try{ String[] loginInputs = new PreloginUI().getInput();
         while(loginInputs[0]==null || loginInputs[0]==""){
-            loginInputs = new preloginUI().getInput();
+            loginInputs = new PreloginUI().getInput();
         }
                while (loginInputs.length != 2 ){
                    System.out.println("wrong number of arguments!");
-                   loginInputs = new preloginUI().getInput();
+                   loginInputs = new PreloginUI().getInput();
                }
 
-        AuthData authDataItem =  new serverFacade().loginUser(new UserData(loginInputs[0], loginInputs[1], null));
-        postLoginUI.authToken = authDataItem.authToken();
-        signedInState.editSignedIn(true);
+        AuthData authDataItem =  new ServerFacade().loginUser(new UserData(loginInputs[0], loginInputs[1], null));
+        PostLoginUI.authToken = authDataItem.authToken();
+        SignedInState.editSignedIn(true);
     }catch(Exception ex){
         System.out.println(String.format("You are not allowed to login, please try again."));
         loginUser();

@@ -1,6 +1,6 @@
 package ui;
 
-public class signedInState {
+public class SignedInState {
     private static boolean signedIn = false;
 
     public static boolean getSignedIn(){

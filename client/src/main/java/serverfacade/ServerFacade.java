@@ -1,4 +1,4 @@
-package serverFacade;
+package serverfacade;
 
 import com.google.gson.Gson;
 import model.AuthData;
@@ -14,7 +14,7 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 
 
-public class serverFacade {
+public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
 
     public HttpResponse<String> requestSend(HttpRequest request) throws IOException, InterruptedException {

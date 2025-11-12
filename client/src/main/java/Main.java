@@ -1,60 +1,59 @@
 import chess.*;
-import model.UserData;
-import ui.postLoginUI;
-import ui.preloginUI;
-import ui.signedInState;
+import ui.PostLoginUI;
+import ui.PreloginUI;
+import ui.SignedInState;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         System.out.println(" Welcome. You are not signed in. Here are your options. \n");
-        preloginUI.displayOptions();
+        PreloginUI.displayOptions();
 
-        String resultOfChoice = new preloginUI().getChoicePrelogin();
+        String resultOfChoice = new PreloginUI().getChoicePrelogin();
         while (Objects.equals(resultOfChoice, "invalid choice")){
             System.out.println("invalid choice");
-            resultOfChoice = new preloginUI().getChoicePrelogin();
+            resultOfChoice = new PreloginUI().getChoicePrelogin();
         }
         if (Objects.equals(resultOfChoice, "register")){
-            new preloginUI().registerNewUser();
+            new PreloginUI().registerNewUser();
         }
         if (Objects.equals(resultOfChoice, "login")){
-            new preloginUI().loginUser();
+            new PreloginUI().loginUser();
         }
         if (Objects.equals(resultOfChoice, "help")){
-            System.out.println(new preloginUI().helpPrelogin());
+            System.out.println(new PreloginUI().helpPrelogin());
         }
         if (Objects.equals(resultOfChoice, "quit")) {
             return;
         }
 
-        if(signedInState.getSignedIn()){
+        if(SignedInState.getSignedIn()){
             System.out.println("You are signed in! Here are your options. \n");
-            postLoginUI.displayOptionsPostLogin();
+            PostLoginUI.displayOptionsPostLogin();
 
-            String resultOfChoicePostLogin = postLoginUI.getChoicePostLogin();
+            String resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
             while(!Objects.equals(resultOfChoicePostLogin, "logout")) {
                 if (Objects.equals(resultOfChoicePostLogin, "create game")) {
 
-                    System.out.println(new postLoginUI().createGamePostLogin());
+                    System.out.println(new PostLoginUI().createGamePostLogin());
                 }
                 if (Objects.equals(resultOfChoicePostLogin, "play game")) {
-                    System.out.println(new postLoginUI().playGamePostLogin());
+                    System.out.println(new PostLoginUI().playGamePostLogin());
                 }
                 if (Objects.equals(resultOfChoicePostLogin, "list games")) {
-                    new postLoginUI().listGamesPostLogin();
+                    new PostLoginUI().listGamesPostLogin();
                 }
                 if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
-                    new postLoginUI().observeGame();
+                    new PostLoginUI().observeGame();
                 }
+
                 System.out.println("Please input your next command!");
-                resultOfChoicePostLogin = postLoginUI.getChoicePostLogin();
+                resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
             }
             {
-                new postLoginUI().logoutUser();
+                new PostLoginUI().logoutUser();
             }
 
         }
