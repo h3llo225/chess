@@ -6,6 +6,7 @@ import serverfacade.ServerFacade;
 
 
 import java.util.InputMismatchException;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class PreloginUI {
@@ -16,6 +17,43 @@ public class PreloginUI {
                 login(username, password)
                 quit
                 """;
+    }
+
+    public void helperPrelogin(String resultOfChoice) throws Exception {
+        boolean isGood = false;
+        System.out.println(new PreloginUI().helpPrelogin());
+        resultOfChoice = new PreloginUI().getChoicePrelogin();
+
+        while (Objects.equals(resultOfChoice, "invalid choice")){
+            if (isGood == false){
+                System.out.println("invalid choice");
+                resultOfChoice = new PreloginUI().getChoicePrelogin();
+            }
+        }
+        if (!Objects.equals(resultOfChoice, "invalid choice")){
+            new PreloginUI().initialStart(resultOfChoice);
+        }
+
+    }
+
+
+    public void initialStart(String resultOfChoice) throws Exception {
+        while (Objects.equals(resultOfChoice, "invalid choice")){
+            System.out.println("invalid choice");
+            resultOfChoice = new PreloginUI().getChoicePrelogin();
+        }
+        if (Objects.equals(resultOfChoice, "register")){
+            new PreloginUI().registerNewUser();
+        }
+        if (Objects.equals(resultOfChoice, "login")){
+            new PreloginUI().loginUser();
+        }
+        if (Objects.equals(resultOfChoice, "help")){
+            new PreloginUI().helperPrelogin(resultOfChoice);
+        }
+        if (Objects.equals(resultOfChoice, "quit")) {
+            return;
+        }
     }
 
     static public void displayOptions(){

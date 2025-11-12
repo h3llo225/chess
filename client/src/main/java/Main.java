@@ -12,22 +12,7 @@ public class Main {
         PreloginUI.displayOptions();
 
         String resultOfChoice = new PreloginUI().getChoicePrelogin();
-        while (Objects.equals(resultOfChoice, "invalid choice")){
-            System.out.println("invalid choice");
-            resultOfChoice = new PreloginUI().getChoicePrelogin();
-        }
-        if (Objects.equals(resultOfChoice, "register")){
-            new PreloginUI().registerNewUser();
-        }
-        if (Objects.equals(resultOfChoice, "login")){
-            new PreloginUI().loginUser();
-        }
-        if (Objects.equals(resultOfChoice, "help")){
-            System.out.println(new PreloginUI().helpPrelogin());
-        }
-        if (Objects.equals(resultOfChoice, "quit")) {
-            return;
-        }
+        new PreloginUI().initialStart(resultOfChoice);
         if(SignedInState.getSignedIn()){
             System.out.println("You are signed in! Here are your options. \n");
             PostLoginUI.displayOptionsPostLogin();
