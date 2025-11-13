@@ -3,7 +3,7 @@ package ui;
 import java.util.Objects;
 
 public class DisplayLogic {
-    public void Display() throws Exception {
+    public void display() throws Exception {
         String resultOfChoice = "";
         while(!Objects.equals(resultOfChoice, "quit")){
             PreloginUI.displayOptions();
