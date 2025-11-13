@@ -9,13 +9,14 @@ public class DisplayLogic {
             PreloginUI.displayOptions();
             resultOfChoice = new PreloginUI().getChoicePrelogin();
             if (Objects.equals(resultOfChoice, "invalid choice")){
-                resultOfChoice = new PreloginUI().initialStart(resultOfChoice);
-            } else if (Objects.equals(resultOfChoice, "help")) {
-                resultOfChoice = new PreloginUI().initialStart(resultOfChoice);
-                resultOfChoice = new PreloginUI().getChoicePrelogin();
-            } else{
-                resultOfChoice = new PreloginUI().initialStart(resultOfChoice);
+                System.out.println("Invalid command, here are the commands again!");
             }
+            if (Objects.equals(resultOfChoice, "login") || Objects.equals(resultOfChoice, "register")
+                    || Objects.equals(resultOfChoice, "help")){
+                new PreloginUI().initialStart(resultOfChoice);
+            }
+
+
             if(SignedInState.getSignedIn()){
                 System.out.println("You are signed in! Here are your options. \n");
                 PostLoginUI.displayOptionsPostLogin();
@@ -69,5 +70,6 @@ public class DisplayLogic {
 
 
         }
+
     }
 }

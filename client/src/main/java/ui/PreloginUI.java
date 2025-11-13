@@ -13,8 +13,10 @@ public class PreloginUI {
 
     public String helpPrelogin(){
         return """
+                Here are the command parameters!
                 register(username, password, email)
                 login(username, password)
+                help
                 quit
                 """;
     }
@@ -25,9 +27,9 @@ public class PreloginUI {
 
 
     public String initialStart(String resultOfChoice) throws Exception {
-        while (Objects.equals(resultOfChoice, "invalid choice")){
-            System.out.println("invalid choice");
-            resultOfChoice = getChoicePrelogin();
+
+        if (Objects.equals(resultOfChoice, "invalid choice")){
+            //System.out.println("invalid choice");
         }
         if (Objects.equals(resultOfChoice, "register")){
             registerNewUser();
@@ -37,7 +39,7 @@ public class PreloginUI {
         }
         if (Objects.equals(resultOfChoice, "help")){
             System.out.println(helpPrelogin());
-            System.out.println("Please enter a new command!");
+            System.out.println("Please enter a new command! Here are all the commands for reference.");
         }
         if (Objects.equals(resultOfChoice, "quit")) {
             return "quit";
