@@ -15,6 +15,8 @@ import java.util.*;
 
 public class PostLoginUI {
     public static String authToken;
+    private ServerFacade serverFacade = new ServerFacade(8080);
+
     public static String helpPostLogin(){
         return """
                 Logout
@@ -77,8 +79,8 @@ public class PostLoginUI {
     }
 
     public String listGamesPostLogin() throws Exception {
-        System.out.println(new ServerFacade().listGame(authToken));
-        return new ServerFacade().listGame(authToken);
+        System.out.println(serverFacade.listGame(authToken));
+        return serverFacade.listGame(authToken);
     }
 
     public String createGamePostLogin() throws Exception {
@@ -86,7 +88,7 @@ public class PostLoginUI {
 
         GameData newGameChess = new GameData(0,null,null,createGameInputs,new ChessGame());
 
-        new ServerFacade().createGame(newGameChess,authToken);
+        serverFacade.createGame(newGameChess,authToken);
         return "game created!";
     }
 
@@ -219,7 +221,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     }
 }
     public TransitoryGameData findIDPlayHelper() throws Exception {
-        String listofGames = new ServerFacade().listGame(authToken);
+        String listofGames = serverFacade.listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
         System.out.println("Here are the games!");
@@ -240,7 +242,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         return ret;
     }
     public int findIDObserver() throws Exception {
-        String listofGames = new ServerFacade().listGame(authToken);
+        String listofGames = serverFacade.listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
         System.out.println("Here are the games!");
@@ -261,7 +263,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
             return "Execution failed";
         }
 
-        String listofGames = new ServerFacade().listGame(authToken);
+        String listofGames = serverFacade.listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
         LinkedTreeMap correctGame = null;
@@ -303,7 +305,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
             out.print(makeChessBoard(initializeBoardBlack()));
         }
         }
-        try{new ServerFacade().playGame(newGameDataReal, authToken);} catch (Exception e) {
+        try{serverFacade.playGame(newGameDataReal, authToken);} catch (Exception e) {
             boolean newValidInput = false;
             while (!newValidInput){
             System.out.println("Please input a different color");
@@ -317,14 +319,14 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                out.print(makeChessBoard(initializeBoardBlack()));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-               new ServerFacade().playGame(newGameDataReal, authToken);
+               serverFacade.playGame(newGameDataReal, authToken);
            }
                 if(correctGame.get("whiteUsername") == null && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                     out.print(makeChessBoard(initializeBoardWhite()));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-                    new ServerFacade().playGame(newGameDataReal, authToken);
+                    serverFacade.playGame(newGameDataReal, authToken);
                 }
 
 
@@ -334,7 +336,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     }
 
     public String logoutUser() throws Exception {
-        new ServerFacade().logoutUser(authToken);
+        serverFacade.logoutUser(authToken);
         return "You are now logged out";
     }
 

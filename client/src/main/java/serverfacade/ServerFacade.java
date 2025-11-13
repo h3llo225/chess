@@ -16,6 +16,11 @@ import java.util.Objects;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
+    public int port;
+
+    public ServerFacade(int port){
+        this.port = port;
+    }
 
     public HttpResponse<String> requestSend(HttpRequest request) throws IOException, InterruptedException {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -29,7 +34,7 @@ public class ServerFacade {
     public HttpRequest requestBuilder(String method, String endpoint, Object body, String authToken){
 
         HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080"+endpoint));
+                .uri(URI.create("http://localhost:"+port+endpoint));
         if (authToken != null) {
             request.header("authorization", authToken);
         }

@@ -19,11 +19,16 @@ import java.util.Objects;
 public class ServerFacadeTests {
 
     private static Server server;
+    static ServerFacade serverFacade;
+    static int ports;
+
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+
+        var port = server.run(0);
+        serverFacade = new ServerFacade(port);
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -33,7 +38,8 @@ public class ServerFacadeTests {
     }
 @BeforeEach
 public void clearDB() throws Exception {
-        new ServerFacade().clearDB();
+
+        serverFacade.clearDB();
 }
 
     @Test
@@ -44,7 +50,7 @@ public void clearDB() throws Exception {
     @Test
     public void testRegisterFacatePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
-        assert(new ServerFacade().registerUser(testUser) instanceof AuthData);
+        assert(serverFacade.registerUser(testUser) instanceof AuthData);
     }
 
     @Test
@@ -52,8 +58,8 @@ public void clearDB() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
             UserData testUser2 = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-            new ServerFacade().registerUser(testUser);
-            new ServerFacade().registerUser(testUser2);
+            serverFacade.registerUser(testUser);
+            serverFacade.registerUser(testUser2);
         } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "already taken")){
                 assert(true);
@@ -65,20 +71,20 @@ public void clearDB() throws Exception {
     @Test
     public void testLogoutPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
-        assert(new ServerFacade().logoutUser(auth.authToken()) instanceof String);
+        AuthData auth = serverFacade.registerUser(testUser);
+        assert(serverFacade.logoutUser(auth.authToken()) instanceof String);
     }
 
     @Test
     public void testLogoutNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-            AuthData auth = new ServerFacade().registerUser(testUser);
+            AuthData auth = serverFacade.registerUser(testUser);
             AuthData newAuth = auth;
-            if (new ServerFacade().logoutUser(auth.authToken()) instanceof String) {
+            if (serverFacade.logoutUser(auth.authToken()) instanceof String) {
                 newAuth = new AuthData(auth.username(), "test");
             }
-            new ServerFacade().logoutUser(newAuth.authToken());
+            serverFacade.logoutUser(newAuth.authToken());
         } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "unauthorized")){
                 assert(true);
@@ -90,16 +96,16 @@ public void clearDB() throws Exception {
     @Test
     public void testLoginPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword","registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
-        new ServerFacade().logoutUser(auth.authToken());
-        assert(new ServerFacade().loginUser(testUser) instanceof AuthData);
+        AuthData auth = serverFacade.registerUser(testUser);
+        serverFacade.logoutUser(auth.authToken());
+        assert(serverFacade.loginUser(testUser) instanceof AuthData);
     }
 
     @Test
     public void testLoginNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-            new ServerFacade().loginUser(testUser);
+            serverFacade.loginUser(testUser);
 
         } catch (Exception e) {
             if (Objects.equals(e.getMessage(), "unauthorized")){
@@ -111,18 +117,18 @@ public void clearDB() throws Exception {
     @Test
     public void testCreateGamePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
+        AuthData auth = serverFacade.registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
-        assert (new ServerFacade().createGame(testGame, auth.authToken()) instanceof String);
+        assert (serverFacade.createGame(testGame, auth.authToken()) instanceof String);
     }
 
 
     @Test
     public void testCreateGameNegative() throws Exception {
         try{UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
+        AuthData auth = serverFacade.registerUser(testUser);
         GameData testGame = new GameData(0, null, null, null, new ChessGame());
-        new ServerFacade().createGame(testGame, auth.authToken());
+        serverFacade.createGame(testGame, auth.authToken());
         } catch (Exception e) {
             if(Objects.equals(e.getMessage(), "bad request")){
                 assert(true);
@@ -133,17 +139,17 @@ public void clearDB() throws Exception {
     @Test
     public void testPlayGamePositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
+        AuthData auth = serverFacade.registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
-        new ServerFacade().createGame(testGame, auth.authToken());
-        String listofGames = new ServerFacade().listGame(auth.authToken());
+        serverFacade.createGame(testGame, auth.authToken());
+        String listofGames = serverFacade.listGame(auth.authToken());
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
         LinkedTreeMap hopeGame = gamesInGameList.get(0);
         Object shouldbeID = hopeGame.get("gameID");
         double realID = (double) shouldbeID;
         TransitoryGameData joinGameData = new TransitoryGameData((int) realID,"WHITE");
-        assert(new ServerFacade().playGame(joinGameData,auth.authToken()) instanceof String);
+        assert(serverFacade.playGame(joinGameData,auth.authToken()) instanceof String);
         //assert(new serverFacade().playGame())
     }
 
@@ -152,10 +158,10 @@ public void clearDB() throws Exception {
 
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-            AuthData auth = new ServerFacade().registerUser(testUser);
+            AuthData auth = serverFacade.registerUser(testUser);
             GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
-            new ServerFacade().createGame(testGame, auth.authToken());
-            String listofGames = new ServerFacade().listGame(auth.authToken());
+            serverFacade.createGame(testGame, auth.authToken());
+            String listofGames = serverFacade.listGame(auth.authToken());
             Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
             ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
             LinkedTreeMap hopeGame = gamesInGameList.get(0);
@@ -174,10 +180,10 @@ public void clearDB() throws Exception {
     @Test
     public void listGamesPositive() throws Exception {
         UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-        AuthData auth = new ServerFacade().registerUser(testUser);
+        AuthData auth = serverFacade.registerUser(testUser);
         GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
-        new ServerFacade().createGame(testGame, auth.authToken());
-        String listofGames = new ServerFacade().listGame(auth.authToken());
+        serverFacade.createGame(testGame, auth.authToken());
+        String listofGames = serverFacade.listGame(auth.authToken());
         assert(listofGames != null);
         //assert(new serverFacade().playGame())
     }
@@ -186,10 +192,10 @@ public void clearDB() throws Exception {
     public void listGamesNegative() throws Exception {
         try {
             UserData testUser = new UserData("registeringPerson", "registeringPassword", "registeringEmail");
-            AuthData auth = new ServerFacade().registerUser(testUser);
+            AuthData auth = serverFacade.registerUser(testUser);
             GameData testGame = new GameData(0, null, null, "newTestGame", new ChessGame());
-            new ServerFacade().createGame(testGame, auth.authToken());
-            String listofGames = new ServerFacade().listGame("eeee");
+            serverFacade.createGame(testGame, auth.authToken());
+            String listofGames = serverFacade.listGame("eeee");
             //assert(listofGames != null);
             //assert(new serverFacade().playGame())
         } catch (Exception e) {
@@ -201,7 +207,7 @@ public void clearDB() throws Exception {
     @Test
     public void clearDBPositive() throws Exception {
 
-        try{assert(new ServerFacade().clearDB() == null);} catch (Exception e) {
+        try{assert(serverFacade.clearDB() == null);} catch (Exception e) {
            throw new Exception(e.getMessage());
        }
 
