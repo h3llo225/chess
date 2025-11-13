@@ -25,13 +25,14 @@ public class PostLoginUI {
                 """;
     }
 
-    public static String getChoicePostLogin(){
+    public static String getChoicePostLogin() throws Exception {
         while (true) {
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             return switch (line) {
                 case "logout", "Logout" -> {
                     System.out.println("You have chosen to Logout!");
+
                     yield "logout";
                 }
                 case "create game", "Create game", "Create Game", "create Game" -> {
@@ -256,6 +257,9 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
 
     public String playGamePostLogin() throws Exception {
         TransitoryGameData retted = findIDPlayHelper();
+        if (retted.gameID()== 0 || Objects.equals(retted.playerColor(), "quit")){
+            return "Execution failed";
+        }
 
         String listofGames = new ServerFacade().listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);

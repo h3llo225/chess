@@ -19,41 +19,30 @@ public class PreloginUI {
                 """;
     }
 
-    public void helperPrelogin(String resultOfChoice) throws Exception {
-        boolean isGood = false;
-        System.out.println(new PreloginUI().helpPrelogin());
-        resultOfChoice = new PreloginUI().getChoicePrelogin();
-
-        while (Objects.equals(resultOfChoice, "invalid choice")){
-            if (isGood == false){
-                System.out.println("invalid choice");
-                resultOfChoice = new PreloginUI().getChoicePrelogin();
-            }
-        }
-        if (!Objects.equals(resultOfChoice, "invalid choice")){
-            new PreloginUI().initialStart(resultOfChoice);
-        }
-
-    }
 
 
-    public void initialStart(String resultOfChoice) throws Exception {
+
+
+
+    public String initialStart(String resultOfChoice) throws Exception {
         while (Objects.equals(resultOfChoice, "invalid choice")){
             System.out.println("invalid choice");
-            resultOfChoice = new PreloginUI().getChoicePrelogin();
+            resultOfChoice = getChoicePrelogin();
         }
         if (Objects.equals(resultOfChoice, "register")){
-            new PreloginUI().registerNewUser();
+            registerNewUser();
         }
         if (Objects.equals(resultOfChoice, "login")){
-            new PreloginUI().loginUser();
+            loginUser();
         }
         if (Objects.equals(resultOfChoice, "help")){
-            new PreloginUI().helperPrelogin(resultOfChoice);
+            System.out.println(helpPrelogin());
+            System.out.println("Please enter a new command!");
         }
         if (Objects.equals(resultOfChoice, "quit")) {
-            return;
+            return "quit";
         }
+        return resultOfChoice;
     }
 
     static public void displayOptions(){
@@ -112,6 +101,9 @@ public void registerNewUser() throws  Exception {
         while(registerInputs[0]==null || registerInputs[0]==""){
             registerInputs = new PreloginUI().getInput();
         }
+        if (Objects.equals(registerInputs[0], "quit")){
+            return;
+        }
         while(registerInputs.length != 3 ){
             System.out.println("wrong number of arguments!");
             registerInputs = new PreloginUI().getInput();
@@ -120,6 +112,7 @@ public void registerNewUser() throws  Exception {
         AuthData authDataItem =  new ServerFacade().registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
         PostLoginUI.authToken = authDataItem.authToken();
         //when signed in is true
+
     }catch(Exception ex){
 
 
@@ -132,6 +125,9 @@ public void registerNewUser() throws  Exception {
         while(loginInputs[0]==null || loginInputs[0]==""){
             loginInputs = new PreloginUI().getInput();
         }
+               if (Objects.equals(loginInputs[0], "quit")){
+                   return;
+               }
                while (loginInputs.length != 2 ){
                    System.out.println("wrong number of arguments!");
                    loginInputs = new PreloginUI().getInput();
