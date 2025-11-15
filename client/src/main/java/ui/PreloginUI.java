@@ -18,8 +18,6 @@ public class PreloginUI {
                 Here are the command parameters!
                 register(username, password, email)
                 login(username, password)
-                help
-                quit
                 """;
     }
 
@@ -41,7 +39,7 @@ public class PreloginUI {
         }
         if (Objects.equals(resultOfChoice, "help")){
             System.out.println(helpPrelogin());
-            System.out.println("Please enter a new command! Here are all the commands for reference.");
+            System.out.println("Please enter a new command! Here is the full list.");
         }
         if (Objects.equals(resultOfChoice, "quit")) {
             return "quit";

@@ -3,14 +3,16 @@ package ui;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
 import model.GameData;
 import model.TransitoryGameData;
 import serverfacade.ServerFacade;
 
+import javax.lang.model.type.ArrayType;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Wrapper;
 import java.util.*;
 
 public class PostLoginUI {
@@ -79,7 +81,33 @@ public class PostLoginUI {
     }
 
     public String listGamesPostLogin() throws Exception {
-        System.out.println(serverFacade.listGame(authToken));
+        //System.out.println(serverFacade.listGame(authToken));
+        String json = serverFacade.listGame(authToken);
+        JsonParser parser = new JsonParser();
+        JsonElement jsonTree = parser.parseString(json);
+        JsonObject newJsonObject = jsonTree.getAsJsonObject();
+        JsonArray gamesList = newJsonObject.get("games").getAsJsonArray();
+        ArrayList<GameData> newGameDataList = null;
+        for (int i = 0; i < gamesList.size(); i++){
+            JsonObject placeholder = gamesList.get(i).getAsJsonObject();
+            System.out.print(" Game name: " + placeholder.get("gameName").getAsString());
+            if (placeholder.get("whiteUsername")== null && placeholder.get("blackUsername")== null){
+                System.out.println(" Game ID: " +placeholder.get("gameID").getAsInt());
+            } else if ((placeholder.get("whiteUsername")== null && placeholder.get("blackUsername")!= null)) {
+                System.out.print(" Black player: "+ placeholder.get("blackUsername").getAsString());
+                System.out.println(" Game ID: " +placeholder.get("gameID").getAsInt());
+            }
+            else if ((placeholder.get("whiteUsername")!= null && placeholder.get("blackUsername")== null)) {
+                System.out.print(" White player: "+ placeholder.get("whiteUsername").getAsString());
+                System.out.println(" Game ID: " +placeholder.get("gameID").getAsInt());
+            }
+            else if ((placeholder.get("whiteUsername")!= null && placeholder.get("blackUsername")!= null)) {
+                System.out.print(" White player: "+ placeholder.get("whiteUsername").getAsString());
+                System.out.print(" Black player: "+ placeholder.get("blackUsername").getAsString());
+                System.out.println(" Game ID: " +placeholder.get("gameID").getAsInt());
+            }
+        }
+
         return serverFacade.listGame(authToken);
     }
 
@@ -112,14 +140,15 @@ public class PostLoginUI {
 
     public String[][] initializeBoardBlack(){
         String[][] chessboardWhite= new String[10][10];
-        String[] labels = {"","  a  ", " b  ", " c  ", "d  ", " e  ","f  "," g  "," h  ",""};
+
+        String[] labels = {"","  h  ", " g  ", " f  ", "e  ", " d  ","c  "," b  "," a  ",""};
         String[] ranks = {"","1", "2", "3", "4", "5","6","7","8",""};
         loopThroughBoard(chessboardWhite, ranks, labels);
         chessboardWhite[8][1]= EscapeSequences.WHITE_ROOK;
         chessboardWhite[8][2]= EscapeSequences.WHITE_KNIGHT;
         chessboardWhite[8][3]= EscapeSequences.WHITE_BISHOP;
-        chessboardWhite[8][4]= EscapeSequences.WHITE_QUEEN;
-        chessboardWhite[8][5]= EscapeSequences.WHITE_KING;
+        chessboardWhite[8][5]= EscapeSequences.WHITE_QUEEN;
+        chessboardWhite[8][4]= EscapeSequences.WHITE_KING;
         chessboardWhite[8][6]= EscapeSequences.WHITE_BISHOP;
         chessboardWhite[8][7]= EscapeSequences.WHITE_KNIGHT;
         chessboardWhite[8][8]= EscapeSequences.WHITE_ROOK;
@@ -132,8 +161,8 @@ public class PostLoginUI {
         chessboardWhite[1][1]= EscapeSequences.BLACK_ROOK;
         chessboardWhite[1][2]= EscapeSequences.BLACK_KNIGHT;
         chessboardWhite[1][3]= EscapeSequences.BLACK_BISHOP;
-        chessboardWhite[1][4]= EscapeSequences.BLACK_QUEEN;
-        chessboardWhite[1][5]= EscapeSequences.BLACK_KING;
+        chessboardWhite[1][5]= EscapeSequences.BLACK_QUEEN;
+        chessboardWhite[1][4]= EscapeSequences.BLACK_KING;
         chessboardWhite[1][6]= EscapeSequences.BLACK_BISHOP;
         chessboardWhite[1][7]= EscapeSequences.BLACK_KNIGHT;
         chessboardWhite[1][8]= EscapeSequences.BLACK_ROOK;
@@ -203,21 +232,23 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         LinkedTreeMap hopeGame = gamesInGameList.get(i);
         Object shouldbeName = hopeGame.get("gameName");
         String newShouldBeName = (String) shouldbeName;
-        System.out.println((i + 1) +" "+ newShouldBeName);
+        System.out.println("Game number " + (i + 1) +" "+ "Game name"+ newShouldBeName);
         if (hopeGame.get("whiteUsername") != null) {
             Object whiteUsername = hopeGame.get("whiteUsername");
             String newWhiteUsername = (String) whiteUsername;
-            System.out.println((i + 1)+" " + newWhiteUsername);
+            System.out.println("Game number "+ (i + 1) + " White player " + newWhiteUsername);
         } else {
-            System.out.println((i + 1) +" "+ "You can be registered as the white player in this game.");
+            System.out.println((i + 1) +" "+ " There is no white player yet in this game. You can be registered as the white player in this game.");
         }
         if (hopeGame.get("blackUsername") != null) {
             Object blackUsername = hopeGame.get("blackUsername");
             String newBlackUsername = (String) blackUsername;
-            System.out.println((i + 1) +" "+ newBlackUsername);
+            System.out.println("Game number "+ (i + 1) + " Black player "+ newBlackUsername);
         } else {
-            System.out.println((i + 1) +" "+ "You can be registered as the black player in this game.");
+            System.out.println((i + 1) +" "+ " There is no black player yet in this game. You can be registered as the black player in this game.");
         }
+
+
     }
 }
     public TransitoryGameData findIDPlayHelper() throws Exception {
@@ -229,7 +260,15 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         int playGameInputs = 0;
         findIDPlayHelperHelper(gamesInGameList);
         System.out.println("Please input the game number you would like. Then the chess color. One at a time.");
-        try{playGameInputs = new PreloginUI().getInputInt();} catch (Exception e) {
+        try{playGameInputs = new PreloginUI().getInputInt();
+            while(gamesInGameList.get(playGameInputs-1).get("whiteUsername") != null && gamesInGameList.get(playGameInputs-1).get("blackUsername") != null){
+                System.out.println("Please enter a new integer, both white and black are taken.");
+                playGameInputs = new PreloginUI().getInputInt();
+                if (playGameInputs == 0){
+                    return null;
+                }
+            }
+        } catch (Exception e) {
             System.out.println("Please input a valid integer");
             playGameInputs = new PreloginUI().getInputInt();
         }
@@ -259,7 +298,8 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
 
     public String playGamePostLogin() throws Exception {
         TransitoryGameData retted = findIDPlayHelper();
-        if (retted.gameID()== 0 || Objects.equals(retted.playerColor(), "quit")){
+
+        if (retted == null || retted.gameID()== 0 || Objects.equals(retted.playerColor(), "quit")){
             return "Execution failed";
         }
 
