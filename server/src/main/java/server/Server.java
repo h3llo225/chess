@@ -13,9 +13,12 @@ import io.javalin.http.Context;
 
 import java.util.Objects;
 
+
+
 public class Server {
 
     private final Javalin javalin;
+
 
     public Server() {
 
@@ -30,6 +33,8 @@ public class Server {
         javalin.post("/game", this::handleCreateGame);
         javalin.put("/game", this::handleJoinGame);
         javalin.get("/game", this::handleListGame);
+
+
     }
 
 
