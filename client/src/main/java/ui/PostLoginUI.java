@@ -9,10 +9,8 @@ import model.GameData;
 import model.TransitoryGameData;
 import serverfacade.ServerFacade;
 
-import javax.lang.model.type.ArrayType;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.Wrapper;
 import java.util.*;
 
 public class PostLoginUI {
@@ -84,8 +82,8 @@ public class PostLoginUI {
         //System.out.println(serverFacade.listGame(authToken));
         String json = serverFacade.listGame(authToken);
         JsonParser parser = new JsonParser();
-        JsonElement jsonTree = parser.parseString(json);
-        JsonObject newJsonObject = jsonTree.getAsJsonObject();
+        JsonElement jsonItem = parser.parseString(json);
+        JsonObject newJsonObject = jsonItem.getAsJsonObject();
         JsonArray gamesList = newJsonObject.get("games").getAsJsonArray();
         ArrayList<GameData> newGameDataList = null;
         for (int i = 0; i < gamesList.size(); i++){
@@ -200,6 +198,81 @@ public class PostLoginUI {
         chessboardWhite[8][8]= EscapeSequences.BLACK_ROOK;
         return chessboardWhite;
     }
+
+
+
+
+public String translator(ChessPiece piece){
+        if (piece != null){
+        if (piece.getTeamColor() == ChessGame.TeamColor.BLACK){
+            if (piece.getPieceType() == ChessPiece.PieceType.BISHOP){
+                return EscapeSequences.BLACK_BISHOP;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.KING){
+                return EscapeSequences.BLACK_KING;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.QUEEN){
+                return EscapeSequences.BLACK_QUEEN;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.ROOK){
+                return EscapeSequences.BLACK_ROOK;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN){
+                return EscapeSequences.BLACK_PAWN;
+            }
+            if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT){
+                return EscapeSequences.BLACK_KNIGHT;
+            }
+        }
+    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+        if (piece.getPieceType() == ChessPiece.PieceType.BISHOP){
+            return EscapeSequences.WHITE_BISHOP;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.KING){
+            return EscapeSequences.WHITE_KING;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.QUEEN){
+            return EscapeSequences.WHITE_QUEEN;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.ROOK){
+            return EscapeSequences.WHITE_ROOK;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN){
+            return EscapeSequences.WHITE_PAWN;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT){
+            return EscapeSequences.WHITE_KNIGHT;
+        }
+    }
+        }
+    return EscapeSequences.EMPTY;
+}
+
+
+    public String[][] initializeBoardWhiteForCustomGame(ChessPiece[][] game){
+        String[][] chessboardWhite= new String[10][10];
+        String[] labels = {"","  a  ", " b  ", " c  ", "d  ", " e  ","f  "," g  "," h  ",""};
+        String[] ranks = {"","8", "7", "6", "5", "4","3","2","1",""};
+        for (int i = 0; i < 10; i++){
+            chessboardWhite[i][0]=ranks[i];
+            chessboardWhite[i][9]=ranks[i];
+            for(int j = 0; j< 10; j++){
+                chessboardWhite[0][j] = labels[j];
+                chessboardWhite[9][j]=labels[j];
+                if (i != 0 && i != 9 && j != 0 && j!= 9){
+
+                    chessboardWhite[i][j] = translator(game[i-1][j-1]);
+                    //chessboardWhite[i][j] = EscapeSequences.EMPTY;
+                    // get piece here for custom board maybe
+                }
+            }
+        }
+
+
+
+        return chessboardWhite;
+    }
+
     public String makeChessBoard(String[][] chessBoardWhite){
         StringBuilder retVal = new StringBuilder();
         for (int i = 0; i <10; i++) {
@@ -333,10 +406,23 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
         TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
+        String tempMap = new Gson().toJson(correctGame.get("game"));
+        JsonParser parser = new JsonParser();
+        JsonElement jsonItem = parser.parseString(tempMap);
+        JsonObject object = jsonItem.getAsJsonObject();
+        ChessGame game = new Gson().fromJson(object, ChessGame.class);
+        ChessPiece[][] boardPieces = new ChessPiece[8][8];
+        for (int i =0; i<8; i++){
+            for (int j =0; j<8; j++){
+                boardPieces[i][j] = game.getBoard().getPiece(new ChessPosition(i+1,j+1));
+            }
+        }
     if(correctGame.get("whiteUsername") == null){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoard(initializeBoardWhite()));
+
+
+            out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
         }
     }
         if(correctGame.get("blackUsername") == null){
@@ -364,7 +450,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                 if(correctGame.get("whiteUsername") == null && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-                    out.print(makeChessBoard(initializeBoardWhite()));
+                    out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
                     serverFacade.playGame(newGameDataReal, authToken);
                 }
