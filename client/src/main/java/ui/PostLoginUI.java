@@ -273,6 +273,8 @@ public String translator(ChessPiece piece){
         return chessboardWhite;
     }
 
+
+
     public String makeChessBoard(String[][] chessBoardWhite){
         StringBuilder retVal = new StringBuilder();
         for (int i = 0; i <10; i++) {

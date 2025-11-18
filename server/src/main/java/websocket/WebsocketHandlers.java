@@ -19,6 +19,5 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
     @Override
     public void handleConnect(@NotNull WsConnectContext ctx){
         System.out.println("Connection ");
-        ;
     }
 }
