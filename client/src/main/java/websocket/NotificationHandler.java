@@ -1,6 +1,6 @@
 package websocket;
 
-import websocket.messages.ServerMessage;
+import chess.NotificationSetup;
 
 import static java.awt.Color.RED;
 

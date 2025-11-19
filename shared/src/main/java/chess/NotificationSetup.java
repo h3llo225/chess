@@ -1,9 +1,10 @@
-package websocket;
+package chess;
 
 public record NotificationSetup(Type type, String message) {
 
 public enum Type{
-    UserConnectedAsPlayer,
+    UserConnectedAsPlayerWhite,
+    UserConnectedAsPlayerBlack,
     UserConnectedAsObserver,
     PlayerMadeMove,
     PlayerLeftGame,

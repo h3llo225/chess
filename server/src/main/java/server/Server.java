@@ -10,6 +10,7 @@ import model.TransitoryGameData;
 import model.UserData;
 import service.*;
 import io.javalin.http.Context;
+import websocket.WebsocketHandlers;
 
 import java.util.Objects;
 
@@ -18,11 +19,19 @@ import java.util.Objects;
 public class Server {
 
     private final Javalin javalin;
+    private final WebsocketHandlers webSocketHandler = new WebsocketHandlers();
+
 
 
     public Server() {
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+                .ws("/ws", ws -> {
+
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
         // Register your endpoints and exception handlers here.
         //javalin.post("/register/{name}", this::register);
         javalin.get("/hello", ctx -> ctx.result("Hello, Javalin!"));
@@ -33,6 +42,7 @@ public class Server {
         javalin.post("/game", this::handleCreateGame);
         javalin.put("/game", this::handleJoinGame);
         javalin.get("/game", this::handleListGame);
+
 
 
     }

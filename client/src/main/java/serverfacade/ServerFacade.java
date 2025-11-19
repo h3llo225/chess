@@ -16,10 +16,10 @@ import java.util.Objects;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
-    public int port;
+    public static int port;
 
     public ServerFacade(int port){
-        this.port = port;
+        ServerFacade.port = port;
     }
 
     public HttpResponse<String> requestSend(HttpRequest request) throws IOException, InterruptedException {
