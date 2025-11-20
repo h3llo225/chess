@@ -18,6 +18,7 @@ import java.util.*;
 public class PostLoginUI {
     public static String authToken;
     private ServerFacade serverFacade = new ServerFacade(8080);
+    public static ChessGame game;
 
     public static String helpPostLogin(){
         return """
@@ -417,6 +418,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         JsonElement jsonItem = parser.parseString(tempMap);
         JsonObject object = jsonItem.getAsJsonObject();
         ChessGame game = new Gson().fromJson(object, ChessGame.class);
+        PostLoginUI.game = game; bhjhhbjh
         ChessPiece[][] boardPieces = new ChessPiece[8][8];
         for (int i =0; i<8; i++){
             for (int j =0; j<8; j++){
@@ -426,6 +428,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     if(correctGame.get("whiteUsername") == null){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
         }
     }
