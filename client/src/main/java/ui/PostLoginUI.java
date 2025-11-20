@@ -8,6 +8,8 @@ import com.google.gson.internal.LinkedTreeMap;
 import model.GameData;
 import model.TransitoryGameData;
 import serverfacade.ServerFacade;
+import websocket.ServerFacadeWebsocket;
+import websocket.commands.UserGameCommand;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -408,6 +410,8 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
         TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
+        UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, newGameDataReal.gameID());
+        ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
         String tempMap = new Gson().toJson(correctGame.get("game"));
         JsonParser parser = new JsonParser();
         JsonElement jsonItem = parser.parseString(tempMap);
@@ -422,8 +426,6 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     if(correctGame.get("whiteUsername") == null){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
         }
     }

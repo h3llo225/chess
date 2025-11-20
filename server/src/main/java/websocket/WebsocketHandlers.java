@@ -52,16 +52,23 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         String user = new DatabaseManager().findUser(message.getAuthToken());
         GameData game =new DatabaseManager().findGameByID(message.getGameID());
         NotificationSetup notif;
-        if (Objects.equals(game.blackUsername(), user)){
-            notif = new NotificationSetup(UserConnectedAsPlayerWhite,"User connected as " + user + " on the white team");
-        }
-        else if (Objects.equals(game.whiteUsername(), user)){
-            notif = new NotificationSetup(UserConnectedAsPlayerBlack,"User connected as " + user + " on the black team");
-        }else{
-            notif = new NotificationSetup(UserConnectedAsObserver,"User connected as " + user + " as an observer");
-        }
+        NotificationSetup notifPersonal;
 
+        if (Objects.equals(game.whiteUsername(), user)){
+            notif = new NotificationSetup(notification,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+        }
+        else if (Objects.equals(game.blackUsername(), user)){
+            notif = new NotificationSetup(notification,"User connected as " + user + " on the black team");
+            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+
+        }else{
+            notif = new NotificationSetup(notification,"User connected as " + user + " as an observer");
+            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+
+        }
         connections.broadcast(session,notif);
+        connections.broadcastPersonal(session,notifPersonal);
 
 
     }

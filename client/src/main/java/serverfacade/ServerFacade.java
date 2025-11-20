@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.TransitoryGameData;
 import model.UserData;
+import websocket.ServerFacadeWebsocket;
 
 import java.io.IOException;
 import java.net.URI;

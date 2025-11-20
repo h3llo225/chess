@@ -3,14 +3,9 @@ package chess;
 public record NotificationSetup(Type type, String message) {
 
 public enum Type{
-    UserConnectedAsPlayerWhite,
-    UserConnectedAsPlayerBlack,
-    UserConnectedAsObserver,
-    PlayerMadeMove,
-    PlayerLeftGame,
-    PlayerResigned,
-    PlayerIsInCheck,
-    PlayerIsInCheckMate
+    loadGame,
+    error,
+    notification
 }
 public Type getType(){
     return this.type;

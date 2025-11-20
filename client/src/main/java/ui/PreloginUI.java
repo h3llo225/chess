@@ -3,6 +3,7 @@ package ui;
 import model.AuthData;
 import model.UserData;
 import serverfacade.ServerFacade;
+import websocket.ServerFacadeWebsocket;
 
 
 import java.util.InputMismatchException;
@@ -111,6 +112,7 @@ public void registerNewUser() throws  Exception {
             registerInputs = new PreloginUI().getInput();
         }
         SignedInState.editSignedIn(true);
+        ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
         PostLoginUI.authToken = authDataItem.authToken();
         //when signed in is true
@@ -134,7 +136,7 @@ public void registerNewUser() throws  Exception {
                    System.out.println("wrong number of arguments!");
                    loginInputs = new PreloginUI().getInput();
                }
-
+               ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.loginUser(new UserData(loginInputs[0], loginInputs[1], null));
         PostLoginUI.authToken = authDataItem.authToken();
         SignedInState.editSignedIn(true);
