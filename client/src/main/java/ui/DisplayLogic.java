@@ -1,19 +1,28 @@
 package ui;
 
+import chess.ChessGame;
+import serverfacade.ServerFacade;
+
 import java.util.Objects;
 
 public class DisplayLogic {
+    public static String authToken;
+    public static ServerFacade serverFacade = new ServerFacade(8080);
+    public static ChessGame game;
+    public static PostLoginUI post = new PostLoginUI();
+    public static PreloginUI pre = new PreloginUI();
+
     public void display() throws Exception {
         String resultOfChoice = "";
         while(!Objects.equals(resultOfChoice, "quit")){
             PreloginUI.displayOptions();
-            resultOfChoice = new PreloginUI().getChoicePrelogin();
+            resultOfChoice = pre.getChoicePrelogin();
             if (Objects.equals(resultOfChoice, "invalid choice")){
                 System.out.println("Invalid command, here are the commands again!");
             }
             if (Objects.equals(resultOfChoice, "login") || Objects.equals(resultOfChoice, "register")
                     || Objects.equals(resultOfChoice, "help")){
-                new PreloginUI().initialStart(resultOfChoice);
+                pre.initialStart(resultOfChoice);
             }
 
 
@@ -25,27 +34,27 @@ public class DisplayLogic {
                 while(!Objects.equals(resultOfChoicePostLogin, "logout")) {
                     if (Objects.equals(resultOfChoicePostLogin, "create game")) {
 
-                        System.out.println(new PostLoginUI().createGamePostLogin());
+                        System.out.println(post.createGamePostLogin());
                         System.out.println("Please input your next command");
 
                         resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
 
                     }
                     if (Objects.equals(resultOfChoicePostLogin, "play game")) {
-                        System.out.println(new PostLoginUI().playGamePostLogin());
+                        System.out.println(post.playGamePostLogin());
                         System.out.println("Please input your next command");
 
                         resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
 
                     }
                     if (Objects.equals(resultOfChoicePostLogin, "list games")) {
-                        new PostLoginUI().listGamesPostLogin();
+                        post.listGamesPostLogin();
                         System.out.println("Please input your next command");
                         resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
 
                     }
                     if (Objects.equals(resultOfChoicePostLogin, "observe game")) {
-                        new PostLoginUI().observeGame();
+                        post.observeGame();
                         System.out.println("Please input your next command");
 
                         resultOfChoicePostLogin = PostLoginUI.getChoicePostLogin();
@@ -63,7 +72,7 @@ public class DisplayLogic {
                     }
                 }
                 {
-                    new PostLoginUI().logoutUser();
+                    post.logoutUser();
                     SignedInState.editSignedIn(false);
                 }
             }

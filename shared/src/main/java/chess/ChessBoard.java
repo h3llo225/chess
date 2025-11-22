@@ -99,6 +99,10 @@ public class ChessBoard implements Cloneable {
         //throw new RuntimeException("Not implemented");
     }
 
+    public ChessPiece[][] getBoard() {
+        return board;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

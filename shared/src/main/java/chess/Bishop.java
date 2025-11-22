@@ -23,7 +23,7 @@ public class Bishop {
             helperBottomRight(myPosition, myPosRow, myPosCol,goodMoves,
                     teamColor, board, i);
 //end of logic for bottom right*/
-            System.out.println(myPosition + "this is pos");
+
         }
 
     }

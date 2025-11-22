@@ -1,13 +1,15 @@
 package ui;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.NotificationSetup;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static ui.DisplayLogic.game;
+import static ui.DisplayLogic.post;
+import static ui.DisplayLogic.game;
+import static ui.PostLoginUI.*;
 
 public class DisplayLogicPlayGame {
 
@@ -26,7 +28,7 @@ public class DisplayLogicPlayGame {
             return line.split(" ");
         }
     }
-    public String helpPrelogin(){
+    public String helpPlayGame(){
         return """
                 Here is how to make a move.
                 make move(username, password, email)
@@ -46,19 +48,25 @@ public class DisplayLogicPlayGame {
                     System.out.println("You have chosen to resign");
                     yield "resign";
                 }
+                case "make move", "Make move" -> {
+                    System.out.println("You have chosen to make a move");
+                    yield "make move";
+                }
                 case "help", "Help" -> "help";
-                case "quit", "Quit" -> "quit";
                 default -> "invalid choice";
             };
         }
 
     }
-    public void displayPlayGame(String outputBoard){
+    public void displayPlayGame(String outputBoard) throws InvalidMoveException {
         String resultOfChoice = "";
         DisplayLogicPlayGame item = new DisplayLogicPlayGame();
+        System.out.println("You have joined the game, here are your options!");
+        displayOptions();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        out.println();
         while(!Objects.equals(resultOfChoice, "resign")) {
-            out.print(outputBoard);
+            //out.print(outputBoard);
             resultOfChoice = item.getChoicePlayGame();
             if (Objects.equals(resultOfChoice, "invalid choice")) {
                 System.out.println("Invalid command, here are the commands again!");
@@ -73,7 +81,7 @@ public class DisplayLogicPlayGame {
     }
 
 
-    public String makeMove(makeMoveType startPos, makeMoveType endPos){
+    public String makeMove(makeMoveType startPos, makeMoveType endPos) throws InvalidMoveException {
 
         Map<String, Integer> translator = new HashMap<>();
         translator.put("a", 1);
@@ -101,11 +109,58 @@ public class DisplayLogicPlayGame {
         translatedEndPos = translator.get(endPos.col);
         ChessPosition posStartPos = new ChessPosition(startPos.row,translatedStartPos);
         ChessPosition posEndPos = new ChessPosition(endPos.row,translatedEndPos);
-        ChessGame.makeMove(posStartPos,posEndPos);
+        while(game.getBoard().getPiece(posStartPos) == null){
+            System.out.println("Please input valid coordinates");
+            startPos = getInputInt();
+            while(translator.get(startPos.col) == null){
+                System.out.println("Please input valid coordinates");
+                startPos = getInputInt();
+            }
+            translatedStartPos = translator.get(startPos.col);
+            posStartPos = new ChessPosition(startPos.row,translatedStartPos);
+        }
+
+        posStartPos = new ChessPosition(startPos.row,translatedStartPos);
+        //start of promotion logic
+        if (game.getBoard().getPiece(posStartPos) != null){
+        if ((posEndPos.getRow() == 8 && game.getBoard().getPiece(posStartPos).pieceType ==
+                ChessPiece.PieceType.PAWN && game.getBoard().getPiece(posStartPos).getTeamColor() ==
+                ChessGame.TeamColor.WHITE) || posEndPos.getRow() == 1 && game.getBoard().getPiece(posStartPos).pieceType ==
+                ChessPiece.PieceType.PAWN && game.getBoard().getPiece(posStartPos).getTeamColor() ==
+                ChessGame.TeamColor.BLACK){
+            String[] promotion = null;
+
+            for (ChessPiece.PieceType typeOfPiece : ChessPiece.PieceType.values()) {
+                if (typeOfPiece != ChessPiece.PieceType.KING && typeOfPiece != ChessPiece.PieceType.PAWN) {
+                    System.out.println("Please select a piece to promote to: " + typeOfPiece);
+                }
+            }
+
+                promotion = getInputPlayGame();
+            while(!Objects.equals(promotion[0].toUpperCase(), "BISHOP") && !Objects.equals(promotion[0].toUpperCase(), "ROOK") &&
+                    !Objects.equals(promotion[0].toUpperCase(), "KNIGHT") && !Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
+                System.out.println("Please input a different piece type");
+                promotion = getInputPlayGame();
+            }
+            if (Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.QUEEN));
+            }
+            if (Objects.equals(promotion[0].toUpperCase(), "KNIGHT")){
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.KNIGHT));
+            }
+            if (Objects.equals(promotion[0].toUpperCase(), "ROOK")){
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.ROOK));
+            }
+            if (Objects.equals(promotion[0].toUpperCase(), "BISHOP")){
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));
+            }
+        }else{
+        game.makeMove(new ChessMove(posStartPos,posEndPos,null));
+        }
+        }
         return "Move made";
     }
     public record makeMoveType(String col, int row) {
-
     }
 
     public makeMoveType getInputInt() throws InputMismatchException, IndexOutOfBoundsException {
@@ -132,26 +187,30 @@ public class DisplayLogicPlayGame {
         }
         return null;
     }
-    public String playGame(String resultOfChoice) {
+    public String playGame(String resultOfChoice) throws InvalidMoveException {
         if (Objects.equals(resultOfChoice, "invalid choice")){
             //System.out.println("invalid choice");
         }
         if (Objects.equals(resultOfChoice, "make move")){
+            System.out.println("This input will be the position of the piece you want to move.");
             makeMoveType startPos = getInputInt();
             while (startPos ==null){
                 System.out.println("Please input valid integers");
                 startPos = getInputInt();
             }
+            System.out.println("This input will be the position of where you want to move the piece to.");
             makeMoveType endPos = getInputInt();
             while (endPos ==null){
                 System.out.println("Please input valid integers");
                 endPos = getInputInt();
             }
+            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             makeMove(startPos,endPos);
+            out.println(post.makeChessBoard(post.initializeBoardWhiteForCustomGame(game.board.getBoard())));
         }
 
         if (Objects.equals(resultOfChoice, "help")){
-            System.out.println(getChoicePlayGame());
+            System.out.println(helpPlayGame());
             System.out.println("Please enter a new command! Here is the full list.");
         }
         if (Objects.equals(resultOfChoice, "quit")) {

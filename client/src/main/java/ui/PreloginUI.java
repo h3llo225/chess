@@ -9,10 +9,12 @@ import websocket.ServerFacadeWebsocket;
 import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.Scanner;
+import static ui.DisplayLogic.pre;
+import static ui.DisplayLogic.serverFacade;
 
 public class PreloginUI {
 
-    private ServerFacade serverFacade = new ServerFacade(8080);
+    //private ServerFacade serverFacade = new ServerFacade(8080);
 
     public String helpPrelogin(){
         return """
@@ -99,22 +101,22 @@ public class PreloginUI {
         }
     }
 public void registerNewUser() throws  Exception {
-    String[] registerInputs = new PreloginUI().getInput();
+    String[] registerInputs = pre.getInput();
     try {
         while(registerInputs[0]==null || registerInputs[0]==""){
-            registerInputs = new PreloginUI().getInput();
+            registerInputs = pre.getInput();
         }
         if (Objects.equals(registerInputs[0], "quit")){
             return;
         }
         while(registerInputs.length != 3 ){
             System.out.println("wrong number of arguments!");
-            registerInputs = new PreloginUI().getInput();
+            registerInputs = pre.getInput();
         }
         SignedInState.editSignedIn(true);
         ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
-        PostLoginUI.authToken = authDataItem.authToken();
+        DisplayLogic.authToken = authDataItem.authToken();
         //when signed in is true
 
     }catch(Exception ex){
@@ -125,20 +127,20 @@ public void registerNewUser() throws  Exception {
     }
 }
     public void loginUser() throws Exception {
-           try{ String[] loginInputs = new PreloginUI().getInput();
+           try{ String[] loginInputs = pre.getInput();
         while(loginInputs[0]==null || loginInputs[0]==""){
-            loginInputs = new PreloginUI().getInput();
+            loginInputs = pre.getInput();
         }
                if (Objects.equals(loginInputs[0], "quit")){
                    return;
                }
                while (loginInputs.length != 2 ){
                    System.out.println("wrong number of arguments!");
-                   loginInputs = new PreloginUI().getInput();
+                   loginInputs = pre.getInput();
                }
                ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.loginUser(new UserData(loginInputs[0], loginInputs[1], null));
-        PostLoginUI.authToken = authDataItem.authToken();
+        DisplayLogic.authToken = authDataItem.authToken();
         SignedInState.editSignedIn(true);
     }catch(Exception ex){
         System.out.println(String.format("You are not allowed to login, please try again."));
