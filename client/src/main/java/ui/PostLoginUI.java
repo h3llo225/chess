@@ -257,15 +257,15 @@ public String translator(ChessPiece piece){
         String[][] chessboardWhite= new String[10][10];
         String[] labels = {"","  a  ", " b  ", " c  ", "d  ", " e  ","f  "," g  "," h  ",""};
         String[] ranks = {"","8", "7", "6", "5", "4","3","2","1",""};
-        for (int i = 0; i < 10; i++){
+        for (int i = 9; i >=0; i--){
             chessboardWhite[i][0]=ranks[i];
             chessboardWhite[i][9]=ranks[i];
             for(int j = 0; j< 10; j++){
                 chessboardWhite[0][j] = labels[j];
                 chessboardWhite[9][j]=labels[j];
-                if (i != 0 && i != 9 && j != 0 && j!= 9){
 
-                    chessboardWhite[i][j] = translator(game[i-1][j-1]);
+                if (i != 0 && i != 9 && j != 0 && j!= 9){
+                    chessboardWhite[i][j] = translator(game[8-i][j-1]);
                     //chessboardWhite[i][j] = EscapeSequences.EMPTY;
                     // get piece here for custom board maybe
                 }
@@ -430,8 +430,9 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             DisplayLogicPlayGame gameUI = new DisplayLogicPlayGame();
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            gameUI.displayPlayGame(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
+            gameUI.displayPlayGame(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)),(int) newCorrectGameID);
+
         }
     }
         if(correctGame.get("blackUsername") == null){

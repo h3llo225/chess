@@ -1,17 +1,21 @@
 package ui;
 
 import chess.*;
+import com.google.gson.Gson;
+import model.GameData;
+import websocket.ServerFacadeWebsocket;
+import websocket.commands.UserGameCommand;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static ui.DisplayLogic.game;
-import static ui.DisplayLogic.post;
-import static ui.DisplayLogic.game;
+import static ui.DisplayLogic.*;
 import static ui.PostLoginUI.*;
 
 public class DisplayLogicPlayGame {
+    public int gameInfo;
 
     static public void displayOptions(){
         System.out.println("""
@@ -58,69 +62,94 @@ public class DisplayLogicPlayGame {
         }
 
     }
-    public void displayPlayGame(String outputBoard) throws InvalidMoveException {
+    public void displayPlayGame(String outputBoard, int newCorrectGameID) throws InvalidMoveException, IOException {
         String resultOfChoice = "";
+        this.gameInfo = newCorrectGameID;
         DisplayLogicPlayGame item = new DisplayLogicPlayGame();
         System.out.println("You have joined the game, here are your options!");
         displayOptions();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.println();
-        while(!Objects.equals(resultOfChoice, "resign")) {
+        while(!Objects.equals(resultOfChoice, "leave")) {
             //out.print(outputBoard);
             resultOfChoice = item.getChoicePlayGame();
             if (Objects.equals(resultOfChoice, "invalid choice")) {
                 System.out.println("Invalid command, here are the commands again!");
             }
             if (Objects.equals(resultOfChoice, "make move")
-                    || Objects.equals(resultOfChoice, "help")) {
+                    || Objects.equals(resultOfChoice, "help") || Objects.equals(resultOfChoice, "resign")){
                 item.playGame(resultOfChoice);
             }
 
 
         }
+        UserGameCommand leaving = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameInfo);
+        ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+        System.out.println("You have left the game!");
     }
 
 
     public String makeMove(makeMoveType startPos, makeMoveType endPos) throws InvalidMoveException {
 
-        Map<String, Integer> translator = new HashMap<>();
-        translator.put("a", 1);
-        translator.put("b", 2);
-        translator.put("c", 3);
-        translator.put("d", 4);
-        translator.put("e", 5);
-        translator.put("f", 6);
-        translator.put("g", 7);
-        translator.put("h", 8);
-        int translatedStartPos = 0;
-        int translatedEndPos = 0;
 
 
-        while(translator.get(startPos.col) == null){
+
+        Map<String, Integer> translatorCol = new HashMap<>();
+        translatorCol.put("a", 1);
+        translatorCol.put("b", 2);
+        translatorCol.put("c", 3);
+        translatorCol.put("d", 4);
+        translatorCol.put("e", 5);
+        translatorCol.put("f", 6);
+        translatorCol.put("g", 7);
+        translatorCol.put("h", 8);
+        int translatedStartPosCol = 0;
+        int translatedEndPosCol = 0;
+
+
+
+
+
+        while(translatorCol.get(startPos.col) == null){
                 System.out.println("Please input valid coordinates");
                 startPos = getInputInt();
             }
-                translatedStartPos = translator.get(startPos.col);
+                translatedStartPosCol = translatorCol.get(startPos.col);
 
-        while(translator.get(endPos.col) == null){
+
+        while(translatorCol.get(endPos.col) == null){
             System.out.println("Please input valid coordinates");
             endPos = getInputInt();
         }
-        translatedEndPos = translator.get(endPos.col);
-        ChessPosition posStartPos = new ChessPosition(startPos.row,translatedStartPos);
-        ChessPosition posEndPos = new ChessPosition(endPos.row,translatedEndPos);
+        translatedEndPosCol = translatorCol.get(endPos.col);
+        ChessPosition posStartPos = new ChessPosition(startPos.row,translatedStartPosCol);
+        ChessPosition posEndPos = new ChessPosition(endPos.row,translatedEndPosCol);
         while(game.getBoard().getPiece(posStartPos) == null){
             System.out.println("Please input valid coordinates");
             startPos = getInputInt();
-            while(translator.get(startPos.col) == null){
+            while(translatorCol.get(startPos.col) == null){
                 System.out.println("Please input valid coordinates");
                 startPos = getInputInt();
             }
-            translatedStartPos = translator.get(startPos.col);
-            posStartPos = new ChessPosition(startPos.row,translatedStartPos);
+
+            translatedStartPosCol = translatorCol.get(startPos.col);
+            posStartPos = new ChessPosition(startPos.row,translatedStartPosCol);
         }
 
-        posStartPos = new ChessPosition(startPos.row,translatedStartPos);
+
+
+        while(game.getBoard().getPiece(posEndPos) != null){
+            System.out.println("Please input valid coordinates");
+            endPos = getInputInt();
+            while(translatorCol.get(endPos.col) == null){
+                System.out.println("Please input valid coordinates");
+                endPos = getInputInt();
+            }
+
+            translatedEndPosCol = translatorCol.get(endPos.col);
+            posEndPos = new ChessPosition(endPos.row(),translatedEndPosCol);
+        }
+
         //start of promotion logic
         if (game.getBoard().getPiece(posStartPos) != null){
         if ((posEndPos.getRow() == 8 && game.getBoard().getPiece(posStartPos).pieceType ==
@@ -187,7 +216,7 @@ public class DisplayLogicPlayGame {
         }
         return null;
     }
-    public String playGame(String resultOfChoice) throws InvalidMoveException {
+    public String playGame(String resultOfChoice) throws InvalidMoveException, IOException {
         if (Objects.equals(resultOfChoice, "invalid choice")){
             //System.out.println("invalid choice");
         }
@@ -213,8 +242,11 @@ public class DisplayLogicPlayGame {
             System.out.println(helpPlayGame());
             System.out.println("Please enter a new command! Here is the full list.");
         }
-        if (Objects.equals(resultOfChoice, "quit")) {
-            return "quit";
+        if (Objects.equals(resultOfChoice, "resign")) {
+            System.out.println("You have resigned the game!");
+            UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameInfo);
+            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(resign));
+
         }
         return resultOfChoice;
     }
