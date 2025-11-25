@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import chess.NotificationSetup;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -10,6 +11,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MakeMoveGameCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
             joinGame(message, ctx.session);
         }
         if (message.getCommandType()== UserGameCommand.CommandType.LEAVE){
-
+            leaveGame(message,ctx.session);
         }
         System.out.println("Websocket message " + ctx.message());
 
@@ -56,21 +58,55 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
 
         if (Objects.equals(game.whiteUsername(), user)){
             notif = new NotificationSetup(notification,"User connected as " + user + " on the white team");
-            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
         }
         else if (Objects.equals(game.blackUsername(), user)){
             notif = new NotificationSetup(notification,"User connected as " + user + " on the black team");
-            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
 
         }else{
             notif = new NotificationSetup(notification,"User connected as " + user + " as an observer");
-            notifPersonal = new NotificationSetup(loadGame,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
 
         }
         connections.broadcast(session,notif);
         connections.broadcastPersonal(session,notifPersonal);
 
 
+    }
+
+    public void leaveGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
+        String user = new DatabaseManager().findUser(message.getAuthToken());
+        NotificationSetup notif;
+        NotificationSetup notifPersonal;
+        notif = new NotificationSetup(notification,"User " + user + " has left the game");
+        notifPersonal = new NotificationSetup(notification,"You have left the game!");
+        connections.broadcast(session,notif);
+        connections.broadcastPersonal(session,notifPersonal);
+        connections.delete(session);
+    }
+
+    public void resignGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
+        String user = new DatabaseManager().findUser(message.getAuthToken());
+        GameData game =new DatabaseManager().findGameByID(message.getGameID());
+        NotificationSetup notif;
+        NotificationSetup notifPersonal;
+        notif = new NotificationSetup(notification,"User " + user + " has resigned.");
+        notifPersonal = new NotificationSetup(notification,"You have resigned the game");
+        connections.broadcast(session,notif);
+        connections.broadcastPersonal(session,notifPersonal);
+    }
+
+    public void makeMove(MakeMoveGameCommand message, Session session) throws IOException, DataAccessException {
+        String user = new DatabaseManager().findUser(message.getAuthToken());
+        ChessMove move = message.getMakeMove();
+        GameData game =new DatabaseManager().findGameByID(message.getGameID());
+        NotificationSetup notif;
+        NotificationSetup notifPersonal;
+        notif = new NotificationSetup(loadGame,"User " + user + " has made a move." + move);
+        notifPersonal = new NotificationSetup(loadGame,"You have resigned the game");
+        connections.broadcast(session,notif);
+        connections.broadcastPersonal(session,notifPersonal);
     }
 }
 

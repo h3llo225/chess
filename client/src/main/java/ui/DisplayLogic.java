@@ -11,6 +11,7 @@ public class DisplayLogic {
     public static ChessGame game;
     public static PostLoginUI post = new PostLoginUI();
     public static PreloginUI pre = new PreloginUI();
+    public static DisplayLogicPlayGame gameUI = new DisplayLogicPlayGame();
 
     public void display() throws Exception {
         String resultOfChoice = "";

@@ -15,8 +15,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static ui.DisplayLogic.authToken;
-import static ui.DisplayLogic.serverFacade;
+import static ui.DisplayLogic.*;
 
 public class PostLoginUI {
 
@@ -428,10 +427,9 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         }
     if(correctGame.get("whiteUsername") == null){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
-            DisplayLogicPlayGame gameUI = new DisplayLogicPlayGame();
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
-            gameUI.displayPlayGame(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)),(int) newCorrectGameID);
+            gameUI.displayPlayGame((int) newCorrectGameID);
 
         }
     }
@@ -468,7 +466,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
 
         }
         }
-        return "game joined!";
+        return "";
     }
 
     public String logoutUser() throws Exception {

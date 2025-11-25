@@ -4,6 +4,7 @@ import chess.*;
 import com.google.gson.Gson;
 import model.GameData;
 import websocket.ServerFacadeWebsocket;
+import websocket.commands.MakeMoveGameCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import static ui.PostLoginUI.*;
 
 public class DisplayLogicPlayGame {
     public int gameInfo;
+    public boolean resignedGame = false;
 
     static public void displayOptions(){
         System.out.println("""
@@ -49,11 +51,11 @@ public class DisplayLogicPlayGame {
                     yield "leave";
                 }
                 case "resign", "Resign" -> {
-                    System.out.println("You have chosen to resign");
+                    //System.out.println("You have chosen to resign");
                     yield "resign";
                 }
                 case "make move", "Make move" -> {
-                    System.out.println("You have chosen to make a move");
+                    //System.out.println("You have chosen to make a move");
                     yield "make move";
                 }
                 case "help", "Help" -> "help";
@@ -62,23 +64,28 @@ public class DisplayLogicPlayGame {
         }
 
     }
-    public void displayPlayGame(String outputBoard, int newCorrectGameID) throws InvalidMoveException, IOException {
+    public void displayPlayGame(int newCorrectGameID) throws InvalidMoveException, IOException {
         String resultOfChoice = "";
         this.gameInfo = newCorrectGameID;
-        DisplayLogicPlayGame item = new DisplayLogicPlayGame();
+        //DisplayLogicPlayGame item = new DisplayLogicPlayGame();
         System.out.println("You have joined the game, here are your options!");
         displayOptions();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.println();
         while(!Objects.equals(resultOfChoice, "leave")) {
             //out.print(outputBoard);
-            resultOfChoice = item.getChoicePlayGame();
+            resultOfChoice = gameUI.getChoicePlayGame();
             if (Objects.equals(resultOfChoice, "invalid choice")) {
                 System.out.println("Invalid command, here are the commands again!");
             }
             if (Objects.equals(resultOfChoice, "make move")
                     || Objects.equals(resultOfChoice, "help") || Objects.equals(resultOfChoice, "resign")){
-                item.playGame(resultOfChoice);
+                if (resignedGame){
+                    System.out.println("The game is over now.");
+                }
+                else{
+                    gameUI.playGame(resultOfChoice);
+                }
             }
 
 
@@ -89,11 +96,7 @@ public class DisplayLogicPlayGame {
     }
 
 
-    public String makeMove(makeMoveType startPos, makeMoveType endPos) throws InvalidMoveException {
-
-
-
-
+    public String makeMove(makeMoveType startPos, makeMoveType endPos) throws InvalidMoveException, IOException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
@@ -105,10 +108,6 @@ public class DisplayLogicPlayGame {
         translatorCol.put("h", 8);
         int translatedStartPosCol = 0;
         int translatedEndPosCol = 0;
-
-
-
-
 
         while(translatorCol.get(startPos.col) == null){
                 System.out.println("Please input valid coordinates");
@@ -173,18 +172,28 @@ public class DisplayLogicPlayGame {
             }
             if (Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.QUEEN));
+                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.QUEEN));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "KNIGHT")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.KNIGHT));
+                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "ROOK")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.ROOK));
+                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.ROOK));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "BISHOP")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));
+                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
             }
         }else{
         game.makeMove(new ChessMove(posStartPos,posEndPos,null));
+            MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
+            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
         }
         }
         return "Move made";
@@ -243,9 +252,27 @@ public class DisplayLogicPlayGame {
             System.out.println("Please enter a new command! Here is the full list.");
         }
         if (Objects.equals(resultOfChoice, "resign")) {
-            System.out.println("You have resigned the game!");
-            UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameInfo);
-            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(resign));
+            System.out.println("Please confirm that you want to resign the game by typing \"confirm\"");
+            String[] confirm = getInputPlayGame();
+            while (!Objects.equals(confirm[0], "confirm")){
+                if (Objects.equals(confirm[0], "quit")){
+                    break;
+                }
+                if (confirm.length != 1){
+                    System.out.println("Wrong number of arguments!");
+                }
+                else{
+                    System.out.println("Please try again!");
+                    confirm = getInputPlayGame();
+                }
+
+            }
+            if (confirm[0].equals("confirm")){
+                System.out.println("You have resigned the game!");
+                UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameInfo);
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(resign));
+                resignedGame = true;
+            }
 
         }
         return resultOfChoice;
