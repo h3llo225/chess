@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ui.DisplayLogic.*;
+import static ui.DisplayLogic.game;
 
 public class PostLoginUI {
 
@@ -140,34 +141,34 @@ public class PostLoginUI {
     }
 
     public String[][] initializeBoardBlack(){
-        String[][] chessboardWhite= new String[10][10];
+        String[][] chessboardBlack= new String[10][10];
 
         String[] labels = {"","  h  ", " g  ", " f  ", "e  ", " d  ","c  "," b  "," a  ",""};
         String[] ranks = {"","1", "2", "3", "4", "5","6","7","8",""};
-        loopThroughBoard(chessboardWhite, ranks, labels);
-        chessboardWhite[8][1]= EscapeSequences.WHITE_ROOK;
-        chessboardWhite[8][2]= EscapeSequences.WHITE_KNIGHT;
-        chessboardWhite[8][3]= EscapeSequences.WHITE_BISHOP;
-        chessboardWhite[8][5]= EscapeSequences.WHITE_QUEEN;
-        chessboardWhite[8][4]= EscapeSequences.WHITE_KING;
-        chessboardWhite[8][6]= EscapeSequences.WHITE_BISHOP;
-        chessboardWhite[8][7]= EscapeSequences.WHITE_KNIGHT;
-        chessboardWhite[8][8]= EscapeSequences.WHITE_ROOK;
+        loopThroughBoard(chessboardBlack, ranks, labels);
+        chessboardBlack[1][1]= EscapeSequences.WHITE_ROOK;
+        chessboardBlack[1][2]= EscapeSequences.WHITE_KNIGHT;
+        chessboardBlack[1][3]= EscapeSequences.WHITE_BISHOP;
+        chessboardBlack[1][5]= EscapeSequences.WHITE_QUEEN;
+        chessboardBlack[1][4]= EscapeSequences.WHITE_KING;
+        chessboardBlack[1][6]= EscapeSequences.WHITE_BISHOP;
+        chessboardBlack[1][7]= EscapeSequences.WHITE_KNIGHT;
+        chessboardBlack[1][8]= EscapeSequences.WHITE_ROOK;
         for (int i = 1; i <9; i++){
-            chessboardWhite[7][i]=EscapeSequences.WHITE_PAWN;
+            chessboardBlack[2][i]=EscapeSequences.WHITE_PAWN;
         }
         for (int i = 1; i <9; i++){
-            chessboardWhite[2][i]=EscapeSequences.BLACK_PAWN;
+            chessboardBlack[7][i]=EscapeSequences.BLACK_PAWN;
         }
-        chessboardWhite[1][1]= EscapeSequences.BLACK_ROOK;
-        chessboardWhite[1][2]= EscapeSequences.BLACK_KNIGHT;
-        chessboardWhite[1][3]= EscapeSequences.BLACK_BISHOP;
-        chessboardWhite[1][5]= EscapeSequences.BLACK_QUEEN;
-        chessboardWhite[1][4]= EscapeSequences.BLACK_KING;
-        chessboardWhite[1][6]= EscapeSequences.BLACK_BISHOP;
-        chessboardWhite[1][7]= EscapeSequences.BLACK_KNIGHT;
-        chessboardWhite[1][8]= EscapeSequences.BLACK_ROOK;
-        return chessboardWhite;
+        chessboardBlack[8][1]= EscapeSequences.BLACK_ROOK;
+        chessboardBlack[8][2]= EscapeSequences.BLACK_KNIGHT;
+        chessboardBlack[8][3]= EscapeSequences.BLACK_BISHOP;
+        chessboardBlack[8][5]= EscapeSequences.BLACK_QUEEN;
+        chessboardBlack[8][4]= EscapeSequences.BLACK_KING;
+        chessboardBlack[8][6]= EscapeSequences.BLACK_BISHOP;
+        chessboardBlack[8][7]= EscapeSequences.BLACK_KNIGHT;
+        chessboardBlack[8][8]= EscapeSequences.BLACK_ROOK;
+        return chessboardBlack;
     }
 
 
@@ -365,13 +366,40 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         System.out.println("Here are the games!");
         int playGameInputs = 0;
         findIDPlayHelperHelper(gamesInGameList);
-        System.out.println("Please input the game number you would like. Then the chess color. One at a time.");
-        try{playGameInputs = new PreloginUI().getInputInt();} catch (Exception e) {
-            System.out.println("Please input a valid integer");
-            playGameInputs = new PreloginUI().getInputInt();
-        }
-        return playGameInputs;
+        System.out.println("Please input the game number you would like to observe.");
+        LinkedTreeMap correctGame = null;
 
+            playGameInputs = new PreloginUI().getInputInt();
+            boolean validInput = false;
+            while(!validInput) {
+                if (playGameInputs >= 1 && playGameInputs <= gamesInGameList.size()) {
+                    validInput = true;
+                    correctGame = gamesInGameList.get(playGameInputs - 1);
+                } else {
+                    System.out.println("Please input a valid integer");
+                    int retry = new PreloginUI().getInputInt();
+                    if(retry >= 1 && retry <= gamesInGameList.size()){
+                        validInput = true;
+                        correctGame = gamesInGameList.get(retry - 1);
+                    }
+
+
+                }
+            }
+
+            Object correctGameID = correctGame.get("gameID");
+            double newCorrectGameID = (double)correctGameID;
+            //TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
+            String observeMap = new Gson().toJson(correctGame.get("game"));
+            JsonParser parser = new JsonParser();
+            JsonElement jsonItem = parser.parseString(observeMap);
+            JsonObject object = jsonItem.getAsJsonObject();
+            ChessGame game = new Gson().fromJson(object, ChessGame.class);
+            DisplayLogic.game = game;
+            UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, (int) newCorrectGameID);
+            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
+
+        return playGameInputs;
     }
 
     public String playGamePostLogin() throws Exception {
@@ -411,8 +439,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
         TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
-        UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, newGameDataReal.gameID());
-        ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
+
         String tempMap = new Gson().toJson(correctGame.get("game"));
         JsonParser parser = new JsonParser();
         JsonElement jsonItem = parser.parseString(tempMap);
@@ -429,7 +456,6 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
-            gameUI.displayPlayGame((int) newCorrectGameID);
 
         }
     }
@@ -437,9 +463,14 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
          if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoard(initializeBoardBlack()));
+//             serverFacade.playGame(newGameDataReal, authToken);
+//             gameUI.displayPlayGame((int) newCorrectGameID);
         }
         }
-        try{serverFacade.playGame(newGameDataReal, authToken);} catch (Exception e) {
+        try{
+            //serverFacade.playGame(newGameDataReal, authToken);
+
+        } catch (Exception e) {
             boolean newValidInput = false;
             while (!newValidInput){
             System.out.println("Please input a different color");
@@ -453,19 +484,26 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                out.print(makeChessBoard(initializeBoardBlack()));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-               serverFacade.playGame(newGameDataReal, authToken);
+//               serverFacade.playGame(newGameDataReal, authToken);
+//               gameUI.displayPlayGame((int) newCorrectGameID);
            }
                 if(correctGame.get("whiteUsername") == null && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                     out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-                    serverFacade.playGame(newGameDataReal, authToken);
+//                    serverFacade.playGame(newGameDataReal, authToken);
+//                    gameUI.displayPlayGame((int) newCorrectGameID);
                 }
 
 
         }
         }
+        serverFacade.playGame(newGameDataReal, authToken);
+        UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, newGameDataReal.gameID());
+        ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
+
+        gameUI.displayPlayGame((int) newCorrectGameID);
         return "";
     }
 
@@ -475,8 +513,9 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     }
 
     public void observeGame() throws Exception {
-        int input = findIDObserver();
+        findIDObserver();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(makeChessBoard(initializeBoardWhite()));
+
     }
 }

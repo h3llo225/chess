@@ -32,6 +32,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws IOException, DataAccessException {
         UserGameCommand message = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+        MakeMoveGameCommand moveMessage = new Gson().fromJson(ctx.message(), MakeMoveGameCommand.class);
         //UserGameCommand er = e;
 
         if (message.getCommandType()== UserGameCommand.CommandType.CONNECT){
@@ -39,6 +40,12 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         }
         if (message.getCommandType()== UserGameCommand.CommandType.LEAVE){
             leaveGame(message,ctx.session);
+        }
+        if (message.getCommandType() == UserGameCommand.CommandType.RESIGN){
+            resignGame(message,ctx.session);
+        }
+        if ( moveMessage.getCommandType() ==MakeMoveGameCommand.CommandType.MAKE_MOVE){
+            makeMove(moveMessage,ctx.session);
         }
         System.out.println("Websocket message " + ctx.message());
 
@@ -62,11 +69,11 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         }
         else if (Objects.equals(game.blackUsername(), user)){
             notif = new NotificationSetup(notification,"User connected as " + user + " on the black team");
-            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the black team");
 
         }else{
             notif = new NotificationSetup(notification,"User connected as " + user + " as an observer");
-            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
+            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " as an observer");
 
         }
         connections.broadcast(session,notif);
@@ -104,7 +111,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         NotificationSetup notif;
         NotificationSetup notifPersonal;
         notif = new NotificationSetup(loadGame,"User " + user + " has made a move." + move);
-        notifPersonal = new NotificationSetup(loadGame,"You have resigned the game");
+        notifPersonal = new NotificationSetup(loadGame,"You have made a move");
         connections.broadcast(session,notif);
         connections.broadcastPersonal(session,notifPersonal);
     }
