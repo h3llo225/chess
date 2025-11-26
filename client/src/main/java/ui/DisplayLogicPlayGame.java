@@ -244,7 +244,7 @@ public class DisplayLogicPlayGame {
             }
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             makeMove(startPos,endPos);
-            out.println(post.makeChessBoard(post.initializeBoardWhiteForCustomGame(game.board.getBoard())));
+            //out.println(post.makeChessBoard(post.initializeBoardWhiteForCustomGame(game.board.getBoard())));
         }
 
         if (Objects.equals(resultOfChoice, "help")){

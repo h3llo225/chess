@@ -1,4 +1,5 @@
 package websocket;
+import chess.ChessGame;
 import chess.NotificationSetup;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
@@ -22,7 +23,8 @@ public class ConnectionManagement {
         for (Session connectionVal : connections.values()){
             if (connectionVal != session){
                 if (connectionVal.isOpen()) {
-                    connectionVal.getRemote().sendString(new Gson().toJson(notif));
+                    String json = new Gson().toJson(notification, notification.getClass());
+                    connectionVal.getRemote().sendString(json);
                 }
             }
         }

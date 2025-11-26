@@ -278,6 +278,27 @@ public String translator(ChessPiece piece){
     }
 
 
+    public String[][] initializeBoardBlackForCustomGame(ChessPiece[][] game){
+        String[][] chessboardBlack= new String[10][10];
+        String[] labels = {"","  h  ", " g  ", " f  ", "e  ", " d  ","c  "," b  "," a  ",""};
+        String[] ranks = {"","1", "2", "3", "4", "5","6","7","8",""};
+        for (int i = 9; i >=0; i--){
+            chessboardBlack[i][0]=ranks[i];
+            chessboardBlack[i][9]=ranks[i];
+            for(int j = 0; j< 10; j++){
+                chessboardBlack[0][j] = labels[j];
+                chessboardBlack[9][j]=labels[j];
+
+                if (i != 0 && i != 9 && j != 0 && j!= 9){
+                    chessboardBlack[i][j] = translator(game[i-1][8-j]);
+                    //chessboardWhite[i][j] = EscapeSequences.EMPTY;
+                    // get piece here for custom board maybe
+                }
+            }
+        }
+        return chessboardBlack;
+    }
+
 
     public String makeChessBoard(String[][] chessBoardWhite){
         StringBuilder retVal = new StringBuilder();
@@ -462,7 +483,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         if(correctGame.get("blackUsername") == null){
          if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoard(initializeBoardBlack()));
+            out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
 //             serverFacade.playGame(newGameDataReal, authToken);
 //             gameUI.displayPlayGame((int) newCorrectGameID);
         }
@@ -482,7 +503,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
            if(correctGame.get("blackUsername") == null && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-               out.print(makeChessBoard(initializeBoardBlack()));
+               out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
 //               serverFacade.playGame(newGameDataReal, authToken);
 //               gameUI.displayPlayGame((int) newCorrectGameID);

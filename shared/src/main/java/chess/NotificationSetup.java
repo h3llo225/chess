@@ -1,10 +1,12 @@
 package chess;
 
-public record NotificationSetup(Type type, String message) {
+import model.GameData;
+
+public record NotificationSetup(Type type, String message, GameData game) {
 
 public enum Type{
-    loadGame,
     error,
+    LOAD_GAME,
     notification
 }
 public Type getType(){
@@ -13,4 +15,7 @@ public Type getType(){
 public String getString(){
     return this.message;
 }
+public GameData getGame(){
+        return this.game;
+    }
 }

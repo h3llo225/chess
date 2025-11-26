@@ -117,6 +117,7 @@ public void registerNewUser() throws  Exception {
         ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.registerUser(new UserData(registerInputs[0], registerInputs[1], registerInputs[2]));
         DisplayLogic.authToken = authDataItem.authToken();
+        DisplayLogic.username =  authDataItem.username();
         //when signed in is true
 
     }catch(Exception ex){
@@ -141,7 +142,9 @@ public void registerNewUser() throws  Exception {
                ServerFacadeWebsocket websocket = new ServerFacadeWebsocket();
         AuthData authDataItem =  serverFacade.loginUser(new UserData(loginInputs[0], loginInputs[1], null));
         DisplayLogic.authToken = authDataItem.authToken();
-        SignedInState.editSignedIn(true);
+        DisplayLogic.username =  authDataItem.username();
+
+               SignedInState.editSignedIn(true);
     }catch(Exception ex){
         System.out.println(String.format("You are not allowed to login, please try again."));
         loginUser();

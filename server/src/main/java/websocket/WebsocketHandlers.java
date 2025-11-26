@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import chess.NotificationSetup;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -8,7 +9,6 @@ import dataaccess.DatabaseManager;
 import io.javalin.websocket.*;
 
 import model.GameData;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.MakeMoveGameCommand;
@@ -30,7 +30,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
 
     }
     @Override
-    public void handleMessage(@NotNull WsMessageContext ctx) throws IOException, DataAccessException {
+    public void handleMessage(@NotNull WsMessageContext ctx) throws IOException, DataAccessException, InvalidMoveException {
         UserGameCommand message = new Gson().fromJson(ctx.message(), UserGameCommand.class);
         MakeMoveGameCommand moveMessage = new Gson().fromJson(ctx.message(), MakeMoveGameCommand.class);
         //UserGameCommand er = e;
@@ -64,16 +64,16 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         NotificationSetup notifPersonal;
 
         if (Objects.equals(game.whiteUsername(), user)){
-            notif = new NotificationSetup(notification,"User connected as " + user + " on the white team");
-            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the white team");
+            notif = new NotificationSetup(LOAD_GAME,"User connected as " + user + " on the white team", game);
+            notifPersonal = new NotificationSetup(LOAD_GAME,"User connected as " + user + " on the white team", game);
         }
         else if (Objects.equals(game.blackUsername(), user)){
-            notif = new NotificationSetup(notification,"User connected as " + user + " on the black team");
-            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " on the black team");
+            notif = new NotificationSetup(LOAD_GAME,"User connected as " + user + " on the black team", null);
+            notifPersonal = new NotificationSetup(LOAD_GAME,"User connected as " + user + " on the black team", null);
 
         }else{
-            notif = new NotificationSetup(notification,"User connected as " + user + " as an observer");
-            notifPersonal = new NotificationSetup(notification,"User connected as " + user + " as an observer");
+            notif = new NotificationSetup(LOAD_GAME,"User connected as " + user + " as an observer", null);
+            notifPersonal = new NotificationSetup(LOAD_GAME,"User connected as " + user + " as an observer", null);
 
         }
         connections.broadcast(session,notif);
@@ -86,8 +86,8 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         String user = new DatabaseManager().findUser(message.getAuthToken());
         NotificationSetup notif;
         NotificationSetup notifPersonal;
-        notif = new NotificationSetup(notification,"User " + user + " has left the game");
-        notifPersonal = new NotificationSetup(notification,"You have left the game!");
+        notif = new NotificationSetup(notification,"User " + user + " has left the game", null);
+        notifPersonal = new NotificationSetup(notification,"You have left the game!", null);
         connections.broadcast(session,notif);
         connections.broadcastPersonal(session,notifPersonal);
         connections.delete(session);
@@ -98,20 +98,21 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         GameData game =new DatabaseManager().findGameByID(message.getGameID());
         NotificationSetup notif;
         NotificationSetup notifPersonal;
-        notif = new NotificationSetup(notification,"User " + user + " has resigned.");
-        notifPersonal = new NotificationSetup(notification,"You have resigned the game");
+        notif = new NotificationSetup(notification,"User " + user + " has resigned.", null);
+        notifPersonal = new NotificationSetup(notification,"You have resigned the game", null);
         connections.broadcast(session,notif);
         connections.broadcastPersonal(session,notifPersonal);
     }
 
-    public void makeMove(MakeMoveGameCommand message, Session session) throws IOException, DataAccessException {
+    public void makeMove(MakeMoveGameCommand message, Session session) throws IOException, DataAccessException, InvalidMoveException {
         String user = new DatabaseManager().findUser(message.getAuthToken());
         ChessMove move = message.getMakeMove();
         GameData game =new DatabaseManager().findGameByID(message.getGameID());
         NotificationSetup notif;
         NotificationSetup notifPersonal;
-        notif = new NotificationSetup(loadGame,"User " + user + " has made a move." + move);
-        notifPersonal = new NotificationSetup(loadGame,"You have made a move");
+        game.game().makeMove(move);
+        notif = new NotificationSetup(LOAD_GAME, "user "+ user +" made a move shown below", game);
+         notifPersonal = new NotificationSetup(LOAD_GAME,"You made a move!",game);
         connections.broadcast(session,notif);
         connections.broadcastPersonal(session,notifPersonal);
     }
