@@ -36,8 +36,11 @@ public class DisplayLogicPlayGame {
     }
     public String helpPlayGame(){
         return """
-                Here is how to make a move.
+
                 make move(username, password, email)
+                leave
+                resign
+                help
                 """;
     }
 
@@ -172,28 +175,29 @@ public class DisplayLogicPlayGame {
             }
             if (Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.QUEEN));
-                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.QUEEN));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+                                MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.QUEEN));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "KNIGHT")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.KNIGHT));
-                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+                    System.out.println("You inputted invalid moves! Please type help for more information");
+                         MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "ROOK")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.ROOK));
-                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.ROOK));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+                MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.ROOK));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "BISHOP")){
-                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));
-                MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));             MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
             }
         }else{
         game.makeMove(new ChessMove(posStartPos,posEndPos,null));
-            MakeMoveGameCommand leaving = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
-            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
+
+            MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
+            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
         }
         }
         return "Move made";
@@ -242,9 +246,9 @@ public class DisplayLogicPlayGame {
                 System.out.println("Please input valid integers");
                 endPos = getInputInt();
             }
-            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             makeMove(startPos,endPos);
-            //out.println(post.makeChessBoard(post.initializeBoardWhiteForCustomGame(game.board.getBoard())));
+
+
         }
 
         if (Objects.equals(resultOfChoice, "help")){

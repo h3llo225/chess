@@ -13,7 +13,7 @@ import static ui.DisplayLogic.post;
 public class NotificationHandler {
     public static final String RED = "\u001B[31m";
         public void notifyAction(NotificationSetup notification){
-            if (notification.getType() == NotificationSetup.Type.LOAD_GAME){
+            if (notification.getType() == NotificationSetup.serverMessageType.LOAD_GAME){
 
                 var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                 if (Objects.equals(notification.getGame().blackUsername(), DisplayLogic.username)){
