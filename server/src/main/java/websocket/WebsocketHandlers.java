@@ -62,9 +62,10 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
     }
 
     public void joinGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
-        connections.add(session);
+
         String user = new DatabaseManager().findUser(message.getAuthToken());
         GameData game = new DatabaseManager().findGameByID(message.getGameID());
+        connections.add(session, message.getGameID());
         NotificationSetup notif;
         NotificationSetup notifPersonal;
         if (game != null && user != null) {
@@ -80,7 +81,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
                 notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
 
             }
-            connections.broadcast(session, notif);
+            connections.broadcast(session, notif, game.gameID());
             connections.broadcastPersonal(session, notifPersonal);
 
         } else {
@@ -94,13 +95,28 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
 
     public void leaveGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
         String user = new DatabaseManager().findUser(message.getAuthToken());
-        NotificationSetup notif;
-        NotificationSetup notifPersonal;
-        notif = new NotificationSetup(NOTIFICATION, "User " + user + " has left the game", null, null);
-        notifPersonal = new NotificationSetup(NOTIFICATION, "You have left the game!", null, null);
-        connections.broadcast(session, notif);
-        connections.broadcastPersonal(session, notifPersonal);
-        connections.delete(session);
+        GameData game = new DatabaseManager().findGameByID(message.getGameID());
+        if (Objects.equals(game.blackUsername(), user)){
+            new DatabaseManager().deleteGameByID(message.getGameID());
+            new DatabaseManager().makeGame(new GameData(message.getGameID(), game.whiteUsername(), null,game.gameName(),game.game()));
+            NotificationSetup notif;
+            notif = new NotificationSetup(NOTIFICATION, "User " + user + " has left the game", null, null);
+            connections.broadcast(session, notif,message.getGameID());
+            connections.delete(session);
+        }else if (Objects.equals(game.whiteUsername(), user)){
+            new DatabaseManager().deleteGameByID(message.getGameID());
+            new DatabaseManager().makeGame(new GameData(message.getGameID(), null, game.blackUsername(), game.gameName(),game.game()));
+            NotificationSetup notif;
+            notif = new NotificationSetup(NOTIFICATION, "User " + user + " has left the game", null, null);
+            connections.broadcast(session, notif, message.getGameID());
+            connections.delete(session);
+        }else{
+            NotificationSetup notif;
+            notif = new NotificationSetup(NOTIFICATION, "User " + user + " has left the game", null, null);
+            connections.broadcast(session, notif,message.getGameID());
+            connections.delete(session);
+        }
+
     }
 
     public void resignGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
@@ -108,10 +124,23 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         GameData game = new DatabaseManager().findGameByID(message.getGameID());
         NotificationSetup notif;
         NotificationSetup notifPersonal;
-        notif = new NotificationSetup(NOTIFICATION, "User " + user + " has resigned.", null, null);
-        notifPersonal = new NotificationSetup(NOTIFICATION, "You have resigned the game", null, null);
-        connections.broadcast(session, notif);
-        connections.broadcastPersonal(session, notifPersonal);
+        if (game != null){
+            if (Objects.equals(user, game.whiteUsername()) || Objects.equals(user, game.blackUsername())){
+                notif = new NotificationSetup(NOTIFICATION, "User " + user + " has resigned.", null, null);
+            notifPersonal = new NotificationSetup(NOTIFICATION, "You have resigned the game", null, null);
+            connections.broadcast(session, notif,message.getGameID());
+            connections.broadcastPersonal(session, notifPersonal);
+            new DatabaseManager().deleteGameByID(message.getGameID());
+        }else{
+            notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+            connections.broadcastPersonal(session, notifPersonal);
+        }
+        }else{
+                notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                connections.broadcastPersonal(session, notifPersonal);
+
+        }
+
     }
 
     public void makeMove(MakeMoveGameCommand message, Session session) throws IOException, DataAccessException, InvalidMoveException {
@@ -121,49 +150,54 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
         NotificationSetup notif;
         NotificationSetup notifPersonal;
         NotificationSetup notifAll;
+        if (game != null){
 //having an issue where it evaluates move != null and then the first item = move white username and then ignores everything else
-        if (move != null && ((Objects.equals(user, game.whiteUsername()) && game.game().getTeamTurn() == ChessGame.TeamColor.WHITE) ||
-                (Objects.equals(user, game.blackUsername()) && game.game().getTeamTurn() == ChessGame.TeamColor.BLACK))){
-            try {
-                game.game().makeMove(move);
-            } catch (InvalidMoveException e) {
-                //error handling
-                notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
-                connections.broadcastPersonal(session, notifPersonal);
-                return;
-            }
+            if (move != null && ((Objects.equals(user, game.whiteUsername()) && game.game().getTeamTurn() == ChessGame.TeamColor.WHITE) ||
+                    (Objects.equals(user, game.blackUsername()) && game.game().getTeamTurn() == ChessGame.TeamColor.BLACK))) {
+                try {
+                    game.game().makeMove(move);
+                } catch (InvalidMoveException e) {
+                    //error handling
+                    notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                    connections.broadcastPersonal(session, notifPersonal);
+                    return;
+                }
 
-            if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK) && Objects.equals(user, game.whiteUsername())) { //check if black is mated
-                notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
-                notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
-                connections.broadcast(session, notifAll);
-                notifAll = new NotificationSetup(NOTIFICATION, "Black has been checkmated", null, null);
-                connections.broadcast(session,notifAll);
+                if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK) && Objects.equals(user, game.whiteUsername())) { //check if black is mated
+                    notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
+                    notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
+                    connections.broadcast(session, notifAll,message.getGameID());
+                    notifAll = new NotificationSetup(NOTIFICATION, "Black has been checkmated", null, null);
+                    connections.broadcast(session, notifAll,message.getGameID());
 
-                connections.broadcastPersonal(session, notifPersonal);
-            } else if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE) && Objects.equals(user, game.blackUsername())) {
-                notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
-                notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
-                connections.broadcast(session, notifAll);
-                notifAll = new NotificationSetup(NOTIFICATION, "White has been checkmated", null, null);
-                connections.broadcast(session,notifAll);
-                connections.broadcastPersonal(session, notifPersonal);
-            } else if (!game.game().isInCheckmate(ChessGame.TeamColor.BLACK) && !game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                    connections.broadcastPersonal(session, notifPersonal);
+                } else if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE) && Objects.equals(user, game.blackUsername())) {
+                    notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
+                    notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
+                    connections.broadcast(session, notifAll,message.getGameID());
+                    notifAll = new NotificationSetup(NOTIFICATION, "White has been checkmated", null, null);
+                    connections.broadcast(session, notifAll,message.getGameID());
+                    connections.broadcastPersonal(session, notifPersonal);
+                } else if (!game.game().isInCheckmate(ChessGame.TeamColor.BLACK) && !game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
 
-                new DatabaseManager().deleteGameByID(message.getGameID());
-                new DatabaseManager().makeGame(new GameData(message.getGameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
+                    new DatabaseManager().deleteGameByID(message.getGameID());
+                    new DatabaseManager().makeGame(new GameData(message.getGameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
 
-                notifAll = new NotificationSetup(NOTIFICATION, "user " + user + " made move", null, null);
-                connections.broadcast(session, notifAll);
+                    notifAll = new NotificationSetup(NOTIFICATION, "user " + user + " made move", null, null);
+                    connections.broadcast(session, notifAll,message.getGameID());
 
 
-                notif = new NotificationSetup(LOAD_GAME, null, null, game);
-                notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
-                connections.broadcast(session, notif);
-                connections.broadcastPersonal(session, notifPersonal);
-            }
+                    notif = new NotificationSetup(LOAD_GAME, null, null, game);
+                    notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
+                    connections.broadcast(session, notif,message.getGameID());
+                    connections.broadcastPersonal(session, notifPersonal);
+                }
 
             }else {
+                notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                connections.broadcastPersonal(session, notifPersonal);
+            }
+    }else {
             notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
             connections.broadcastPersonal(session, notifPersonal);
         }

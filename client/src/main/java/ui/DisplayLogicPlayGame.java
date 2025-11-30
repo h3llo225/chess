@@ -112,45 +112,23 @@ public class DisplayLogicPlayGame {
         int translatedStartPosCol = 0;
         int translatedEndPosCol = 0;
 
-        while(translatorCol.get(startPos.col) == null){
-                System.out.println("Please input valid coordinates");
-                startPos = getInputInt();
-            }
-                translatedStartPosCol = translatorCol.get(startPos.col);
 
 
-        while(translatorCol.get(endPos.col) == null){
-            System.out.println("Please input valid coordinates");
-            endPos = getInputInt();
-        }
+        translatedStartPosCol = translatorCol.get(startPos.col);
         translatedEndPosCol = translatorCol.get(endPos.col);
         ChessPosition posStartPos = new ChessPosition(startPos.row,translatedStartPosCol);
+
         ChessPosition posEndPos = new ChessPosition(endPos.row,translatedEndPosCol);
-        while(game.getBoard().getPiece(posStartPos) == null){
-            System.out.println("Please input valid coordinates");
-            startPos = getInputInt();
-            while(translatorCol.get(startPos.col) == null){
-                System.out.println("Please input valid coordinates");
-                startPos = getInputInt();
-            }
-
-            translatedStartPosCol = translatorCol.get(startPos.col);
-            posStartPos = new ChessPosition(startPos.row,translatedStartPosCol);
-        }
 
 
 
-        while(game.getBoard().getPiece(posEndPos) != null){
-            System.out.println("Please input valid coordinates");
-            endPos = getInputInt();
-            while(translatorCol.get(endPos.col) == null){
-                System.out.println("Please input valid coordinates");
-                endPos = getInputInt();
-            }
 
-            translatedEndPosCol = translatorCol.get(endPos.col);
-            posEndPos = new ChessPosition(endPos.row(),translatedEndPosCol);
-        }
+//        if(endPos != null){
+//            while(translatorCol.get(endPos.col) == null){
+//            System.out.println("Please input valid coordinates");
+//            endPos = getInputInt();
+//        }
+//        }
 
         //start of promotion logic
         if (game.getBoard().getPiece(posStartPos) != null){
@@ -205,7 +183,16 @@ public class DisplayLogicPlayGame {
     public record makeMoveType(String col, int row) {
     }
 
-    public makeMoveType getInputInt() throws InputMismatchException, IndexOutOfBoundsException {
+    public makeMoveType getInputIntStart() throws InputMismatchException, IndexOutOfBoundsException {
+        Map<String, Integer> translatorCol = new HashMap<>();
+        translatorCol.put("a", 1);
+        translatorCol.put("b", 2);
+        translatorCol.put("c", 3);
+        translatorCol.put("d", 4);
+        translatorCol.put("e", 5);
+        translatorCol.put("f", 6);
+        translatorCol.put("g", 7);
+        translatorCol.put("h", 8);
         try{
             System.out.println("Please input a column and a row such as a 1 or d 6");
             String[] startingArray = new String[2];
@@ -219,10 +206,77 @@ public class DisplayLogicPlayGame {
                    System.out.println("please input an int");
                    return null;
                }
-               if (startingArray.length == 2){
+
+            int translatedPosCol = translatorCol.get(startingArray[0]);
+            ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
+            while(game.getBoard().getPiece(positionGeneral) == null ||game.getBoard().getPiece(positionGeneral).getTeamColor() != game.getTeamTurn() ){
+                System.out.println("Please input valid coordinates");
+                 return null;
+            }
+            try{while(translatorCol.get(startingArray[0]) == null){
+                System.out.println("Please input valid coordinates");
+                return null;
+            }
+
+            } catch (Exception e) {
+                return null;
+            }
+            if (startingArray.length == 2){
                    return new makeMoveType(startingArray[0],nums);
                }
-                System.out.println("Please input the right number of vals");
+                //System.out.println("Please input the right number of vals");
+        }catch (Exception e){
+            System.out.println("Please input a valid integer");
+            return null;
+        }
+        return null;
+    }
+
+    public makeMoveType getInputIntEnd() throws InputMismatchException, IndexOutOfBoundsException {
+        Map<String, Integer> translatorCol = new HashMap<>();
+        translatorCol.put("a", 1);
+        translatorCol.put("b", 2);
+        translatorCol.put("c", 3);
+        translatorCol.put("d", 4);
+        translatorCol.put("e", 5);
+        translatorCol.put("f", 6);
+        translatorCol.put("g", 7);
+        translatorCol.put("h", 8);
+        try{
+            System.out.println("Please input a column and a row such as a 1 or d 6");
+            String[] startingArray = new String[2];
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
+            startingArray = input.split(" ");
+            int nums = 0;
+            try{if (startingArray.length == 2){
+                nums = Integer.parseInt(startingArray[1]);
+            }} catch (NumberFormatException e) {
+                System.out.println("please input an int");
+                return null;
+            }
+
+
+            int translatedPosCol = translatorCol.get(startingArray[0]);
+            ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
+
+                if (game.getBoard().getPiece(positionGeneral) != null) {
+                    while (game.getBoard().getPiece(positionGeneral).getTeamColor() == game.getTeamTurn()) {
+                        System.out.println("Please input valid coordinates");
+                        return null;
+                    }
+                }
+
+            try{while(translatorCol.get(startingArray[0]) == null){
+                System.out.println("Please input valid coordinates");
+                return null;
+            }} catch (Exception e) {
+                return null;
+            }
+            if (startingArray.length == 2){
+                return new makeMoveType(startingArray[0],nums);
+            }
+            //System.out.println("Please input the right number of vals");
         }catch (Exception e){
             System.out.println("Please input a valid integer");
             return null;
@@ -235,16 +289,16 @@ public class DisplayLogicPlayGame {
         }
         if (Objects.equals(resultOfChoice, "make move")){
             System.out.println("This input will be the position of the piece you want to move.");
-            makeMoveType startPos = getInputInt();
+            makeMoveType startPos = getInputIntStart();
             while (startPos ==null){
                 System.out.println("Please input valid integers");
-                startPos = getInputInt();
+                startPos = getInputIntStart();
             }
             System.out.println("This input will be the position of where you want to move the piece to.");
-            makeMoveType endPos = getInputInt();
+            makeMoveType endPos = getInputIntEnd();
             while (endPos ==null){
                 System.out.println("Please input valid integers");
-                endPos = getInputInt();
+                endPos = getInputIntEnd();
             }
             makeMove(startPos,endPos);
 

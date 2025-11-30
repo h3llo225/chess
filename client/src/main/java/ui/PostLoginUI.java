@@ -473,14 +473,14 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                 boardPieces[i][j] = game.getBoard().getPiece(new ChessPosition(i+1,j+1));
             }
         }
-    if(correctGame.get("whiteUsername") == null){
+    if(correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
 
         }
     }
-        if(correctGame.get("blackUsername") == null){
+        if(correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username){
          if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
             out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
@@ -500,7 +500,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                System.out.println("Please input a different color");
                newColor = new PreloginUI().getInput();
            }
-           if(correctGame.get("blackUsername") == null && newColor[0].toUpperCase().equals("BLACK")){
+           if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username) && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
@@ -508,7 +508,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
 //               serverFacade.playGame(newGameDataReal, authToken);
 //               gameUI.displayPlayGame((int) newCorrectGameID);
            }
-                if(correctGame.get("whiteUsername") == null && newColor[0].toUpperCase().equals("WHITE")){
+                if((correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username) && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
                     out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));

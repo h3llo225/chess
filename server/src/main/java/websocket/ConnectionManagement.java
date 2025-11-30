@@ -8,21 +8,21 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManagement {
-    public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Session, Integer> connections = new ConcurrentHashMap<>();
 
-    public void add(Session session){
-        connections.put(session, session);
+    public void add(Session session, int gameID){
+        connections.put(session, gameID);
     }
 
     public void delete(Session session){
         connections.remove(session);
     }
 
-    public void broadcast(Session session, NotificationSetup notification) throws IOException {
+    public void broadcast(Session session, NotificationSetup notification, int gameID) throws IOException {
         String notif = notification.getString();
-        for (Session connectionVal : connections.values()){
+        for (Session connectionVal : connections.keySet()){
             if (connectionVal != session){
-                if (connectionVal.isOpen()) {
+                if (connectionVal.isOpen() && gameID == connections.get(connectionVal)) {
                     String json = new Gson().toJson(notification, notification.getClass());
                     connectionVal.getRemote().sendString(json);
                 }
@@ -32,7 +32,7 @@ public class ConnectionManagement {
 
     public void broadcastPersonal(Session session, NotificationSetup notification) throws IOException {
         String notif = notification.getString();
-        for (Session connectionVal : connections.values()){
+        for (Session connectionVal : connections.keySet()){
         if (connectionVal == session){
             if (connectionVal.isOpen()) {
                 String json = new Gson().toJson(notification, notification.getClass());

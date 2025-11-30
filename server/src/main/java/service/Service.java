@@ -115,7 +115,7 @@ public class Service {
                 GameData game = new DatabaseManager().findGameByID(joinRequest.gameID());
                 if (joinRequest.gameID() != 0){
                     if (Objects.equals(joinRequest.playerColor(), "WHITE")){
-                        if (game.whiteUsername() == null){
+                        if (game.whiteUsername() == null || game.whiteUsername().equals(registerRequest.username())){
                             new DatabaseManager().deleteGameByID(joinRequest.gameID());
                             new DatabaseManager().makeGame(new GameData(joinRequest.gameID(),
                                     registerRequest.username(), game.blackUsername(), game.gameName(), game.game()));
@@ -125,7 +125,7 @@ public class Service {
                         }
                     }
                     else if (Objects.equals(joinRequest.playerColor(), "BLACK")){
-                        if (game.blackUsername() == null){
+                        if (game.blackUsername() == null || game.blackUsername().equals(registerRequest.username())){
                             new DatabaseManager().deleteGameByID(joinRequest.gameID());
                             new DatabaseManager().makeGame(new GameData(joinRequest.gameID(),
                                     game.whiteUsername(),registerRequest.username(),
