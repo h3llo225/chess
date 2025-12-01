@@ -132,11 +132,11 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
             connections.broadcastPersonal(session, notifPersonal);
             new DatabaseManager().deleteGameByID(message.getGameID());
         }else{
-            notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+            notifPersonal = new NotificationSetup(ERROR, null, "Only players can resign.", null);
             connections.broadcastPersonal(session, notifPersonal);
         }
         }else{
-                notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                notifPersonal = new NotificationSetup(ERROR, null, "Please make sure the game is still ongoing.", null);
                 connections.broadcastPersonal(session, notifPersonal);
 
         }
@@ -158,7 +158,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
                     game.game().makeMove(move);
                 } catch (InvalidMoveException e) {
                     //error handling
-                    notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                    notifPersonal = new NotificationSetup(ERROR, null, "Please make sure your move is valid", null);
                     connections.broadcastPersonal(session, notifPersonal);
                     return;
                 }
@@ -167,17 +167,18 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
                     notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
                     notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
                     connections.broadcast(session, notifAll,message.getGameID());
-                    notifAll = new NotificationSetup(NOTIFICATION, "Black has been checkmated", null, null);
+                    notifAll = new NotificationSetup(NOTIFICATION, "The game is now over via checkmate or stalemate on black team.", null, null);
                     connections.broadcast(session, notifAll,message.getGameID());
 
                     connections.broadcastPersonal(session, notifPersonal);
-                } else if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE) && Objects.equals(user, game.blackUsername())) {
+                } else if ((game.game().isInCheckmate(ChessGame.TeamColor.WHITE) || game.game().isInStalemate(ChessGame.TeamColor.WHITE)) && Objects.equals(user, game.blackUsername())) {
                     notifAll = new NotificationSetup(LOAD_GAME, null, null, game);
                     notifPersonal = new NotificationSetup(LOAD_GAME, null, null, game);
                     connections.broadcast(session, notifAll,message.getGameID());
-                    notifAll = new NotificationSetup(NOTIFICATION, "White has been checkmated", null, null);
+                    notifAll = new NotificationSetup(NOTIFICATION, "The game is now over via checkmate or stalemate on white team.", null, null);
                     connections.broadcast(session, notifAll,message.getGameID());
                     connections.broadcastPersonal(session, notifPersonal);
+
                 } else if (!game.game().isInCheckmate(ChessGame.TeamColor.BLACK) && !game.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
 
                     new DatabaseManager().deleteGameByID(message.getGameID());
@@ -194,7 +195,8 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
                 }
 
             }else {
-                notifPersonal = new NotificationSetup(ERROR, null, "You made a bad request", null);
+                notifPersonal = new NotificationSetup(ERROR, null, "Please make sure your move exists or that it is your turn.",
+                        null);
                 connections.broadcastPersonal(session, notifPersonal);
             }
     }else {

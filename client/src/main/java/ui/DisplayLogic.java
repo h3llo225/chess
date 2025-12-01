@@ -13,6 +13,7 @@ public class DisplayLogic {
     public static PreloginUI pre = new PreloginUI();
     public static DisplayLogicPlayGame gameUI = new DisplayLogicPlayGame();
     public static String username;
+    public static boolean stateGameCheckMate = false;
 
     public void display() throws Exception {
         String resultOfChoice = "";

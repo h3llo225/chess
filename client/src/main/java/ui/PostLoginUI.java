@@ -1,13 +1,13 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
 import model.GameData;
 import model.TransitoryGameData;
-import serverfacade.ServerFacade;
 import websocket.ServerFacadeWebsocket;
 import websocket.commands.UserGameCommand;
 
@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ui.DisplayLogic.*;
-import static ui.DisplayLogic.game;
 
 public class PostLoginUI {
 
@@ -300,8 +299,14 @@ public String translator(ChessPiece piece){
     }
 
 
-    public String makeChessBoard(String[][] chessBoardWhite){
+    public String makeChessBoardWhite(String[][] chessBoardWhite, Collection<ChessMove> moves){
         StringBuilder retVal = new StringBuilder();
+        int[][] pos = new int[10][10];
+        if (moves != null){
+        for (ChessMove move : moves){
+            pos[9-move.getEndPosition().getRow()][move.getEndPosition().getColumn()]= 1;
+        }
+        }
         for (int i = 0; i <10; i++) {
             retVal.append("\n");
             for (int j = 0; j < 10; j ++){
@@ -309,6 +314,7 @@ public String translator(ChessPiece piece){
                     retVal.append(chessBoardWhite[i][j]);
                 }
                 if (i != 0 && i != 9 && j != 0 && j != 9) {
+                    if (moves == null){
                     if ((i + j) % 2 == 0) {
                         retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
                         retVal.append(chessBoardWhite[i][j]);
@@ -319,6 +325,97 @@ public String translator(ChessPiece piece){
                         retVal.append(chessBoardWhite[i][j]);
                         retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                         retVal.append(EscapeSequences.RESET_BG_COLOR);
+                    }
+                    }else{
+                            if ((i + j) % 2 == 0) {
+                                if (pos[i][j] == 1){
+                                        retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                                        retVal.append(chessBoardWhite[i][j]);
+                                        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                        retVal.append(EscapeSequences.RESET_BG_COLOR);
+                                }else{
+                                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                                }
+                            } else {
+                                if (pos[i][j] == 1){
+                                    retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                                    retVal.append(chessBoardWhite[i][j]);
+                                    retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                    retVal.append(EscapeSequences.RESET_BG_COLOR);
+                                }else{
+                                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                                }
+                            }
+
+                    }
+                }
+            }
+        }
+        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+        retVal.append(EscapeSequences.RESET_BG_COLOR);
+        return retVal.toString();
+    }
+
+    public String makeChessBoardBlack(String[][] chessBoardWhite, Collection<ChessMove> moves){
+        StringBuilder retVal = new StringBuilder();
+        int[][] pos = new int[10][10];
+        if (moves != null){
+            for (ChessMove move : moves){
+                pos[move.getEndPosition().getRow()][9-move.getEndPosition().getColumn()]= 1;
+            }
+        }
+        for (int i = 0; i <10; i++) {
+            retVal.append("\n");
+            for (int j = 0; j < 10; j ++){
+                if (i == 0 || i == 9 || j == 0 || j == 9){
+                    retVal.append(chessBoardWhite[i][j]);
+                }
+                if (i != 0 && i != 9 && j != 0 && j != 9) {
+                    if (moves == null){
+                        if ((i + j) % 2 == 0) {
+                            retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        } else {
+                            retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        }
+                    }else{
+                        if ((i + j) % 2 == 0) {
+                            if (pos[i][j] == 1){
+                                retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                            }else{
+                                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                            }
+                        } else {
+                            if (pos[i][j] == 1){
+                                retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                            }else{
+                                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                                retVal.append(chessBoardWhite[i][j]);
+                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                                retVal.append(EscapeSequences.RESET_BG_COLOR);
+                            }
+                        }
+
                     }
                 }
             }
@@ -476,14 +573,14 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     if(correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
+            out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces), null));
 
         }
     }
         if(correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username){
          if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
+            out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces), null));
 //             serverFacade.playGame(newGameDataReal, authToken);
 //             gameUI.displayPlayGame((int) newCorrectGameID);
         }
@@ -503,7 +600,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
            if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username) && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-               out.print(makeChessBoard(initializeBoardBlackForCustomGame(boardPieces)));
+               out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces),null));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
 //               serverFacade.playGame(newGameDataReal, authToken);
 //               gameUI.displayPlayGame((int) newCorrectGameID);
@@ -511,7 +608,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                 if((correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username) && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-                    out.print(makeChessBoard(initializeBoardWhiteForCustomGame(boardPieces)));
+                    out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces),null));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
 //                    serverFacade.playGame(newGameDataReal, authToken);
 //                    gameUI.displayPlayGame((int) newCorrectGameID);
@@ -534,9 +631,10 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     }
 
     public void observeGame() throws Exception {
-        findIDObserver();
+        int id = findIDObserver();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.print(makeChessBoard(initializeBoardWhite()));
+        out.print(makeChessBoardWhite(initializeBoardWhite(), null));
+        gameUI.displayPlayGame(id);
 
     }
 }

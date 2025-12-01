@@ -18,4 +18,7 @@ public String getString(){
 public GameData getGame(){
         return this.game;
     }
+    public String getError(){
+        return this.errorMessage;
+    }
 }
