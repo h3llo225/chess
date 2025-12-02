@@ -10,6 +10,7 @@ import model.TransitoryGameData;
 import model.UserData;
 import service.*;
 import io.javalin.http.Context;
+import websocket.WebsocketHandlers;
 
 
 public class Server {
