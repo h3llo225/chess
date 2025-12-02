@@ -1,5 +1,4 @@
 package websocket;
-import chess.ChessGame;
 import chess.NotificationSetup;
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;

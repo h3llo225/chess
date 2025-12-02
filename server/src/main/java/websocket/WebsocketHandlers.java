@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import io.javalin.websocket.*;
-
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +15,6 @@ import websocket.commands.MakeMoveGameCommand;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Objects;
 
 import static chess.NotificationSetup.serverMessageType.*;
@@ -33,7 +31,7 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
     }
 
     @Override
-    public void handleMessage(@NotNull WsMessageContext ctx) throws IOException, DataAccessException, InvalidMoveException {
+    public void handleMessage(@NotNull WsMessageContext ctx) throws IOException, InvalidMoveException, DataAccessException {
         UserGameCommand message = new Gson().fromJson(ctx.message(), UserGameCommand.class);
         MakeMoveGameCommand moveMessage = new Gson().fromJson(ctx.message(), MakeMoveGameCommand.class);
         //UserGameCommand er = e;
