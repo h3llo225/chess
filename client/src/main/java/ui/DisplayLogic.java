@@ -14,6 +14,7 @@ public class DisplayLogic {
     public static DisplayLogicPlayGame gameUI = new DisplayLogicPlayGame();
     public static String username;
     public static boolean stateGameCheckMate = false;
+    public static boolean isObserver = false;
 
     public void display() throws Exception {
         String resultOfChoice = "";

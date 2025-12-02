@@ -41,6 +41,7 @@ public class DisplayLogicPlayGame {
                 leave
                 resign
                 help
+                (Observers may only do help or leave)
                 """;
     }
 
@@ -71,7 +72,7 @@ public class DisplayLogicPlayGame {
         String resultOfChoice = "";
         this.gameInfo = newCorrectGameID;
         //DisplayLogicPlayGame item = new DisplayLogicPlayGame();
-        System.out.println("You have joined the game, here are your options!");
+        System.out.println("You have joined the game, here are your options! (Observers may only do help or leave.)");
         displayOptions();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.println();
@@ -81,18 +82,25 @@ public class DisplayLogicPlayGame {
             if (Objects.equals(resultOfChoice, "invalid choice")) {
                 System.out.println("Invalid command, here are the commands again!");
             }
+            if (DisplayLogic.isObserver == false){
             if (Objects.equals(resultOfChoice, "make move")
                     || Objects.equals(resultOfChoice, "help") || Objects.equals(resultOfChoice, "resign")){
+                if (game.isInCheckmate(game.getTeamTurn()) || game.isInStalemate(game.getTeamTurn())){
+                    stateGameCheckMate = true;
+                    //System.out.println("The game is over now.");
+                }
                 if (resignedGame || stateGameCheckMate == true){
                     System.out.println("The game is over now.");
                 }
                 else{
-                    if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) || game.isInStalemate(ChessGame.TeamColor.BLACK)){
-                        stateGameCheckMate = true;
-                        System.out.println("The game is over now.");
-                    }else{
-                        gameUI.playGame(resultOfChoice);
-                    }
+                    gameUI.playGame(resultOfChoice);
+                }
+            }
+        }else {
+                if (Objects.equals(resultOfChoice, "help")){
+                    gameUI.playGame(resultOfChoice);
+                }else{
+                    System.out.println("As an observer you do not have access to commands besides leave or help");
                 }
             }
         }
@@ -207,6 +215,9 @@ public class DisplayLogicPlayGame {
                int nums = 0;
                try{if (startingArray.length == 2){
                    nums = Integer.parseInt(startingArray[1]);
+               }else{
+                   System.out.println("Wrong num of args");
+                   return null;
                }} catch (NumberFormatException e) {
                    System.out.println("please input an int");
                    return null;
@@ -218,12 +229,12 @@ public class DisplayLogicPlayGame {
             int translatedPosCol = translatorCol.get(startingArray[0]);
             ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
             while(game.getBoard().getPiece(positionGeneral) == null ||game.getBoard().getPiece(positionGeneral).getTeamColor() != game.getTeamTurn() ){
-                System.out.println("Please input valid coordinates");
+                System.out.println("Please make sure it is your turn or that you grabbed a piece on the board.");
                  return null;
             }
 
             try{while(translatorCol.get(startingArray[0]) == null){
-                System.out.println("Please input valid coordinates");
+                System.out.println("Please input a coordinate with a piece.");
                 return null;
             }
 
@@ -276,7 +287,7 @@ public class DisplayLogicPlayGame {
 
                 if (game.getBoard().getPiece(positionGeneral) != null) {
                     while (game.getBoard().getPiece(positionGeneral).getTeamColor() == game.getTeamTurn()) {
-                        System.out.println("Please input valid coordinates");
+                        System.out.println("Please make sure it is your turn.");
                         return null;
                     }
                 }
@@ -317,33 +328,33 @@ public class DisplayLogicPlayGame {
             makeMoveType startPos = getInputIntStart();
             makeMoveType endPos = null;
             boolean valid = false;
+            outerLoop:
             while (!valid) {
-                if (startPos == null) {
-                    System.out.println("Please input valid integers");
-                    startPos = getInputIntStart();
-                    System.out.println("This input will be the position of where you want to move the piece to.");
-                    if (startPos != null) {
-                        if (Objects.equals(startPos.col, "quit")) {
-                            break;
-                        } else if (startPos.row == 0) {
-                            break;
-                        }
-                    }
-                }
                 if (startPos != null && Objects.equals(startPos.col, "quit")) {
                     break;
                 } else if (startPos != null && startPos.row == 0) {
                     break;
                 }
-                if (startPos != null){
+                {
+                    while (startPos == null){
+                        System.out.println("Please input valid integers");
+                        startPos = getInputIntStart();
+                        System.out.println("This input will be the position of where you want to move the piece to.");
+                        if (startPos != null) {
+                            if (Objects.equals(startPos.col, "quit")) {
+                                break outerLoop;
+                            } else if (startPos.row == 0) {
+                                break outerLoop;
+                            }
+                        }
+                    }
+                }
+            if (startPos != null){
                 ChessPosition pos = new ChessPosition(startPos.row, translatorCol.get(startPos.col));
                 if (game.getTeamTurn() == ChessGame.TeamColor.BLACK) {
                     out.print(post.makeChessBoardBlack(post.initializeBoardBlackForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
                 } else if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                     out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
-                }
-                }else{
-                    while (startPos == null){startPos = getInputIntStart();}
                 }
                 endPos = getInputIntEnd();
                 while(endPos == null) {
@@ -351,40 +362,36 @@ public class DisplayLogicPlayGame {
                     endPos = getInputIntEnd();
                     if (endPos != null) {
                         if (Objects.equals(endPos.col, "quit")) {
-                            break;
+                            break outerLoop;
                         } else if (endPos.row == 0) {
-                            break;
+                            break outerLoop;
                         }
                     }
                 }
                 if (endPos != null && Objects.equals(endPos.col, "quit")) {
-                    break;
+                    break ;
                 } else if (endPos != null && endPos.row == 0) {
                     break;
                 }
             else if (endPos != null && startPos != null){
                     ChessBoard prevGame = game.board;
+                    ChessGame.TeamColor moverColor = game.getTeamTurn();
                     if (makeMove(startPos, endPos) == null) {
+                        ChessGame.TeamColor newColor = game.getTeamTurn();
                     }else{
                         valid = true;
                     }
-                    if (game.getTeamTurn() == ChessGame.TeamColor.BLACK && game.isInCheck(ChessGame.TeamColor.BLACK)){
+                    if (game.isInCheck(moverColor)){
                         System.out.println("It looks like you may be in check please make a different move. ");
                         endPos = null;
                         startPos = null;
                         valid = false;
                         game.board = prevGame;
-                        game.setTeamTurn(ChessGame.TeamColor.BLACK);
-                    }if (game.getTeamTurn() == ChessGame.TeamColor.WHITE && game.isInCheck(ChessGame.TeamColor.WHITE)){
-                        System.out.println("Please it looks like you may be in check please make a different move. ");
-                        endPos = null;
-                        startPos = null;
-                        valid = false;
-                        game.board = prevGame;
-                        game.setTeamTurn(ChessGame.TeamColor.WHITE);
+                        game.setTeamTurn(moverColor);
                     }
                 }
             }
+        }
         }
 
         if (Objects.equals(resultOfChoice, "help")){

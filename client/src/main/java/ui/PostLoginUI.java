@@ -573,14 +573,14 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     if(correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username){
         if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces), null));
+            //out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces), null));
 
         }
     }
         if(correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username){
          if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces), null));
+            //out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces), null));
 //             serverFacade.playGame(newGameDataReal, authToken);
 //             gameUI.displayPlayGame((int) newCorrectGameID);
         }
@@ -600,7 +600,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
            if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username) && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
                var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-               out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces),null));
+               //out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces),null));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
 //               serverFacade.playGame(newGameDataReal, authToken);
 //               gameUI.displayPlayGame((int) newCorrectGameID);
@@ -608,7 +608,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                 if((correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username) && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
                     var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-                    out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces),null));
+                    //out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces),null));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
 //                    serverFacade.playGame(newGameDataReal, authToken);
 //                    gameUI.displayPlayGame((int) newCorrectGameID);
@@ -633,8 +633,10 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     public void observeGame() throws Exception {
         int id = findIDObserver();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        out.print(makeChessBoardWhite(initializeBoardWhite(), null));
+        //out.print(makeChessBoardWhite(initializeBoardWhite(), null));
+        DisplayLogic.isObserver = true;
         gameUI.displayPlayGame(id);
+
 
     }
 }
