@@ -28,19 +28,7 @@ public class PostLoginUIHelperClasses {
 
         playGameInputs = new PreloginUI().getInputInt();
         boolean validInput = false;
-        while(!validInput) {
-            if (playGameInputs >= 1 && playGameInputs <= gamesInGameList.size()) {
-                validInput = true;
-                correctGame = gamesInGameList.get(playGameInputs - 1);
-            } else {
-                System.out.println("Please input a valid integer");
-                int retry = new PreloginUI().getInputInt();
-                if(retry >= 1 && retry <= gamesInGameList.size()){
-                    validInput = true;
-                    correctGame = gamesInGameList.get(retry - 1);
-                }
-            }
-        }
+        correctGame = helperFuncForCodeQuality(validInput, playGameInputs, correctGame,gamesInGameList);
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
         String observeMap = new Gson().toJson(correctGame.get("game"));
@@ -65,17 +53,37 @@ public class PostLoginUIHelperClasses {
                 String newWhiteUsername = (String) whiteUsername;
                 System.out.println("Game number " + (i + 1) + " White player " + newWhiteUsername);
             } else {
-                System.out.println((i + 1) + " " + " There is no white player yet in this game. You can be registered as the white player in this game.");
+                System.out.println((i + 1) + " " + " There is no white player yet in this game. " +
+                        "You can be registered as the white player in this game.");
             }
             if (hopeGame.get("blackUsername") != null) {
                 Object blackUsername = hopeGame.get("blackUsername");
                 String newBlackUsername = (String) blackUsername;
                 System.out.println("Game number " + (i + 1) + " Black player " + newBlackUsername);
             } else {
-                System.out.println((i + 1) + " " + " There is no black player yet in this game. You can be registered as the black player in this game.");
+                System.out.println((i + 1) + " " + " There is no black player yet in this game. " +
+                        "You can be registered as the black player in this game.");
             }
 
 
         }
     }
-}
+
+        public LinkedTreeMap helperFuncForCodeQuality(boolean validInput, int playGameInputs,
+                                                      LinkedTreeMap correctGame, ArrayList<LinkedTreeMap> gamesInGameList){
+            while(!validInput) {
+                if (playGameInputs >= 1 && playGameInputs <= gamesInGameList.size()) {
+                    validInput = true;
+                    correctGame = gamesInGameList.get(playGameInputs - 1);
+                } else {
+                    System.out.println("Please input a valid integer");
+                    int retry = new PreloginUI().getInputInt();
+                    if(retry >= 1 && retry <= gamesInGameList.size()){
+                        validInput = true;
+                        correctGame = gamesInGameList.get(retry - 1);
+                    }
+                }
+            }
+            return correctGame;
+        }
+    }

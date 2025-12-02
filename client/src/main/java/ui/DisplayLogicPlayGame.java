@@ -180,7 +180,9 @@ public class DisplayLogicPlayGame {
                 ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "BISHOP")){
-                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));             MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));             MakeMoveGameCommand makeMove
+                        = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,
+                        new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
                 ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
         }else{
@@ -354,23 +356,32 @@ public class DisplayLogicPlayGame {
                 } else if (endPos != null && endPos.row == 0) {
                     break;
                 }
-            else if (endPos != null && startPos != null){
-                    ChessBoard prevGame = game.board;
-                    ChessGame.TeamColor moverColor = game.getTeamTurn();
-                    if (makeMove(startPos, endPos) == null) {
-                        ChessGame.TeamColor newColor = game.getTeamTurn();
-                    }else{
-                        valid = true;
-                    }
-                    if (game.isInCheck(moverColor)){
-                        System.out.println("It looks like you may be in check please make a different move. ");
-                        endPos = null;
-                        startPos = null;
-                        valid = false;
-                        game.board = prevGame;
-                        game.setTeamTurn(moverColor);
-                    }
+                if(!checkHelper(endPos,startPos,valid)){
+                    endPos = null;
+                    startPos = null;
+                }else{
+                    valid = true;
                 }
+                //start of newCheckHelper
+//            else if (endPos != null && startPos != null){
+//                    ChessBoard prevGame = game.board;
+//                    ChessGame.TeamColor moverColor = game.getTeamTurn();
+//                    if (makeMove(startPos, endPos) == null) {
+//                        ChessGame.TeamColor newColor = game.getTeamTurn();
+//                    }
+//                    else{
+//                        valid = true;
+//                    }
+//                    if (game.isInCheck(moverColor)){
+//                        System.out.println("It looks like you may be in check please make a different move. ");
+//                        endPos = null;
+//                        startPos = null;
+//                        valid = false;
+//                        game.board = prevGame;
+//                        game.setTeamTurn(moverColor);
+//                    }
+//                }
+            //end of new check helper
             }
         }
         }
@@ -428,6 +439,28 @@ public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
         }
     }
     return pos;
+}
+
+public boolean checkHelper(MakeMoveType endPos, MakeMoveType startPos, boolean valid) throws IOException, InvalidMoveException {
+        if (endPos != null && startPos != null){
+        ChessBoard prevGame = game.board;
+        ChessGame.TeamColor moverColor = game.getTeamTurn();
+        if (makeMove(startPos, endPos) == null) {
+            ChessGame.TeamColor newColor = game.getTeamTurn();
+        }
+        else{
+            valid = true;
+        }
+        if (game.isInCheck(moverColor)){
+            System.out.println("It looks like you may be in check please make a different move. ");
+            //endPos = null;
+            //startPos = null;
+            valid = false;
+            game.board = prevGame;
+            game.setTeamTurn(moverColor);
+        }
+    }
+        return valid;
 }
 
 }

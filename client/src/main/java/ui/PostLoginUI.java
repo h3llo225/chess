@@ -220,58 +220,70 @@ public String translator(ChessPiece piece){
         return chessboardBlack;
     }
 
+    public void makeChessBoardHelperHelper(int i, int j, StringBuilder retVal, String[][] chessBoardWhite){
+        if (i == 0 || i == 9 || j == 0 || j == 9){
+            retVal.append(chessBoardWhite[i][j]);
+        }
+    }
+
+    public void makeChessBoardHelperHelperHelper(int i, int j, StringBuilder retVal, String[][] chessBoardWhite, int[][] pos, String isLightGreyOrNot){
+
+        if (pos[i][j] == 1){
+                retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                retVal.append(chessBoardWhite[i][j]);
+                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                retVal.append(EscapeSequences.RESET_BG_COLOR);
+            }else if(Objects.equals(isLightGreyOrNot, "LightGrey")){
+                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                retVal.append(chessBoardWhite[i][j]);
+                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                retVal.append(EscapeSequences.RESET_BG_COLOR);
+            } else if(Objects.equals(isLightGreyOrNot, "DarkGreen")){
+                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                retVal.append(chessBoardWhite[i][j]);
+                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                retVal.append(EscapeSequences.RESET_BG_COLOR);
+
+            }
+
+    }
+    public void makeChessBoardHelperHelperHelperHelper(int i, int j, StringBuilder retVal, String[][] chessBoardWhite,
+                                                       Collection<ChessMove> moves){
+        if (moves == null) {
+            if ((i + j) % 2 == 0) {
+                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                retVal.append(chessBoardWhite[i][j]);
+                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                retVal.append(EscapeSequences.RESET_BG_COLOR);
+            } else {
+                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                retVal.append(chessBoardWhite[i][j]);
+                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                retVal.append(EscapeSequences.RESET_BG_COLOR);
+            }
+        }
+    }
+
 public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chessBoardWhite,
                                           int[][] pos, Collection<ChessMove> moves){
     for (int i = 0; i <10; i++) {
         retVal.append("\n");
         for (int j = 0; j < 10; j ++){
-            if (i == 0 || i == 9 || j == 0 || j == 9){
-                retVal.append(chessBoardWhite[i][j]);
-            }
-            if (i != 0 && i != 9 && j != 0 && j != 9) {
-                if (moves == null){
-                    if ((i + j) % 2 == 0) {
-                        retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                        retVal.append(chessBoardWhite[i][j]);
-                        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                        retVal.append(EscapeSequences.RESET_BG_COLOR);
-                    } else {
-                        retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                        retVal.append(chessBoardWhite[i][j]);
-                        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                        retVal.append(EscapeSequences.RESET_BG_COLOR);
-                    }
-                }else{
-                    if ((i + j) % 2 == 0) {
-                        if (pos[i][j] == 1){
-                            retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        }else{
-                            retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        }
-                    } else {
-                        if (pos[i][j] == 1){
-                            retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        }else{
-                            retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        }
-                    }
 
+            makeChessBoardHelperHelper(i,j,retVal,chessBoardWhite);
+            if (i != 0 && i != 9 && j != 0 && j != 9) {
+                makeChessBoardHelperHelperHelperHelper(i, j, retVal, chessBoardWhite, moves);
+
+                  if (moves != null && (i + j) % 2 == 0) {
+                    makeChessBoardHelperHelperHelper(i, j, retVal, chessBoardWhite, pos, "LightGrey");
+
+                } else if (moves != null && !((i + j) % 2 == 0)){
+                    makeChessBoardHelperHelperHelper(i, j, retVal, chessBoardWhite, pos, "DarkGreen");
                 }
             }
         }
     }
+
     return retVal;
 }
     public String makeChessBoardWhite(String[][] chessBoardWhite, Collection<ChessMove> moves){
@@ -346,22 +358,9 @@ public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chess
         LinkedTreeMap correctGame = null;
         boolean validInput = false;
         try{
-            while(!validInput) {
-                if (retted.gameID() >= 1 && retted.gameID() <= gamesInGameList.size()) {
-                    validInput = true;
-                    correctGame = gamesInGameList.get(retted.gameID() - 1);
-                } else {
-                    System.out.println("Please input a valid integer");
-                    int retry = new PreloginUI().getInputInt();
-                    if(retry >= 1 && retry <= gamesInGameList.size()){
-                        validInput = true;
-                        correctGame = gamesInGameList.get(retry - 1);
-                    }
-                }
-            }
+            correctGame = new PostLoginUIHelperClasses().helperFuncForCodeQuality(validInput, retted.gameID()-1, correctGame,gamesInGameList);
         } catch (Exception e) {
                 System.out.println("Please input a valid integer");
-
         }
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
