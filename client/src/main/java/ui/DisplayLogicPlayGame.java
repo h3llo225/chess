@@ -2,7 +2,6 @@ package ui;
 
 import chess.*;
 import com.google.gson.Gson;
-import model.GameData;
 import websocket.ServerFacadeWebsocket;
 import websocket.commands.MakeMoveGameCommand;
 import websocket.commands.UserGameCommand;
@@ -13,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ui.DisplayLogic.*;
-import static ui.PostLoginUI.*;
 
 public class DisplayLogicPlayGame {
     public int gameInfo;
@@ -110,7 +108,7 @@ public class DisplayLogicPlayGame {
     }
 
 
-    public String makeMove(makeMoveType startPos, makeMoveType endPos) throws InvalidMoveException, IOException {
+    public String makeMove(MakeMoveType startPos, MakeMoveType endPos) throws InvalidMoveException, IOException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
@@ -164,39 +162,43 @@ public class DisplayLogicPlayGame {
             }
             if (Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.QUEEN));
-                                MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.QUEEN));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
+                                MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
+                                        authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.QUEEN));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "KNIGHT")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.KNIGHT));
                     //System.out.println("You inputted invalid moves! Please type help for more information");
-                         MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
+                         MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
+                                 authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "ROOK")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.ROOK));
-                MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.ROOK));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
+                MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
+                        authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.ROOK));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
             if (Objects.equals(promotion[0].toUpperCase(), "BISHOP")){
-                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));             MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
-                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
+                game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.BISHOP));             MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.BISHOP));
+                ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
             }
         }else{
         try{game.makeMove(new ChessMove(posStartPos,posEndPos,null));} catch (InvalidMoveException e) {
             return null;
         }
 
-            MakeMoveGameCommand make_move = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE, authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
-            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(make_move));
+            MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
+                    authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
+            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
         }
         }
         return "Move made";
     }
-    public record makeMoveType(String col, int row) {
+    public record MakeMoveType(String col, int row) {
     }
 
-    public makeMoveType getInputIntStart() throws InputMismatchException, IndexOutOfBoundsException {
+    public MakeMoveType getInputIntStart() throws InputMismatchException, IndexOutOfBoundsException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
@@ -223,12 +225,13 @@ public class DisplayLogicPlayGame {
                    return null;
                }
             if (Objects.equals(startingArray[0], "quit") ||nums == 0){
-                return new makeMoveType("quit", 0);
+                return new MakeMoveType("quit", 0);
             }
 
             int translatedPosCol = translatorCol.get(startingArray[0]);
             ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
-            while(game.getBoard().getPiece(positionGeneral) == null ||game.getBoard().getPiece(positionGeneral).getTeamColor() != game.getTeamTurn() ){
+            while(game.getBoard().getPiece(positionGeneral) == null ||game.getBoard().getPiece(positionGeneral).getTeamColor()
+                    != game.getTeamTurn() ){
                 System.out.println("Please make sure it is your turn or that you grabbed a piece on the board.");
                  return null;
             }
@@ -243,7 +246,7 @@ public class DisplayLogicPlayGame {
                 return null;
             }
             if (startingArray.length == 2){
-                   return new makeMoveType(startingArray[0],nums);
+                   return new MakeMoveType(startingArray[0],nums);
                }
                 //System.out.println("Please input the right number of vals");
         }catch (Exception e){
@@ -253,7 +256,7 @@ public class DisplayLogicPlayGame {
         return null;
     }
 
-    public makeMoveType getInputIntEnd() throws InputMismatchException, IndexOutOfBoundsException {
+    public MakeMoveType getInputIntEnd() throws InputMismatchException, IndexOutOfBoundsException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
@@ -278,7 +281,7 @@ public class DisplayLogicPlayGame {
                 return null;
             }
             if (Objects.equals(startingArray[0], "quit") || nums == 0){
-                return new makeMoveType("quit", 0);
+                return new MakeMoveType("quit", 0);
             }
 
 
@@ -299,7 +302,7 @@ public class DisplayLogicPlayGame {
                 return null;
             }
             if (startingArray.length == 2){
-                return new makeMoveType(startingArray[0],nums);
+                return new MakeMoveType(startingArray[0],nums);
             }
             //System.out.println("Please input the right number of vals");
         }catch (Exception e){
@@ -325,48 +328,26 @@ public class DisplayLogicPlayGame {
         }
         if (Objects.equals(resultOfChoice, "make move")) {
             System.out.println("This input will be the position of the piece you want to move.");
-            makeMoveType startPos = getInputIntStart();
-            makeMoveType endPos = null;
+            MakeMoveType startPos = null;
+            MakeMoveType endPos = null;
             boolean valid = false;
             outerLoop:
             while (!valid) {
-                if (startPos != null && Objects.equals(startPos.col, "quit")) {
-                    break;
-                } else if (startPos != null && startPos.row == 0) {
-                    break;
-                }
-                {
-                    while (startPos == null){
-                        System.out.println("Please input valid integers");
-                        startPos = getInputIntStart();
-                        System.out.println("This input will be the position of where you want to move the piece to.");
-                        if (startPos != null) {
-                            if (Objects.equals(startPos.col, "quit")) {
-                                break outerLoop;
-                            } else if (startPos.row == 0) {
-                                break outerLoop;
-                            }
-                        }
+                startPos = playHelper(startPos, "start");
+                    if(startPos == null){
+                        break;
                     }
-                }
             if (startPos != null){
                 ChessPosition pos = new ChessPosition(startPos.row, translatorCol.get(startPos.col));
                 if (game.getTeamTurn() == ChessGame.TeamColor.BLACK) {
-                    out.print(post.makeChessBoardBlack(post.initializeBoardBlackForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
+                    out.print(post.makeChessBoardBlack(post.initializeBoardBlackForCustomGame
+                            (game.getBoard().getBoard()), game.validMoves(pos)));
                 } else if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
                     out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
                 }
-                endPos = getInputIntEnd();
-                while(endPos == null) {
-                    System.out.println("Please input valid integers");
-                    endPos = getInputIntEnd();
-                    if (endPos != null) {
-                        if (Objects.equals(endPos.col, "quit")) {
-                            break outerLoop;
-                        } else if (endPos.row == 0) {
-                            break outerLoop;
-                        }
-                    }
+                endPos = playHelper(endPos, "end");
+                if ( endPos == null){
+                    break;
                 }
                 if (endPos != null && Objects.equals(endPos.col, "quit")) {
                     break ;
@@ -393,7 +374,11 @@ public class DisplayLogicPlayGame {
             }
         }
         }
+        resultOfChoice = handleResignAndHelp(resultOfChoice);
+        return resultOfChoice;
+    }
 
+    public String handleResignAndHelp(String resultOfChoice) throws IOException {
         if (Objects.equals(resultOfChoice, "help")){
             System.out.println(helpPlayGame());
             System.out.println("Please enter a new command! Here is the full list.");
@@ -416,7 +401,8 @@ public class DisplayLogicPlayGame {
             }
             if (confirm[0].equals("confirm")){
                 System.out.println("You have resigned the game!");
-                UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameInfo);
+                UserGameCommand resign = new UserGameCommand(UserGameCommand.CommandType.RESIGN,
+                        authToken, gameInfo);
                 ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(resign));
                 resignedGame = true;
             }
@@ -424,4 +410,24 @@ public class DisplayLogicPlayGame {
         }
         return resultOfChoice;
     }
+public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
+    while (pos == null){
+        System.out.println("Please input valid integers");
+        if (Objects.equals(startOrEnd, "start")){
+            pos = getInputIntStart();
+        }else{
+            pos = getInputIntEnd();
+        }
+        if (pos != null) {
+            if (Objects.equals(pos.col, "quit")) {
+                return null;
+            }
+            else if (pos.row == 0) {
+                return null;
+            }
+        }
+    }
+    return pos;
+}
+
 }

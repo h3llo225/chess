@@ -2,14 +2,14 @@ package chess;
 
 import model.GameData;
 
-public record NotificationSetup(serverMessageType serverMessageType, String message, String errorMessage, GameData game) {
+public record NotificationSetup(ServerMessageType serverMessageType, String message, String errorMessage, GameData game) {
 
-public enum serverMessageType {
+public enum ServerMessageType {
     ERROR,
     LOAD_GAME,
     NOTIFICATION
 }
-public serverMessageType getType(){
+public ServerMessageType getType(){
     return this.serverMessageType;
 }
 public String getString(){

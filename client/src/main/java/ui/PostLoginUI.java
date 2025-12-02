@@ -11,8 +11,7 @@ import model.TransitoryGameData;
 import websocket.ServerFacadeWebsocket;
 import websocket.commands.UserGameCommand;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+
 import java.util.*;
 
 import static ui.DisplayLogic.*;
@@ -121,86 +120,9 @@ public class PostLoginUI {
         return "game created!";
     }
 
-    public String[][] loopThroughBoard(String[][] chessboardWhite, String[] ranks, String[] labels){
-        for (int i = 0; i < 10; i++){
-            chessboardWhite[i][0]=ranks[i];
-            chessboardWhite[i][9]=ranks[i];
-            for(int j = 0; j< 10; j++){
-                chessboardWhite[0][j] = labels[j];
-                chessboardWhite[9][j]=labels[j];
-
-                if (i != 0 && i != 9 && j != 0 && j!= 9){
-                    chessboardWhite[i][j] = EscapeSequences.EMPTY;
-                }
-
-            }
-
-        }
-        return chessboardWhite;
-    }
-
-    public String[][] initializeBoardBlack(){
-        String[][] chessboardBlack= new String[10][10];
-
-        String[] labels = {"","  h  ", " g  ", " f  ", "e  ", " d  ","c  "," b  "," a  ",""};
-        String[] ranks = {"","1", "2", "3", "4", "5","6","7","8",""};
-        loopThroughBoard(chessboardBlack, ranks, labels);
-        chessboardBlack[1][1]= EscapeSequences.WHITE_ROOK;
-        chessboardBlack[1][2]= EscapeSequences.WHITE_KNIGHT;
-        chessboardBlack[1][3]= EscapeSequences.WHITE_BISHOP;
-        chessboardBlack[1][5]= EscapeSequences.WHITE_QUEEN;
-        chessboardBlack[1][4]= EscapeSequences.WHITE_KING;
-        chessboardBlack[1][6]= EscapeSequences.WHITE_BISHOP;
-        chessboardBlack[1][7]= EscapeSequences.WHITE_KNIGHT;
-        chessboardBlack[1][8]= EscapeSequences.WHITE_ROOK;
-        for (int i = 1; i <9; i++){
-            chessboardBlack[2][i]=EscapeSequences.WHITE_PAWN;
-        }
-        for (int i = 1; i <9; i++){
-            chessboardBlack[7][i]=EscapeSequences.BLACK_PAWN;
-        }
-        chessboardBlack[8][1]= EscapeSequences.BLACK_ROOK;
-        chessboardBlack[8][2]= EscapeSequences.BLACK_KNIGHT;
-        chessboardBlack[8][3]= EscapeSequences.BLACK_BISHOP;
-        chessboardBlack[8][5]= EscapeSequences.BLACK_QUEEN;
-        chessboardBlack[8][4]= EscapeSequences.BLACK_KING;
-        chessboardBlack[8][6]= EscapeSequences.BLACK_BISHOP;
-        chessboardBlack[8][7]= EscapeSequences.BLACK_KNIGHT;
-        chessboardBlack[8][8]= EscapeSequences.BLACK_ROOK;
-        return chessboardBlack;
-    }
 
 
 
-    public String[][] initializeBoardWhite(){
-        String[][] chessboardWhite= new String[10][10];
-        String[] labels = {"","  a  ", " b  ", " c  ", "d  ", " e  ","f  "," g  "," h  ",""};
-        String[] ranks = {"","8", "7", "6", "5", "4","3","2","1",""};
-        loopThroughBoard(chessboardWhite, ranks, labels);
-        chessboardWhite[1][1]= EscapeSequences.WHITE_ROOK;
-        chessboardWhite[1][2]= EscapeSequences.WHITE_KNIGHT;
-        chessboardWhite[1][3]= EscapeSequences.WHITE_BISHOP;
-        chessboardWhite[1][4]= EscapeSequences.WHITE_QUEEN;
-        chessboardWhite[1][5]= EscapeSequences.WHITE_KING;
-        chessboardWhite[1][6]= EscapeSequences.WHITE_BISHOP;
-        chessboardWhite[1][7]= EscapeSequences.WHITE_KNIGHT;
-        chessboardWhite[1][8]= EscapeSequences.WHITE_ROOK;
-        for (int i = 1; i <9; i++){
-            chessboardWhite[2][i]=EscapeSequences.WHITE_PAWN;
-        }
-        for (int i = 1; i <9; i++){
-            chessboardWhite[7][i]=EscapeSequences.BLACK_PAWN;
-        }
-        chessboardWhite[8][1]= EscapeSequences.BLACK_ROOK;
-        chessboardWhite[8][2]= EscapeSequences.BLACK_KNIGHT;
-        chessboardWhite[8][3]= EscapeSequences.BLACK_BISHOP;
-        chessboardWhite[8][4]= EscapeSequences.BLACK_QUEEN;
-        chessboardWhite[8][5]= EscapeSequences.BLACK_KING;
-        chessboardWhite[8][6]= EscapeSequences.BLACK_BISHOP;
-        chessboardWhite[8][7]= EscapeSequences.BLACK_KNIGHT;
-        chessboardWhite[8][8]= EscapeSequences.BLACK_ROOK;
-        return chessboardWhite;
-    }
 
 
 
@@ -298,23 +220,16 @@ public String translator(ChessPiece piece){
         return chessboardBlack;
     }
 
-
-    public String makeChessBoardWhite(String[][] chessBoardWhite, Collection<ChessMove> moves){
-        StringBuilder retVal = new StringBuilder();
-        int[][] pos = new int[10][10];
-        if (moves != null){
-        for (ChessMove move : moves){
-            pos[9-move.getEndPosition().getRow()][move.getEndPosition().getColumn()]= 1;
-        }
-        }
-        for (int i = 0; i <10; i++) {
-            retVal.append("\n");
-            for (int j = 0; j < 10; j ++){
-                if (i == 0 || i == 9 || j == 0 || j == 9){
-                    retVal.append(chessBoardWhite[i][j]);
-                }
-                if (i != 0 && i != 9 && j != 0 && j != 9) {
-                    if (moves == null){
+public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chessBoardWhite,
+                                          int[][] pos, Collection<ChessMove> moves){
+    for (int i = 0; i <10; i++) {
+        retVal.append("\n");
+        for (int j = 0; j < 10; j ++){
+            if (i == 0 || i == 9 || j == 0 || j == 9){
+                retVal.append(chessBoardWhite[i][j]);
+            }
+            if (i != 0 && i != 9 && j != 0 && j != 9) {
+                if (moves == null){
                     if ((i + j) % 2 == 0) {
                         retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
                         retVal.append(chessBoardWhite[i][j]);
@@ -326,37 +241,48 @@ public String translator(ChessPiece piece){
                         retVal.append(EscapeSequences.RESET_TEXT_COLOR);
                         retVal.append(EscapeSequences.RESET_BG_COLOR);
                     }
-                    }else{
-                            if ((i + j) % 2 == 0) {
-                                if (pos[i][j] == 1){
-                                        retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                                        retVal.append(chessBoardWhite[i][j]);
-                                        retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                        retVal.append(EscapeSequences.RESET_BG_COLOR);
-                                }else{
-                                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                                }
-                            } else {
-                                if (pos[i][j] == 1){
-                                    retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                                    retVal.append(chessBoardWhite[i][j]);
-                                    retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                    retVal.append(EscapeSequences.RESET_BG_COLOR);
-                                }else{
-                                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                                }
-                            }
-
+                }else{
+                    if ((i + j) % 2 == 0) {
+                        if (pos[i][j] == 1){
+                            retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        }else{
+                            retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        }
+                    } else {
+                        if (pos[i][j] == 1){
+                            retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        }else{
+                            retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+                            retVal.append(chessBoardWhite[i][j]);
+                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
+                            retVal.append(EscapeSequences.RESET_BG_COLOR);
+                        }
                     }
+
                 }
             }
         }
+    }
+    return retVal;
+}
+    public String makeChessBoardWhite(String[][] chessBoardWhite, Collection<ChessMove> moves){
+        StringBuilder retVal = new StringBuilder();
+        int[][] pos = new int[10][10];
+        if (moves != null){
+        for (ChessMove move : moves){
+            pos[9-move.getEndPosition().getRow()][move.getEndPosition().getColumn()]= 1;
+        }
+        }
+        makeChessBoardHelper(retVal, chessBoardWhite, pos, moves);
         retVal.append(EscapeSequences.RESET_TEXT_COLOR);
         retVal.append(EscapeSequences.RESET_BG_COLOR);
         return retVal.toString();
@@ -370,84 +296,13 @@ public String translator(ChessPiece piece){
                 pos[move.getEndPosition().getRow()][9-move.getEndPosition().getColumn()]= 1;
             }
         }
-        for (int i = 0; i <10; i++) {
-            retVal.append("\n");
-            for (int j = 0; j < 10; j ++){
-                if (i == 0 || i == 9 || j == 0 || j == 9){
-                    retVal.append(chessBoardWhite[i][j]);
-                }
-                if (i != 0 && i != 9 && j != 0 && j != 9) {
-                    if (moves == null){
-                        if ((i + j) % 2 == 0) {
-                            retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        } else {
-                            retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                            retVal.append(chessBoardWhite[i][j]);
-                            retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                            retVal.append(EscapeSequences.RESET_BG_COLOR);
-                        }
-                    }else{
-                        if ((i + j) % 2 == 0) {
-                            if (pos[i][j] == 1){
-                                retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                            }else{
-                                retVal.append(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                            }
-                        } else {
-                            if (pos[i][j] == 1){
-                                retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                            }else{
-                                retVal.append(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
-                                retVal.append(chessBoardWhite[i][j]);
-                                retVal.append(EscapeSequences.RESET_TEXT_COLOR);
-                                retVal.append(EscapeSequences.RESET_BG_COLOR);
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
+        makeChessBoardHelper(retVal, chessBoardWhite, pos, moves);
         retVal.append(EscapeSequences.RESET_TEXT_COLOR);
         retVal.append(EscapeSequences.RESET_BG_COLOR);
         return retVal.toString();
     }
-public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
-    for (int i = 0; i < gamesInGameList.size(); i++) {
-        LinkedTreeMap hopeGame = gamesInGameList.get(i);
-        Object shouldbeName = hopeGame.get("gameName");
-        String newShouldBeName = (String) shouldbeName;
-        System.out.println("Game number " + (i + 1) +" "+ "Game name"+ newShouldBeName);
-        if (hopeGame.get("whiteUsername") != null) {
-            Object whiteUsername = hopeGame.get("whiteUsername");
-            String newWhiteUsername = (String) whiteUsername;
-            System.out.println("Game number "+ (i + 1) + " White player " + newWhiteUsername);
-        } else {
-            System.out.println((i + 1) +" "+ " There is no white player yet in this game. You can be registered as the white player in this game.");
-        }
-        if (hopeGame.get("blackUsername") != null) {
-            Object blackUsername = hopeGame.get("blackUsername");
-            String newBlackUsername = (String) blackUsername;
-            System.out.println("Game number "+ (i + 1) + " Black player "+ newBlackUsername);
-        } else {
-            System.out.println((i + 1) +" "+ " There is no black player yet in this game. You can be registered as the black player in this game.");
-        }
 
 
-    }
-}
     public TransitoryGameData findIDPlayHelper() throws Exception {
         String listofGames = serverFacade.listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
@@ -455,10 +310,11 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         System.out.println("Here are the games!");
         String[] color = null;
         int playGameInputs = 0;
-        findIDPlayHelperHelper(gamesInGameList);
+        new PostLoginUIHelperClasses().findIDPlayHelperHelper(gamesInGameList);
         System.out.println("Please input the game number you would like. Then the chess color. One at a time.");
         try{playGameInputs = new PreloginUI().getInputInt();
-            while(gamesInGameList.get(playGameInputs-1).get("whiteUsername") != null && gamesInGameList.get(playGameInputs-1).get("blackUsername") != null){
+            while(gamesInGameList.get(playGameInputs-1).get("whiteUsername") != null &&
+                    gamesInGameList.get(playGameInputs-1).get("blackUsername") != null){
                 System.out.println("Please enter a new integer, both white and black are taken.");
                 playGameInputs = new PreloginUI().getInputInt();
                 if (playGameInputs == 0){
@@ -477,48 +333,6 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         TransitoryGameData ret = new TransitoryGameData(playGameInputs, color[0]);
         return ret;
     }
-    public int findIDObserver() throws Exception {
-        String listofGames = serverFacade.listGame(authToken);
-        Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
-        ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
-        System.out.println("Here are the games!");
-        int playGameInputs = 0;
-        findIDPlayHelperHelper(gamesInGameList);
-        System.out.println("Please input the game number you would like to observe.");
-        LinkedTreeMap correctGame = null;
-
-            playGameInputs = new PreloginUI().getInputInt();
-            boolean validInput = false;
-            while(!validInput) {
-                if (playGameInputs >= 1 && playGameInputs <= gamesInGameList.size()) {
-                    validInput = true;
-                    correctGame = gamesInGameList.get(playGameInputs - 1);
-                } else {
-                    System.out.println("Please input a valid integer");
-                    int retry = new PreloginUI().getInputInt();
-                    if(retry >= 1 && retry <= gamesInGameList.size()){
-                        validInput = true;
-                        correctGame = gamesInGameList.get(retry - 1);
-                    }
-
-
-                }
-            }
-
-            Object correctGameID = correctGame.get("gameID");
-            double newCorrectGameID = (double)correctGameID;
-            //TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
-            String observeMap = new Gson().toJson(correctGame.get("game"));
-            JsonParser parser = new JsonParser();
-            JsonElement jsonItem = parser.parseString(observeMap);
-            JsonObject object = jsonItem.getAsJsonObject();
-            ChessGame game = new Gson().fromJson(object, ChessGame.class);
-            DisplayLogic.game = game;
-            UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, (int) newCorrectGameID);
-            ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
-
-        return playGameInputs;
-    }
 
     public String playGamePostLogin() throws Exception {
         TransitoryGameData retted = findIDPlayHelper();
@@ -526,13 +340,11 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
         if (retted == null || retted.gameID()== 0 || Objects.equals(retted.playerColor(), "quit")){
             return "Execution failed";
         }
-
         String listofGames = serverFacade.listGame(authToken);
         Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
         ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
         LinkedTreeMap correctGame = null;
         boolean validInput = false;
-
         try{
             while(!validInput) {
                 if (retted.gameID() >= 1 && retted.gameID() <= gamesInGameList.size()) {
@@ -545,19 +357,15 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                         validInput = true;
                         correctGame = gamesInGameList.get(retry - 1);
                     }
-
-
                 }
             }
         } catch (Exception e) {
                 System.out.println("Please input a valid integer");
 
         }
-
         Object correctGameID = correctGame.get("gameID");
         double newCorrectGameID = (double)correctGameID;
         TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
-
         String tempMap = new Gson().toJson(correctGame.get("game"));
         JsonParser parser = new JsonParser();
         JsonElement jsonItem = parser.parseString(tempMap);
@@ -570,24 +378,7 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                 boardPieces[i][j] = game.getBoard().getPiece(new ChessPosition(i+1,j+1));
             }
         }
-    if(correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username){
-        if (Objects.equals(newGameDataReal.playerColor(), "WHITE")){
-            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            //out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces), null));
-
-        }
-    }
-        if(correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username){
-         if (Objects.equals(newGameDataReal.playerColor(), "BLACK")){
-            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-            //out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces), null));
-//             serverFacade.playGame(newGameDataReal, authToken);
-//             gameUI.displayPlayGame((int) newCorrectGameID);
-        }
-        }
         try{
-            //serverFacade.playGame(newGameDataReal, authToken);
-
         } catch (Exception e) {
             boolean newValidInput = false;
             while (!newValidInput){
@@ -597,24 +388,17 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
                System.out.println("Please input a different color");
                newColor = new PreloginUI().getInput();
            }
-           if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username) && newColor[0].toUpperCase().equals("BLACK")){
+           if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username)
+                   && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
-               var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-               //out.print(makeChessBoardBlack(initializeBoardBlackForCustomGame(boardPieces),null));
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-//               serverFacade.playGame(newGameDataReal, authToken);
-//               gameUI.displayPlayGame((int) newCorrectGameID);
            }
-                if((correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username) && newColor[0].toUpperCase().equals("WHITE")){
+
+           if((correctGame.get("whiteUsername") == null || correctGame.get("whiteUsername") == username)
+                        && newColor[0].toUpperCase().equals("WHITE")){
                     newValidInput = true;
-                    var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-                    //out.print(makeChessBoardWhite(initializeBoardWhiteForCustomGame(boardPieces),null));
                     newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
-//                    serverFacade.playGame(newGameDataReal, authToken);
-//                    gameUI.displayPlayGame((int) newCorrectGameID);
                 }
-
-
         }
         }
         serverFacade.playGame(newGameDataReal, authToken);
@@ -631,12 +415,8 @@ public void findIDPlayHelperHelper(ArrayList<LinkedTreeMap> gamesInGameList ){
     }
 
     public void observeGame() throws Exception {
-        int id = findIDObserver();
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        //out.print(makeChessBoardWhite(initializeBoardWhite(), null));
+        int id = new PostLoginUIHelperClasses().findIDObserver();
         DisplayLogic.isObserver = true;
         gameUI.displayPlayGame(id);
-
-
     }
 }

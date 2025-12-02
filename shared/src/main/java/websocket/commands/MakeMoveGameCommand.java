@@ -28,10 +28,7 @@ public class MakeMoveGameCommand {
     }
 
     public enum CommandType {
-        CONNECT,
         MAKE_MOVE,
-        LEAVE,
-        RESIGN
     }
 
     public CommandType getCommandType() {
