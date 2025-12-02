@@ -226,7 +226,8 @@ public String translator(ChessPiece piece){
         }
     }
 
-    public void makeChessBoardHelperHelperHelper(int i, int j, StringBuilder retVal, String[][] chessBoardWhite, int[][] pos, String isLightGreyOrNot){
+    public void makeChessBoardHelperHelperHelper(int i, int j, StringBuilder retVal,
+                                                 String[][] chessBoardWhite, int[][] pos, String isLightGreyOrNot){
 
         if (pos[i][j] == 1){
                 retVal.append(EscapeSequences.SET_BG_COLOR_YELLOW);
@@ -358,7 +359,7 @@ public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chess
         LinkedTreeMap correctGame = null;
         boolean validInput = false;
         try{
-            correctGame = new PostLoginUIHelperClasses().helperFuncForCodeQuality(validInput, retted.gameID()-1, correctGame,gamesInGameList);
+            correctGame = new PostLoginUIHelperClasses().helperFuncForCodeQuality(validInput, retted.gameID(), correctGame,gamesInGameList);
         } catch (Exception e) {
                 System.out.println("Please input a valid integer");
         }

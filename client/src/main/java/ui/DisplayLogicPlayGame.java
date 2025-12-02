@@ -132,14 +132,6 @@ public class DisplayLogicPlayGame {
 
 
 
-//        if(endPos != null){
-//            while(translatorCol.get(endPos.col) == null){
-//            System.out.println("Please input valid coordinates");
-//            endPos = getInputInt();
-//        }
-//        }
-
-        //start of promotion logic
         if (game.getBoard().getPiece(posStartPos) != null){
         if ((posEndPos.getRow() == 8 && game.getBoard().getPiece(posStartPos).pieceType ==
                 ChessPiece.PieceType.PAWN && game.getBoard().getPiece(posStartPos).getTeamColor() ==
@@ -362,26 +354,7 @@ public class DisplayLogicPlayGame {
                 }else{
                     valid = true;
                 }
-                //start of newCheckHelper
-//            else if (endPos != null && startPos != null){
-//                    ChessBoard prevGame = game.board;
-//                    ChessGame.TeamColor moverColor = game.getTeamTurn();
-//                    if (makeMove(startPos, endPos) == null) {
-//                        ChessGame.TeamColor newColor = game.getTeamTurn();
-//                    }
-//                    else{
-//                        valid = true;
-//                    }
-//                    if (game.isInCheck(moverColor)){
-//                        System.out.println("It looks like you may be in check please make a different move. ");
-//                        endPos = null;
-//                        startPos = null;
-//                        valid = false;
-//                        game.board = prevGame;
-//                        game.setTeamTurn(moverColor);
-//                    }
-//                }
-            //end of new check helper
+
             }
         }
         }
