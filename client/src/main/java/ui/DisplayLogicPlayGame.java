@@ -111,7 +111,8 @@ public class DisplayLogicPlayGame {
                 }
             }
         }else {
-                if (Objects.equals(resultOfChoice, "help") || Objects.equals(resultOfChoice, "draw board") || Objects.equals(resultOfChoice, "highlight board")){
+                if (Objects.equals(resultOfChoice, "help") || Objects.equals(resultOfChoice, "draw board")
+                        || Objects.equals(resultOfChoice, "highlight board")){
                     gameUI.playGame(resultOfChoice);
                 }else{
                     System.out.println("As an observer you do not have access to commands besides leave or help");
@@ -243,7 +244,8 @@ public class DisplayLogicPlayGame {
     public record MakeMoveType(String col, int row) {
     }
 
-    public MakeMoveType getInputIntStart() throws InputMismatchException, IndexOutOfBoundsException {
+    public MakeMoveType getInputIntStart(String isHighlight) throws InputMismatchException,
+            IndexOutOfBoundsException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
@@ -275,13 +277,22 @@ public class DisplayLogicPlayGame {
 
             int translatedPosCol = translatorCol.get(startingArray[0]);
             ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
+            if (isHighlight == null){
             while(game.getBoard().getPiece(positionGeneral) == null || (game.getBoard().getPiece(positionGeneral).getTeamColor()
                     != game.getTeamTurn() ) && !isObserver ||
-                    (playerColor == ChessGame.TeamColor.WHITE && game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.WHITE ||
-                            (playerColor == ChessGame.TeamColor.BLACK && game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.BLACK)))
+                    (playerColor == ChessGame.TeamColor.WHITE &&
+                            game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.WHITE ||
+                            (playerColor == ChessGame.TeamColor.BLACK &&
+                                    game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.BLACK)))
             {
                 System.out.println("Please make sure it is your turn or that you grabbed a piece on the board.");
                  return null;
+            }
+            }else if (isHighlight.equals("highlight")){
+                while(game.getBoard().getPiece(positionGeneral) == null){
+                    System.out.println("Please make sure that you grabbed a piece on the board.");
+                    return null;
+            }
             }
 
             try{while(translatorCol.get(startingArray[0]) == null){
@@ -296,7 +307,7 @@ public class DisplayLogicPlayGame {
             if (startingArray.length == 2){
                    return new MakeMoveType(startingArray[0],nums);
                }
-                //System.out.println("Please input the right number of vals");
+
         }catch (Exception e){
             System.out.println("Please input a valid integer");
             return null;
@@ -391,7 +402,8 @@ public class DisplayLogicPlayGame {
                     out.print(post.makeChessBoardBlack(post.initializeBoardBlackForCustomGame
                             (game.getBoard().getBoard()), game.validMoves(pos)));
                 } else if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
-                    out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
+                    out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame
+                            (game.getBoard().getBoard()), game.validMoves(pos)));
                 }
                 endPos = playHelper(endPos, "end");
                 if ( endPos == null){
@@ -454,10 +466,12 @@ public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
     while (pos == null){
         System.out.println("Please input valid integers");
         if (Objects.equals(startOrEnd, "start")){
-            pos = getInputIntStart();
+            pos = getInputIntStart(null);
         }
         else if (Objects.equals(startOrEnd, "startHighlight")){
-            pos = new PostLoginUIHelperClasses().getInputIntStartForHighlighting();
+            //pos = new PostLoginUIHelperClasses().getInputIntStartForHighlighting();
+            pos = getInputIntStart("highlight");
+
         }else{
             pos = getInputIntEnd();
         }
@@ -473,7 +487,8 @@ public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
     return pos;
 }
 
-public boolean checkHelper(MakeMoveType endPos, MakeMoveType startPos, boolean valid) throws IOException, InvalidMoveException {
+public boolean checkHelper(MakeMoveType endPos, MakeMoveType startPos, boolean valid)
+        throws IOException, InvalidMoveException {
         if (endPos != null && startPos != null){
         ChessBoard prevGame = game.board;
         ChessGame.TeamColor moverColor = game.getTeamTurn();

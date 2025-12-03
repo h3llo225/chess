@@ -95,40 +95,35 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
 
 
     }
+    public void leaveGameHelper(Session session, UserGameCommand message, String user) throws IOException {
+        NotificationSetup notif;
+        notif = new NotificationSetup(NOTIFICATION, "User " + user + " " +
+                "has left the game", null, null);
+        connections.broadcast(session, notif,message.getGameID());
+        connections.delete(session);
+    }
 
     public void leaveGame(UserGameCommand message, Session session) throws IOException, DataAccessException {
         String user = new DatabaseManager().findUser(message.getAuthToken());
         GameData game = new DatabaseManager().findGameByID(message.getGameID());
         if (game == null){
-            NotificationSetup notif;
-            notif = new NotificationSetup(NOTIFICATION, "User " + user + " " +
-                    "has left the game", null, null);
-            connections.broadcast(session, notif,message.getGameID());
-            connections.delete(session);
+
+            leaveGameHelper(session, message, user);
         }else if (Objects.equals(game.blackUsername(), user)){
             new DatabaseManager().deleteGameByID(message.getGameID());
             new DatabaseManager().makeGame(new GameData(message.getGameID(), game.whiteUsername(), null,
                     game.gameName(),game.game()));
-            NotificationSetup notif;
-            notif = new NotificationSetup(NOTIFICATION, "User " + user +
-                    " has left the game", null, null);
-            connections.broadcast(session, notif,message.getGameID());
-            connections.delete(session);
+
+            leaveGameHelper(session, message, user);
         }else if (Objects.equals(game.whiteUsername(), user)){
             new DatabaseManager().deleteGameByID(message.getGameID());
             new DatabaseManager().makeGame(new GameData(message.getGameID(), null, game.blackUsername(),
                     game.gameName(),game.game()));
-            NotificationSetup notif;
-            notif = new NotificationSetup(NOTIFICATION, "User " + user + " " +
-                    "has left the game", null, null);
-            connections.broadcast(session, notif, message.getGameID());
-            connections.delete(session);
+
+            leaveGameHelper(session, message, user);
         }else{
-            NotificationSetup notif;
-            notif = new NotificationSetup(NOTIFICATION, "User " + user + " " +
-                    "has left the game", null, null);
-            connections.broadcast(session, notif,message.getGameID());
-            connections.delete(session);
+
+            leaveGameHelper(session, message, user);
         }
 
     }
@@ -220,7 +215,8 @@ public class WebsocketHandlers implements WsConnectHandler, WsMessageHandler, Ws
                     translatorCol.put(6,"f");
                     translatorCol.put(7,"g");
                     translatorCol.put(8,"h");
-                    notifAll = new NotificationSetup(NOTIFICATION, "user " + user + " made move to" + translatorCol.get(move.getEndPosition().getColumn())  +" "+ move.getEndPosition().getRow() ,
+                    notifAll = new NotificationSetup(NOTIFICATION, "user " + user + " made move to " +
+                            translatorCol.get(move.getEndPosition().getColumn())  +" "+ move.getEndPosition().getRow() ,
                             null, null);
                     connections.broadcast(session, notifAll,message.getGameID());
 
