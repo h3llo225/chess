@@ -391,6 +391,7 @@ public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chess
            if((correctGame.get("blackUsername") == null || correctGame.get("blackUsername") == username)
                    && newColor[0].toUpperCase().equals("BLACK")){
                newValidInput = true;
+
                newGameDataReal = new TransitoryGameData((int) newCorrectGameID, newColor[0].toUpperCase());
            }
 
@@ -405,7 +406,7 @@ public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chess
         UserGameCommand joining = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, newGameDataReal.gameID());
         ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(joining));
 
-        gameUI.displayPlayGame((int) newCorrectGameID);
+        gameUI.displayPlayGame((int) newCorrectGameID,retted.playerColor());
         return "";
     }
 
@@ -416,7 +417,23 @@ public StringBuilder makeChessBoardHelper(StringBuilder retVal, String[][] chess
 
     public void observeGame() throws Exception {
         int id = new PostLoginUIHelperClasses().findIDObserver();
+        String listofGames = serverFacade.listGame(authToken);
+        Map gameDataInfoArray = new Gson().fromJson(listofGames, Map.class);
+        ArrayList<LinkedTreeMap> gamesInGameList = (ArrayList<LinkedTreeMap>) gameDataInfoArray.get("games");
+        LinkedTreeMap correctGame = null;
+        boolean validInput = false;
+        correctGame = new PostLoginUIHelperClasses().helperFuncForCodeQuality(validInput, id, correctGame,gamesInGameList);
+        Object correctGameID = correctGame.get("gameID");
+        double newCorrectGameID = (double)correctGameID;
+        //TransitoryGameData newGameDataReal = new TransitoryGameData((int) newCorrectGameID, retted.playerColor().toUpperCase());
+        String tempMap = new Gson().toJson(correctGame.get("game"));
+        JsonParser parser = new JsonParser();
+        JsonElement jsonItem = parser.parseString(tempMap);
+        JsonObject object = jsonItem.getAsJsonObject();
+        ChessGame game = new Gson().fromJson(object, ChessGame.class);
+        DisplayLogic.game = game;
+
         DisplayLogic.isObserver = true;
-        gameUI.displayPlayGame(id);
+        gameUI.displayPlayGame((int) newCorrectGameID, null);
     }
 }
