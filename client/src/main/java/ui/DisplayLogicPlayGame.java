@@ -123,7 +123,6 @@ public class DisplayLogicPlayGame {
         ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(leaving));
         System.out.println("You have left the game!");
     }
-
     public void drawBoard(){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         if (playerColor == ChessGame.TeamColor.BLACK) {
@@ -135,11 +134,9 @@ public class DisplayLogicPlayGame {
             out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame(game.getBoard().getBoard()), null));
         }
     }
-
     public void highlightMoves(MakeMoveType startPos){
         Map<String, Integer> translatorCol = new HashMap<>();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
         translatorCol.put("c", 3);
@@ -148,7 +145,6 @@ public class DisplayLogicPlayGame {
         translatorCol.put("f", 6);
         translatorCol.put("g", 7);
         translatorCol.put("h", 8);
-
         ChessPosition pos = new ChessPosition(startPos.row, translatorCol.get(startPos.col));
         if (playerColor == ChessGame.TeamColor.BLACK) {
             out.print(post.makeChessBoardBlack(post.initializeBoardBlackForCustomGame
@@ -159,7 +155,6 @@ public class DisplayLogicPlayGame {
             out.print(post.makeChessBoardWhite(post.initializeBoardWhiteForCustomGame(game.getBoard().getBoard()), game.validMoves(pos)));
         }
     }
-
     public String makeMove(MakeMoveType startPos, MakeMoveType endPos) throws InvalidMoveException, IOException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
@@ -172,18 +167,10 @@ public class DisplayLogicPlayGame {
         translatorCol.put("h", 8);
         int translatedStartPosCol = 0;
         int translatedEndPosCol = 0;
-
-
-
         translatedStartPosCol = translatorCol.get(startPos.col);
         translatedEndPosCol = translatorCol.get(endPos.col);
         ChessPosition posStartPos = new ChessPosition(startPos.row,translatedStartPosCol);
-
         ChessPosition posEndPos = new ChessPosition(endPos.row,translatedEndPosCol);
-
-
-
-
         if (game.getBoard().getPiece(posStartPos) != null){
         if ((posEndPos.getRow() == 8 && game.getBoard().getPiece(posStartPos).pieceType ==
                 ChessPiece.PieceType.PAWN && game.getBoard().getPiece(posStartPos).getTeamColor() ==
@@ -191,13 +178,11 @@ public class DisplayLogicPlayGame {
                 ChessPiece.PieceType.PAWN && game.getBoard().getPiece(posStartPos).getTeamColor() ==
                 ChessGame.TeamColor.BLACK){
             String[] promotion = null;
-
             for (ChessPiece.PieceType typeOfPiece : ChessPiece.PieceType.values()) {
                 if (typeOfPiece != ChessPiece.PieceType.KING && typeOfPiece != ChessPiece.PieceType.PAWN) {
                     System.out.println("Please select a piece to promote to: " + typeOfPiece);
                 }
             }
-
                 promotion = getInputPlayGame();
             while(!Objects.equals(promotion[0].toUpperCase(), "BISHOP") && !Objects.equals(promotion[0].toUpperCase(), "ROOK") &&
                     !Objects.equals(promotion[0].toUpperCase(), "KNIGHT") && !Objects.equals(promotion[0].toUpperCase(), "QUEEN")){
@@ -212,7 +197,6 @@ public class DisplayLogicPlayGame {
             }
             if (Objects.equals(promotion[0].toUpperCase(), "KNIGHT")){
                 game.makeMove(new ChessMove(posStartPos,posEndPos, ChessPiece.PieceType.KNIGHT));
-                    //System.out.println("You inputted invalid moves! Please type help for more information");
                          MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
                                  authToken, gameInfo,new ChessMove(posStartPos,posEndPos,ChessPiece.PieceType.KNIGHT));
                 ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
@@ -233,7 +217,6 @@ public class DisplayLogicPlayGame {
         try{game.makeMove(new ChessMove(posStartPos,posEndPos,null));} catch (InvalidMoveException e) {
             return null;
         }
-
             MakeMoveGameCommand makeMove = new MakeMoveGameCommand(MakeMoveGameCommand.CommandType.MAKE_MOVE,
                     authToken, gameInfo,new ChessMove(posStartPos,posEndPos,null));
             ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(makeMove));
@@ -243,7 +226,6 @@ public class DisplayLogicPlayGame {
     }
     public record MakeMoveType(String col, int row) {
     }
-
     public MakeMoveType getInputIntStart(String isHighlight) throws InputMismatchException,
             IndexOutOfBoundsException {
         Map<String, Integer> translatorCol = new HashMap<>();
@@ -274,7 +256,6 @@ public class DisplayLogicPlayGame {
             if (Objects.equals(startingArray[0], "quit") ||nums == 0){
                 return new MakeMoveType("quit", 0);
             }
-
             int translatedPosCol = translatorCol.get(startingArray[0]);
             ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
             if (isHighlight == null){
@@ -283,38 +264,31 @@ public class DisplayLogicPlayGame {
                     (playerColor == ChessGame.TeamColor.WHITE &&
                             game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.WHITE ||
                             (playerColor == ChessGame.TeamColor.BLACK &&
-                                    game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.BLACK)))
-            {
+                                    game.getBoard().getPiece(positionGeneral).getTeamColor()!= ChessGame.TeamColor.BLACK))) {
                 System.out.println("Please make sure it is your turn or that you grabbed a piece on the board.");
-                 return null;
-            }
+                 return null;}
             }else if (isHighlight.equals("highlight")){
                 while(game.getBoard().getPiece(positionGeneral) == null){
                     System.out.println("Please make sure that you grabbed a piece on the board.");
                     return null;
             }
             }
-
             try{while(translatorCol.get(startingArray[0]) == null){
                 System.out.println("Please input a coordinate with a piece.");
                 return null;
             }
-
-
             } catch (Exception e) {
                 return null;
             }
             if (startingArray.length == 2){
                    return new MakeMoveType(startingArray[0],nums);
                }
-
         }catch (Exception e){
             System.out.println("Please input a valid integer");
             return null;
         }
         return null;
     }
-
     public MakeMoveType getInputIntEnd() throws InputMismatchException, IndexOutOfBoundsException {
         Map<String, Integer> translatorCol = new HashMap<>();
         translatorCol.put("a", 1);
@@ -332,7 +306,6 @@ public class DisplayLogicPlayGame {
             String input = scanner.nextLine();
             startingArray = input.split(" ");
             int nums = 0;
-
             try{if (startingArray.length == 2){
                 nums = Integer.parseInt(startingArray[1]);
             }} catch (NumberFormatException e) {
@@ -342,18 +315,14 @@ public class DisplayLogicPlayGame {
             if (Objects.equals(startingArray[0], "quit") || nums == 0){
                 return new MakeMoveType("quit", 0);
             }
-
-
             int translatedPosCol = translatorCol.get(startingArray[0]);
             ChessPosition positionGeneral = new ChessPosition(nums,translatedPosCol);
-
                 if (game.getBoard().getPiece(positionGeneral) != null) {
                     while (game.getBoard().getPiece(positionGeneral).getTeamColor() == game.getTeamTurn()) {
                         System.out.println("Please make sure it is your turn.");
                         return null;
                     }
                 }
-
             try{while(translatorCol.get(startingArray[0]) == null){
                 System.out.println("Please input valid coordinates");
                 return null;
@@ -363,7 +332,6 @@ public class DisplayLogicPlayGame {
             if (startingArray.length == 2){
                 return new MakeMoveType(startingArray[0],nums);
             }
-            //System.out.println("Please input the right number of vals");
         }catch (Exception e){
             System.out.println("Please input a valid integer");
             return null;
@@ -373,7 +341,6 @@ public class DisplayLogicPlayGame {
     public String playGame(String resultOfChoice) throws InvalidMoveException, IOException {
         Map<String, Integer> translatorCol = new HashMap<>();
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         translatorCol.put("a", 1);
         translatorCol.put("b", 2);
         translatorCol.put("c", 3);
@@ -390,7 +357,6 @@ public class DisplayLogicPlayGame {
             MakeMoveType startPos = null;
             MakeMoveType endPos = null;
             boolean valid = false;
-            outerLoop:
             while (!valid) {
                 startPos = playHelper(startPos, "start");
                     if(startPos == null){
@@ -420,16 +386,13 @@ public class DisplayLogicPlayGame {
                 }else{
                     valid = true;
                 }
-
             }
         }
         }
         resultOfChoice = handleResignAndHelp(resultOfChoice);
         resultOfChoice = new PostLoginUIHelperClasses().handleHighlightAndDrawBoard(resultOfChoice);
-
         return resultOfChoice;
     }
-
     public String handleResignAndHelp(String resultOfChoice) throws IOException {
         if (Objects.equals(resultOfChoice, "help")){
             System.out.println(helpPlayGame());
@@ -449,7 +412,6 @@ public class DisplayLogicPlayGame {
                     System.out.println("Please try again!");
                     confirm = getInputPlayGame();
                 }
-
             }
             if (confirm[0].equals("confirm")){
                 System.out.println("You have resigned the game!");
@@ -458,7 +420,6 @@ public class DisplayLogicPlayGame {
                 ServerFacadeWebsocket.session.getBasicRemote().sendText(new Gson().toJson(resign));
                 resignedGame = true;
             }
-
         }
         return resultOfChoice;
     }
@@ -469,9 +430,7 @@ public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
             pos = getInputIntStart(null);
         }
         else if (Objects.equals(startOrEnd, "startHighlight")){
-            //pos = new PostLoginUIHelperClasses().getInputIntStartForHighlighting();
             pos = getInputIntStart("highlight");
-
         }else{
             pos = getInputIntEnd();
         }
@@ -486,7 +445,6 @@ public MakeMoveType playHelper(MakeMoveType pos, String startOrEnd){
     }
     return pos;
 }
-
 public boolean checkHelper(MakeMoveType endPos, MakeMoveType startPos, boolean valid)
         throws IOException, InvalidMoveException {
         if (endPos != null && startPos != null){
@@ -500,8 +458,6 @@ public boolean checkHelper(MakeMoveType endPos, MakeMoveType startPos, boolean v
         }
         if (game.isInCheck(moverColor)){
             System.out.println("It looks like you may be in check please make a different move. ");
-            //endPos = null;
-            //startPos = null;
             valid = false;
             game.board = prevGame;
             game.setTeamTurn(moverColor);
